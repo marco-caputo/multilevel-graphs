@@ -48,3 +48,11 @@ class DecGraph:
         """
         self.E.remove(superedge)
         self._digraph.remove_edge(superedge.tail.key, superedge.head.key)
+
+    def height(self):
+        """
+        Returns the height of the decontractible graph represented by this supernode.
+
+        :return: the height of the decontractible graph
+        """
+        return self.dec.height()
