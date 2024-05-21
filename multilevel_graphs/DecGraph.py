@@ -28,7 +28,6 @@ class DecGraph:
         :param superedge: the superedge to be added
         """
         self.E.add(superedge)
-<<<<<<< HEAD
     
     def height(self) -> int:
         """
@@ -41,7 +40,6 @@ class DecGraph:
         else:
             with Pool() as p:
                 return max(p.map(Supernode.height, self.V))
-=======
         self._digraph.add_edge(superedge.tail.key, superedge.head.key)
 
     def remove_node(self, supernode: Supernode):
@@ -70,4 +68,3 @@ class DecGraph:
         :return: the height of the decontractible graph
         """
         return self.dec.height()
->>>>>>> 67dd65ab749deca4c777330b1d29a7567df6770d
