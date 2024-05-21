@@ -6,7 +6,7 @@ from multilevel_graphs.DecGraph import DecGraph, Superedge, Supernode
 class Supernode:
     __slots__ = ('key', 'dec_graph', 'supernode', 'attr')
 
-    def __init__(self, key, dec_graph: DecGraph = DecGraph(), supernode: Optional[Supernode] = None, **attr):
+    def __init__(self, key, dec: DecGraph = DecGraph(), supernode: Optional[Supernode] = None, **attr):
         """
         Initializes a supernode.
 
@@ -18,7 +18,7 @@ class Supernode:
         :param attr: a dictionary of attributes to be added to the supernode
         """
         self.key = key
-        self.dec_graph = dec_graph
+        self.dec = dec
         self.supernode = supernode
         self.attr = attr
 
@@ -60,6 +60,14 @@ class Supernode:
         :param edge_for_removal: the superedge to be removed
         """
         self.dec_graph.remove_edge(edge_for_removal)
+
+    def height(self):
+        """
+        Returns the height of the decontractible graph represented by this supernode.
+
+        :return: the height of the decontractible graph
+        """
+        return self.dec.height()
 
     def __eq__(self, other):
         return self.key == other.key
