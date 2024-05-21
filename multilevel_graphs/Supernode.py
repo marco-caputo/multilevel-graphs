@@ -42,6 +42,25 @@ class Supernode:
         """
         self.dec_graph.add_edge(edge_for_adding)
 
+    def remove_node(self, supernode: Supernode):
+        """
+        Removes a supernode from the decontractible graph represented by this supernode.
+            If the supernode has a key which is not in the graph, rise a KeyError.
+
+        :param supernode: the supernode to be removed
+        """
+        self.dec_graph.remove_node(supernode)
+
+    def remove_edge(self, edge_for_removal: Superedge):
+        """
+        Removes a superedge from the decontractible graph represented by this supernode.
+            If the superedge has a tail and head the key of which are not in the graph as an edge,
+            rise a KeyError.
+
+        :param edge_for_removal: the superedge to be removed
+        """
+        self.dec_graph.remove_edge(edge_for_removal)
+
     def __eq__(self, other):
         return self.key == other.key
 

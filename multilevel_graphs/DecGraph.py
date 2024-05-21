@@ -16,8 +16,8 @@ class DecGraph:
 
         :param supernode: the supernode to be added
         """
-        self._digraph.add_node(supernode.key)
         self.V.add(supernode)
+        self._digraph.add_node(supernode.key)
 
     def add_edge(self, superedge: Superedge):
         """
@@ -27,5 +27,24 @@ class DecGraph:
 
         :param superedge: the superedge to be added
         """
-        self._digraph.add_edge(superedge.tail.key, superedge.head.key)
         self.E.add(superedge)
+        self._digraph.add_edge(superedge.tail.key, superedge.head.key)
+
+    def remove_node(self, supernode: Supernode):
+        """
+        Removes a supernode from the decontractible graph.
+            If the supernode has a key which is not in the graph, rise a KeyError.
+        :param supernode: the supernode to be removed
+        """
+        self.V.remove(supernode)
+        self._digraph.remove_node(supernode.key)
+
+    def remove_edge(self, superedge: Superedge):
+        """
+        Removes a superedge from the decontractible graph.
+            If the superedge has a tail and head the key of which are not in the graph as an edge,
+            rise a KeyError.
+        :param superedge: the superedge to be removed
+        """
+        self.E.remove(superedge)
+        self._digraph.remove_edge(superedge.tail.key, superedge.head.key)
