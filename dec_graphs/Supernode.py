@@ -1,6 +1,6 @@
 from typing import Optional
 
-from multilevel_graphs.DecGraph import DecGraph, Superedge, Supernode
+from dec_graphs import DecGraph, Superedge, Supernode
 
 
 class Supernode:

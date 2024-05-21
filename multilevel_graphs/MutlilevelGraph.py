@@ -1,7 +1,7 @@
 import utilities.ParUtils as pu
 import networkx as nx
 from typing import List
-from multilevel_graphs import DecGraph, Supernode
+from dec_graphs import DecGraph, Supernode
 
 
 class MultilevelGraph:
@@ -13,7 +13,7 @@ class MultilevelGraph:
     def enqueue_contraction_scheme(self, contraction_scheme):
         self.contraction_scheme.append(contraction_scheme)
 
-    def reduce_contraction_scheme(self) -> List[DecGraph]:
+    def reduce_contraction_scheme(self) -> List:
         """
         Reduces the graph using the contraction schemes.
         """

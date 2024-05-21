@@ -1,4 +1,4 @@
-from multilevel_graphs import Supernode, Superedge
+from dec_graphs import Supernode, Superedge
 
 
 class Superedge:
