@@ -1,3 +1,6 @@
+import utilities.MultiprocessingUtils as mp
+import networkx as nx
+
 class MultiLevelGraph :
     def __init__(self, graph, contractionSchemes):
         self.graph = graph
@@ -7,7 +10,7 @@ class MultiLevelGraph :
     def enqueueContractionScheme(self, contractionScheme):
         self.contractionSchemes.append(contractionScheme)
 
-    def reduceContractionScheme(self) -> [DecGraph]:
+    def reduceContractionScheme(self) -> List[DecGraph]:
         """
         Reduces the graph using the contraction schemes.
         """
@@ -16,9 +19,9 @@ class MultiLevelGraph :
             pass
             
     @staticmethod
-    def naturalTransformation(graph) -> DecGraph:
+    def naturalTransformation(graph : nx.DiGraph) -> DecGraph:
         """
         Returns the natural transformation of the graph.
         """
-        with Pool() as p:
-            graph.dec = p.map(Supernode.height, graph.V)
+        
+        vs = mp.ParUtils.par_map(lambda x : Supernode(x[0], ), graph.nodes(data=True))
