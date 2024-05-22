@@ -1,4 +1,4 @@
-import utilities.ParUtils as pu
+import multilevel_graphs.utilities.par_utils as pu
 import time
 
 def square(x):

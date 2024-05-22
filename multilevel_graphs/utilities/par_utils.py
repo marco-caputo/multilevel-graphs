@@ -1,6 +1,6 @@
 from multiprocessing.pool import ThreadPool
 from functools import reduce
-import time
+
 
 class ParUtils:
 
@@ -9,17 +9,8 @@ class ParUtils:
         """
         Parallel map function.
         """
-        time_start1 = time.time()
-        p = ThreadPool()
-        time_end1 = time.time()
-
-        time_start2 = time.time()
-        list = p.map(func, iterable)
-        time_end2 = time.time()
-
-        print("Pool start: ", time_end1 - time_start1)
-        print("p.map: ", time_end2 - time_start2)
-        return list
+        with ThreadPool() as p:
+            return p.map(func, iterable)
 
     @staticmethod
     def par_reduce(associative_func, iterable):
@@ -27,7 +18,7 @@ class ParUtils:
         Parallel reduce function. It requires the function to be associative.
         """
         return ParUtils._apply_parallel(reduce, associative_func, iterable)
-            
+
     @staticmethod
     def par_filter(predicate, iterable):
         """
@@ -51,4 +42,3 @@ class ParUtils:
     def _get_chunks(cpu_count, iterable):
         chunk_size = (len(iterable) + cpu_count - 1) // cpu_count
         return [iterable[i:i + chunk_size] for i in range(0, len(iterable), chunk_size)]
-    

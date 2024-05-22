@@ -1,10 +1,10 @@
-from dec_graphs import Supernode, Superedge
+from multilevel_graphs.dec_graphs import Supernode
 
 
 class Superedge:
     __slots__ = ('tail', 'head', 'dec_e', 'attr')
 
-    def __init__(self, tail: Supernode, head: Supernode, dec: set[Superedge] = set(), **attr):
+    def __init__(self, tail: Supernode, head: Supernode, dec: set['Superedge'] = set(), **attr):
         self.tail = tail
         self.head = head
         for e in dec:
@@ -14,7 +14,7 @@ class Superedge:
         self.dec = dec
         self.attr = attr
 
-    def add_edge(self, superedge: Superedge):
+    def add_edge(self, superedge: 'Superedge'):
         """
         Adds a superedge to the superedge set represented by this superedge.
         If the superedge has a tail and head the key of which are already in the set, it will not be added again.
@@ -26,7 +26,7 @@ class Superedge:
                              'decontractions respectively.')
         self.dec.add(superedge)
 
-    def remove_edge(self, superedge: Superedge):
+    def remove_edge(self, superedge: 'Superedge'):
         """
         Removes a superedge from the superedge set represented by this superedge.
         If the superedge is not in the set, rise a KeyError.

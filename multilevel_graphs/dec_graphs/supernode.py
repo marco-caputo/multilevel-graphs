@@ -1,12 +1,11 @@
 from typing import Optional
-
-from dec_graphs import DecGraph, Superedge, Supernode
+from multilevel_graphs.dec_graphs import DecGraph, Superedge
 
 
 class Supernode:
     __slots__ = ('key', 'dec_graph', 'supernode', 'attr')
 
-    def __init__(self, key, dec: DecGraph = DecGraph(), supernode: Optional[Supernode] = None, **attr):
+    def __init__(self, key, dec: DecGraph = DecGraph(), supernode: Optional['Supernode'] = None, **attr):
         """
         Initializes a supernode.
 
@@ -22,7 +21,7 @@ class Supernode:
         self.supernode = supernode
         self.attr = attr
 
-    def add_node(self, supernode: Supernode):
+    def add_node(self, supernode: 'Supernode'):
         """
         Adds a supernode to the decontractible graph represented by this supernode.
             If the supernode has a key that is already in the graph, it will not be added again.
@@ -42,7 +41,7 @@ class Supernode:
         """
         self.dec_graph.add_edge(edge_for_adding)
 
-    def remove_node(self, supernode: Supernode):
+    def remove_node(self, supernode: 'Supernode'):
         """
         Removes a supernode from the decontractible graph represented by this supernode.
             If the supernode has a key which is not in the graph, rise a KeyError.

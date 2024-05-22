@@ -1,6 +1,6 @@
 import networkx as nx
 from typing import List
-from dec_graphs import DecGraph, Supernode, Superedge
+from multilevel_graphs import DecGraph, Supernode, Superedge
 
 
 class MultilevelGraph:

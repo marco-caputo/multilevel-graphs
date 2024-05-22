@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from multilevel_graphs import DecGraph
+from multilevel_graphs.dec_graphs import dec_graph
 
 
 class ContractionScheme(ABC):
