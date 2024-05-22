@@ -1,14 +1,25 @@
 from multiprocessing import Pool
 from functools import reduce
+import time
 
 class ParUtils:
+
     @staticmethod
     def par_map(func, iterable):
         """
         Parallel map function.
         """
-        with Pool() as p:
-            return p.map(func, iterable)
+        time_start1 = time.time()
+        p = Pool()
+        time_end1 = time.time()
+
+        time_start2 = time.time()
+        list = p.map(func, iterable)
+        time_end2 = time.time()
+
+        print("Pool start: ", time_end1 - time_start1)
+        print("p.map: ", time_end2 - time_start2)
+        return list
 
     @staticmethod
     def par_reduce(associative_func, iterable):
