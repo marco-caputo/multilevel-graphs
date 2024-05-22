@@ -1,14 +1,14 @@
-from typing import Optional, Set
+from typing import Optional, Set, Dict, Any
 
 import networkx as nx
 
 
 class DecGraph:
 
-    def __init__(self, dict_V: dict = dict(), dict_E: dict = dict()):
-        self._digraph = nx.DiGraph()
-        self._digraph.add_nodes_from(dict_V.keys())
-        self._digraph.add_edges_from(dict_E.keys())
+    def __init__(self, dict_V: Dict[Any, 'Supernode'] = dict(), dict_E: Dict[Any, 'Superedge'] = dict()):
+        self._graph = nx.DiGraph()
+        self._graph.add_nodes_from(dict_V.keys())
+        self._graph.add_edges_from(dict_E.keys())
         self.V = dict_V
         self.E = dict_E
 
@@ -51,8 +51,8 @@ class DecGraph:
 
         :param supernode: the supernode to be added
         """
-        self.V.add(supernode.key, supernode)
-        self._digraph.add_node(supernode.key)
+        self.V[supernode.key] = supernode
+        self._graph.add_node(supernode.key)
 
     def add_edge(self, superedge: 'Superedge'):
         """
@@ -62,8 +62,28 @@ class DecGraph:
 
         :param superedge: the superedge to be added
         """
-        self.E.add((superedge.tail.key, superedge.head.key), superedge)
-        self._digraph.add_edge(superedge.tail.key, superedge.head.key)
+        self.E[(superedge.tail.key, superedge.head.key)] = superedge
+        self._graph.add_edge(superedge.tail.key, superedge.head.key)
+
+    def remove_node(self, supernode: 'Supernode'):
+        """
+        Removes a supernode from the decontractible graph.
+            If the supernode has a key which is not in the graph, rise a KeyError.
+        :param supernode: the supernode to be removed
+        """
+        self.V.pop(supernode.key)
+        self._graph.remove_node(supernode.key)
+
+    def remove_edge(self, superedge: 'Superedge'):
+        """
+        Removes a superedge from the decontractible graph.
+            If the superedge has a tail and head the key of which are not in the graph as an edge,
+            rise a KeyError.
+
+        :param superedge: the superedge to be removed
+        """
+        self.E.pop((superedge.tail.key, superedge.head.key))
+        self._graph.remove_edge(superedge.tail.key, superedge.head.key)
 
     def height(self) -> int:
         """
@@ -76,32 +96,37 @@ class DecGraph:
         else:
             return max(map(Supernode.height, self.V))
 
-    def remove_node(self, supernode: 'Supernode'):
+    def induced_subgraph(self, nodes: Set['Supernode']) -> 'DecGraph':
         """
-        Removes a supernode from the decontractible graph.
-            If the supernode has a key which is not in the graph, rise a KeyError.
-        :param supernode: the supernode to be removed
-        """
-        self.V.remove(supernode)
-        self._digraph.remove_node(supernode.key)
+        Returns the induced decontractible subgraph of this decontractible graph by the given set of supernodes.
+        If the set of supernodes is not entirely included in the decontractible graph, rise a KeyError.
+        The induced subgraph of a graph on a subset of nodes N is the graph with nodes N and edges from G which have
+        both ends in N.
+        If the set of supernodes keys is not entirely included in the decontractible graph, only the supernodes
+        that are included in the decontractible graph will be considered.
 
-    def remove_edge(self, superedge: 'Superedge'):
+        :param self: the decontractible graph
+        :param nodes: the set of supernodes to induce the subgraph
+        :return: the induced subgraph
         """
-        Removes a superedge from the decontractible graph.
-            If the superedge has a tail and head the key of which are not in the graph as an edge,
-            rise a KeyError.
-        :param superedge: the superedge to be removed
-        """
-        self.E.pop((superedge.tail.key, superedge.head.key))
-        self._digraph.remove_edge(superedge.tail.key, superedge.head.key)
+        return self.induced_subgraph_from_keys(set(map(lambda n: n.key, nodes)))
 
-    def height(self):
+    def induced_subgraph_from_keys(self, nodes_keys: Set) -> 'DecGraph':
         """
-        Returns the height of the decontractible graph represented by this supernode.
+        Returns the induced decontractible subgraph of this decontractible graph by the given set of supernodes
+        keys.
+        The induced subgraph of a graph on a subset of nodes N is the graph with nodes N and edges from G which have
+        both ends in N.
+        If the set of supernodes keys is not entirely included in the decontractible graph, only the supernodes
+        keys that are included in this decontractible graph will be considered.
 
-        :return: the height of the decontractible graph
+        :param self: the decontractible graph
+        :param nodes_keys: the set of supernodes keys to induce the subgraph
+        :return: the induced subgraph
         """
-        return self.dec.height()
+        induced_subgraph = nx.induced_subgraph(self._graph, self.nodes_keys() & nodes_keys)
+        return DecGraph(dict_V={key: self.V[key] for key in induced_subgraph.nodes()},
+                        dict_E={key: self.E[key] for key in induced_subgraph.edges()})
 
 
 class Supernode:
