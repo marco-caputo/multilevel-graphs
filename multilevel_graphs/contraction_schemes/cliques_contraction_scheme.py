@@ -15,11 +15,4 @@ class CliquesContractionScheme(ContractionScheme):
         udigraph = dec_graph._digraph.to_undirected()
         cliques = nx.find_cliques(udigraph)
         self._clique_table = DecTable(cliques)
-        new_dec_graph = self.make_dec_graph(self._clique_table, dec_graph)
-    
-    def make_dec_graph(cliques_table : DecTable, dec_graph: DecGraph) -> DecGraph:
-        for clique in cliques_table:
-            supernode = Supernode(clique)
-            dec_graph.add_node(supernode)
-            
-        new_dec_graph = DecGraph()
+        return self._clique_table

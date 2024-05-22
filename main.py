@@ -1,10 +1,14 @@
-import multilevel_graphs.utilities.par_utils as pu
-import time
+# import multilevel_graphs.utilities.par_utils as pu
+# import time
 
 def square(x):
     return [[x*i] for i in range(10)]
 
+
+
 if __name__ == '__main__':
+    print({1, 2, 3} == {3, 2, 1})
+    '''
     input1 = range(1000)
     input2 = range(10000)
     input3 = range(1000000)
@@ -34,3 +38,4 @@ if __name__ == '__main__':
     print("Time with map: ", time2 - time1)
     #print("Time with par_map: ", end_time1 - start_time1)
     #print("Time with map: ", end_time2 - start_time2)
+    '''
