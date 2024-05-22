@@ -1,3 +1,3 @@
 from .dec_graph import DecGraph
-from .supernode import Supernode
-from .superedge import Superedge
+from .dec_graph import Supernode
+from .dec_graph import Superedge
