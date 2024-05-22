@@ -1,13 +1,14 @@
 import networkx as nx
-from multilevel_graphs import Supernode, Superedge
-from multiprocessing import Pool
+from dec_graphs import Supernode, Superedge
 
 class DecGraph:
     
-    def __init__(self):
+    def __init__(self, dict_V: dict = dict(), dict_E: dict = dict()):
         self._digraph = nx.DiGraph()
-        self.V = set()
-        self.E = set()
+        self._digraph.add_nodes_from(dict_V.keys())
+        self._digraph.add_edges_from(dict_E.keys())
+        self.V = dict_V
+        self.E = dict_E
 
     def add_node(self, supernode: Supernode):
         """
@@ -16,7 +17,7 @@ class DecGraph:
 
         :param supernode: the supernode to be added
         """
-        self.V.add(supernode)
+        self.V.add(supernode.key, supernode)
         self._digraph.add_node(supernode.key)
 
     def add_edge(self, superedge: Superedge):
@@ -27,7 +28,8 @@ class DecGraph:
 
         :param superedge: the superedge to be added
         """
-        self.E.add(superedge)
+        self.E.add((superedge.tail.key, superedge.head.key), superedge)
+        self._digraph.add_edge(superedge.tail.key, superedge.head.key)
     
     def height(self) -> int:
         """
@@ -38,9 +40,7 @@ class DecGraph:
         if not self.V:
             return 0
         else:
-            with Pool() as p:
-                return max(p.map(Supernode.height, self.V))
-        self._digraph.add_edge(superedge.tail.key, superedge.head.key)
+            return max(map(Supernode.height, self.V))
 
     def remove_node(self, supernode: Supernode):
         """
@@ -58,7 +58,7 @@ class DecGraph:
             rise a KeyError.
         :param superedge: the superedge to be removed
         """
-        self.E.remove(superedge)
+        self.E.pop((superedge.tail.key, superedge.head.key))
         self._digraph.remove_edge(superedge.tail.key, superedge.head.key)
 
     def height(self):

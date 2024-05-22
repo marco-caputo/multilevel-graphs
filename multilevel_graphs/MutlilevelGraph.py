@@ -1,7 +1,6 @@
-import utilities.ParUtils as pu
 import networkx as nx
 from typing import List
-from dec_graphs import DecGraph, Supernode
+from dec_graphs import DecGraph, Supernode, Superedge
 
 
 class MultilevelGraph:
@@ -9,7 +8,6 @@ class MultilevelGraph:
         self.graph = graph
         self.contraction_schemes = contraction_schemes
 
-    
     def enqueue_contraction_scheme(self, contraction_scheme):
         self.contraction_scheme.append(contraction_scheme)
 
@@ -20,11 +18,12 @@ class MultilevelGraph:
         for scheme in self.contraction_scheme:
             # Add an indented block of code here
             pass
-            
+
     @staticmethod
-    def natural_transformation(graph : nx.DiGraph) -> DecGraph:
+    def natural_transformation(graph: nx.DiGraph) -> DecGraph:
         """
         Returns the natural transformation of the graph.
         """
-        
-        vs = pu.par_map(lambda x: Supernode, graph.nodes(data=True))
+        vs = dict(map(lambda c: (c[0], Supernode.Supernode(c[0], c[1])), graph.nodes(data=True)))
+        es = dict(map(lambda t: ((t[0], t[1]), Superedge.Superedge(vs[t[0]], vs[t[1]], t[2])), graph.edges(data=True)))
+        return DecGraph.DecGraph(vs, es)
