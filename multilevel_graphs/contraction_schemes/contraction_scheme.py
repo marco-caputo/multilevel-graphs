@@ -26,6 +26,8 @@ class ContractionScheme(ABC):
         The name should be unique among all the implementations of the ContractionScheme class.
         The name of the contraction scheme is used as part of the key for each supernode in the
         decontractible graph of this contraction scheme.
+
+        :return: the name of the contraction scheme
         """
         pass
 
@@ -51,8 +53,8 @@ class ContractionScheme(ABC):
 
     def contract(self, dec_graph: DecGraph) -> DecGraph:
         """
-        Constructs a decontractible from the given decontractible graph according
-        to this contraction scheme.
+        Modifies the state of this contraction scheme constructing a decontractible from the given decontractible
+        graph according to this contraction scheme.
 
         :param dec_graph: the decontractible graph to be contracted
         :return: the contracted decontractible graph
