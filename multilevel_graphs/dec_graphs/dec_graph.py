@@ -44,6 +44,33 @@ class DecGraph:
         """
         return set(self.E.keys())
 
+    def graph(self, ref: bool = False, attr: bool = False) -> nx.DiGraph:
+        """
+        Returns this decontractible graph as a simple directed graph with simple nodes and edges.
+        If ref is True, the returned graph is a reference to this decontractible graph structure and
+        changes in the returned graph will affect the orginal decontractible graph structure.
+        If attr is True, nodes in the returned graph will carry the same attributes as the original decontractible
+        graph supernodes.
+        Note that setting ref to True will always return a graph with no attributes in the nodes, regardless of the
+        value of the attr parameter.
+
+        :param ref: If True, the returned graph is a view of the decontractible graph.
+        :param attr: If True, the returned graph nodes have the same attributes as in the original
+        decontractible graph.
+        :return: the corresponding NetworkX directed graph
+        """
+        if ref:
+            return self._graph
+        elif attr:
+            graph = nx.DiGraph()
+            for n in self.nodes():
+                graph.add_node(n.key, **n.attr)
+            for e in self.edges():
+                graph.add_edge(e.tail.key, e.head.key, **e.attr)
+            return graph
+        else:
+            return nx.DiGraph(self._graph)
+
     def add_node(self, supernode: 'Supernode'):
         """
         Adds a supernode to the decontractible graph.
@@ -87,7 +114,8 @@ class DecGraph:
 
     def height(self) -> int:
         """
-        Returns the height of the decontractible graph.
+        Returns the height of the decontractible graph, as the maximum height among supernodes in this graph,
+        where the height of a supernode is the height of the decontractible graph represented by the supernode.
 
         :return: the height of the decontractible graph
         """
@@ -99,7 +127,6 @@ class DecGraph:
     def induced_subgraph(self, nodes: Set['Supernode']) -> 'DecGraph':
         """
         Returns the induced decontractible subgraph of this decontractible graph by the given set of supernodes.
-        If the set of supernodes is not entirely included in the decontractible graph, rise a KeyError.
         The induced subgraph of a graph on a subset of nodes N is the graph with nodes N and edges from G which have
         both ends in N.
         If the set of supernodes keys is not entirely included in the decontractible graph, only the supernodes
@@ -130,31 +157,44 @@ class DecGraph:
 
 
 class Supernode:
-    __slots__ = ('key', 'dec', 'supernode', 'attr')
+    __slots__ = ('key', 'level', 'dec', 'supernode', 'attr')
 
-    def __init__(self, key, dec: DecGraph = DecGraph(), supernode: Optional['Supernode'] = None, attr: dict = dict()):
+    def __init__(self, key, level: int = None, dec: DecGraph = DecGraph(), supernode: Optional['Supernode'] = None,
+                 attr: dict = dict()):
         """
         Initializes a supernode.
 
         :param key: an immutable value representing the key label of the supernode. It is used to identify the
         supernode in the decontractible graph and should be unique in the decontractible graph where the
         supernode resides.
-        :param dec_graph: the decontractible graph represented by this supernode
+        :param level: the level this supernode belongs to in a multilevel graph, if any
+        :param dec: the decontractible graph represented by this supernode
         :param supernode: the supernode that this supernode into
         :param attr: a dictionary of attributes to be added to the supernode
         """
         self.key = key
         self.dec = dec
+        self.level = level
         self.supernode = supernode
         self.attr = attr
+
+    def is_in_multi_level_graph(self) -> bool:
+        """
+        Returns True if this supernode belongs to a multilevel graph, False otherwise.
+
+        :return: True if this supernode belongs to a multilevel graph, False otherwise
+        """
+        return self.level is not None
 
     def add_node(self, supernode: 'Supernode'):
         """
         Adds a supernode to the decontractible graph represented by this supernode.
-            If the supernode has a key that is already in the graph, it will not be added again.
+        If the supernode has a key that is already in the graph, it will not be added again.
 
         :param supernode: the supernode to be added
         """
+        if supernode.level is not None and supernode.level != self.level-1:
+            raise ValueError('The level of the supernode to be added must be one less than the level of this supernode.')
         self.dec.add_node(supernode)
 
     def add_edge(self, edge_for_adding: 'Superedge'):
@@ -163,8 +203,7 @@ class Supernode:
             If the superedge has a tail and head the key of which are already in the graph as an edge,
             it will not be added again.
 
-        :param edge_for_adding:
-        :return:
+        :param edge_for_adding: the edge to be added
         """
         self.dec.add_edge(edge_for_adding)
 
@@ -189,26 +228,35 @@ class Supernode:
 
     def height(self):
         """
-        Returns the height of the decontractible graph represented by this supernode.
+        Returns the height of this supernode as the height of the decontractible graph represented by
+        this supernode. This is equivalent to the height of the hierarchy tree of supernodes contracted into
+        this supernode.
+        If this node belongs to a multilevel graph, the height of the supernode is the level where the
+        supernode is located in the multilevel graph.
+
 
         :return: the height of the decontractible graph
         """
         return self.dec.height()
 
     def __eq__(self, other):
-        return self.key == other.key
+        if not isinstance(other, Supernode):
+            return False
+        return self.key == other.key and self.level == other.level
 
     def __hash__(self):
-        return hash(self.key)
+        return hash((self.key, self.height()))
 
     def __str__(self):
-        return str(self.key)
+        return "(Key: " + str(self.key) + ", " + \
+                ("(Level: " + str(self.level) + "), " if self.level is not None else "") + \
+                str(self.attr) + ")"
 
 
 class Superedge:
-    __slots__ = ('tail', 'head', 'dec', 'attr')
+    __slots__ = ('tail', 'head', 'level', 'dec', 'attr')
 
-    def __init__(self, tail: 'Supernode', head: 'Supernode', dec: Set['Superedge'] = set(), attr: dict = dict()):
+    def __init__(self, tail: 'Supernode', head: 'Supernode', level: int = None, dec: Set['Superedge'] = set(), attr: dict = dict()):
         self.tail = tail
         self.head = head
         for e in dec:
@@ -216,8 +264,17 @@ class Superedge:
             if e.tail not in self.tail.dec.nodes() or e.head not in self.head.dec.nodes():
                 raise ValueError('The supernodes of the superedge to be added must be included in tail and head'
                                  'decontractions respectively.')
+        self.level = level
         self.dec = dec
         self.attr = attr
+
+    def is_in_multi_level_graph(self) -> bool:
+        """
+        Returns True if this superedge belongs to a multilevel graph, False otherwise.
+
+        :return: True if this superedge belongs to a multilevel graph, False otherwise
+        """
+        return self.level is not None
 
     def add_edge(self, superedge: 'Superedge'):
         """
@@ -229,6 +286,8 @@ class Superedge:
         if superedge.tail not in self.tail.dec.nodes() or superedge.head not in self.head.dec.nodes():
             raise ValueError('The supernodes of the superedge to be added must be included in tail and head'
                              'decontractions respectively.')
+        if superedge.level is not None and superedge.level != self.level - 1:
+            raise ValueError('The level of the superedge to be added must be one less than the level of this superedge.')
         self.dec.add(superedge)
 
     def remove_edge(self, superedge: 'Superedge'):
@@ -241,6 +300,8 @@ class Superedge:
         self.dec.remove(superedge)
 
     def __eq__(self, other):
+        if not isinstance(other, Superedge):
+            return False
         return self.tail == other.tail and self.head == other.head
 
     def __hash__(self):
