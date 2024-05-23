@@ -160,7 +160,7 @@ class Supernode:
     __slots__ = ('key', 'level', 'dec', 'supernode', 'attr')
 
     def __init__(self, key, level: int = None, dec: DecGraph = DecGraph(), supernode: Optional['Supernode'] = None,
-                 attr: dict = dict()):
+                 **attr):
         """
         Initializes a supernode.
 
@@ -245,7 +245,7 @@ class Supernode:
         return self.key == other.key and self.level == other.level
 
     def __hash__(self):
-        return hash((self.key, self.height()))
+        return hash((self.key, self.level))
 
     def __str__(self):
         return "(Key: " + str(self.key) + ", " + \
@@ -256,7 +256,7 @@ class Supernode:
 class Superedge:
     __slots__ = ('tail', 'head', 'level', 'dec', 'attr')
 
-    def __init__(self, tail: 'Supernode', head: 'Supernode', level: int = None, dec: Set['Superedge'] = set(), attr: dict = dict()):
+    def __init__(self, tail: 'Supernode', head: 'Supernode', level: int = None, dec: Set['Superedge'] = set(), **attr):
         self.tail = tail
         self.head = head
         for e in dec:
