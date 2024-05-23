@@ -63,11 +63,19 @@ class ContractionScheme(ABC):
             else:
                 self.supernode_table[set_of_sets].add_node(node)
                 node.supernode = self.supernode_table[set_of_sets]
+        
+        # per ciascun nodo in self.supernode_table, dobbiamo
+        # creare i grafi indotti
+        #TODO
+        for node in self.supernode_table.values():
+            pass
 
         for edge in dec_graph.edges():
             tail = edge.tail
             head = edge.head
             if tail.supernode != head.supernode:
-                dec_i_plus_one.add_edge(Superedge(tail.supernode, head.supernode))
-            
+                dec_i_plus_one.E.setdefault((tail.supernode.key, head.supernode.key), Superedge(tail.supernode, head.supernode)).add_edge(edge)
+            else:
+                tail.supernode.add_edge(Superedge(tail, head))
+           
         return dec_i_plus_one
