@@ -1,7 +1,6 @@
-from contraction_scheme import ContractionScheme
-from multilevel_graphs.dec_graphs import DecGraph
-from multilevel_graphs.dec_graphs.algorithms import enumerate_all_cliques
-from dec_table import DecTable
+from multilevel_graphs.contraction_schemes import ContractionScheme
+from multilevel_graphs.dec_graphs import DecGraph, enumerate_all_cliques
+from multilevel_graphs.contraction_schemes import DecTable
 
 
 class CliquesContractionScheme(ContractionScheme):

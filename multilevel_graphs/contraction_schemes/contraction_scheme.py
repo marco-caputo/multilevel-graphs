@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from dec_table import DecTable
+from multilevel_graphs.contraction_schemes import DecTable
 
 
 class ContractionScheme(ABC):
@@ -92,7 +92,7 @@ class ContractionScheme(ABC):
                 self.supernode_table[set_of_sets] = supernode
                 contracted_graph.add_node(supernode)
             else:
-                supernode = self.supernode_table[set_of_sets]
+                supernode = self.supernode_table[set_of_sets] #TODO: sets are not hashable! Make a class for sets
 
             supernode.add_node(node)
             node.supernode = supernode

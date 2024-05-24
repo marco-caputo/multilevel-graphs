@@ -1,21 +1,21 @@
 import networkx as nx
 from typing import List
-from multilevel_graphs import DecGraph, Supernode, Superedge
+from multilevel_graphs import DecGraph, Supernode, Superedge, ContractionScheme
 
 
 class MultilevelGraph:
-    def __init__(self, graph, contraction_schemes):
+    def __init__(self, graph, contraction_schemes: List[ContractionScheme] = None):
         self.graph = graph
-        self.contraction_schemes = contraction_schemes
+        self.contraction_schemes = contraction_schemes if contraction_schemes else []
 
     def enqueue_contraction_scheme(self, contraction_scheme):
-        self.contraction_scheme.append(contraction_scheme)
+        self.contraction_schemes.append(contraction_scheme)
 
-    def reduce_contraction_scheme(self) -> List:
+    def reduce_contraction_scheme(self):
         """
         Reduces the graph using the contraction schemes.
         """
-        for scheme in self.contraction_scheme:
+        for scheme in self.contraction_schemes:
             # Add an indented block of code here
             pass
 

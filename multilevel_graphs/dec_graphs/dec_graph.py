@@ -1,16 +1,15 @@
-from typing import Optional, Set, Dict, Any
-
+from typing import Optional, Set, Dict, Any, Iterable
 import networkx as nx
 
 
 class DecGraph:
 
-    def __init__(self, dict_V: Dict[Any, 'Supernode'] = dict(), dict_E: Dict[Any, 'Superedge'] = dict()):
+    def __init__(self, dict_V: Dict[Any, 'Supernode'] = None, dict_E: Dict[Any, 'Superedge'] = None):
         self._graph = nx.DiGraph()
-        self._graph.add_nodes_from(dict_V.keys())
-        self._graph.add_edges_from(dict_E.keys())
-        self.V = dict_V
-        self.E = dict_E
+        self.V = dict_V if dict_V is not None else dict()
+        self.E = dict_E if dict_E is not None else dict()
+        self._graph.add_nodes_from(self.V.keys())
+        self._graph.add_edges_from(self.E.keys())
 
     def nodes(self) -> Set['Supernode']:
         """
@@ -84,11 +83,15 @@ class DecGraph:
     def add_edge(self, superedge: 'Superedge'):
         """
         Adds a superedge to the decontractible graph.
-            If the superedge has a tail and head the key of which are already in the graph as an edge,
-            it will not be added again.
+        If the superedge has a tail and head the key of which are already in the graph as an edge,
+        it will not be added again.
+        If the supernodes of the superedge to be added are not included in the decontractible graph, rises a ValueError.
 
         :param superedge: the superedge to be added
         """
+        if superedge.tail not in self.V.values() or superedge.head not in self.V.values():
+            raise ValueError('The supernodes of the superedge to be added must be included in '
+                             'this decontractible graph.')
         self.E[(superedge.tail.key, superedge.head.key)] = superedge
         self._graph.add_edge(superedge.tail.key, superedge.head.key)
 
@@ -119,12 +122,12 @@ class DecGraph:
 
         :return: the height of the decontractible graph
         """
-        if not self.V:
-            return 0
+        if not self.nodes():
+            return -1
         else:
-            return max(map(Supernode.height, self.V))
+            return max(node.height() for node in self.nodes())
 
-    def induced_subgraph(self, nodes: Set['Supernode']) -> 'DecGraph':
+    def induced_subgraph(self, nodes: Iterable['Supernode']) -> 'DecGraph':
         """
         Returns the induced decontractible subgraph of this decontractible graph by the given set of supernodes.
         The induced subgraph of a graph on a subset of nodes N is the graph with nodes N and edges from G which have
@@ -159,7 +162,7 @@ class DecGraph:
 class Supernode:
     __slots__ = ('key', 'level', 'dec', 'supernode', 'attr')
 
-    def __init__(self, key, level: int = None, dec: DecGraph = DecGraph(), supernode: Optional['Supernode'] = None,
+    def __init__(self, key, level: int = None, dec: DecGraph = None, supernode: Optional['Supernode'] = None,
                  **attr):
         """
         Initializes a supernode.
@@ -173,7 +176,7 @@ class Supernode:
         :param attr: a dictionary of attributes to be added to the supernode
         """
         self.key = key
-        self.dec = dec
+        self.dec = dec if dec is not None else DecGraph()
         self.level = level
         self.supernode = supernode
         self.attr = attr
@@ -190,10 +193,12 @@ class Supernode:
         """
         Adds a supernode to the decontractible graph represented by this supernode.
         If the supernode has a key that is already in the graph, it will not be added again.
+        If this supernode belongs to a multilevel graph, the level of the supernode to be added must be one less than
+        the level of this supernode.
 
         :param supernode: the supernode to be added
         """
-        if supernode.level is not None and supernode.level != self.level-1:
+        if self.level is not None and supernode.level != self.level-1:
             raise ValueError('The level of the supernode to be added must be one less than the level of this supernode.')
         self.dec.add_node(supernode)
 
@@ -226,7 +231,7 @@ class Supernode:
         """
         self.dec.remove_edge(edge_for_removal)
 
-    def height(self):
+    def height(self) -> int:
         """
         Returns the height of this supernode as the height of the decontractible graph represented by
         this supernode. This is equivalent to the height of the hierarchy tree of supernodes contracted into
@@ -234,10 +239,9 @@ class Supernode:
         If this node belongs to a multilevel graph, the height of the supernode is the level where the
         supernode is located in the multilevel graph.
 
-
         :return: the height of the decontractible graph
         """
-        return self.dec.height()
+        return self.dec.height() + 1
 
     def __eq__(self, other):
         if not isinstance(other, Supernode):
@@ -252,20 +256,30 @@ class Supernode:
                 ("(Level: " + str(self.level) + "), " if self.level is not None else "") + \
                 str(self.attr) + ")"
 
+    def __getitem__(self, key: str) -> Any:
+        return self.attr[key]
+
+    def __setitem__(self, key: str, value: Any):
+        self.attr[key] = value
+
+    def __delitem__(self, key: str):
+        del self.attr[key]
+
 
 class Superedge:
     __slots__ = ('tail', 'head', 'level', 'dec', 'attr')
 
-    def __init__(self, tail: 'Supernode', head: 'Supernode', level: int = None, dec: Set['Superedge'] = set(), **attr):
+    def __init__(self, tail: 'Supernode', head: 'Supernode', level: int = None, dec: Set['Superedge'] = None, **attr):
         self.tail = tail
         self.head = head
-        for e in dec:
-            print(e)
+        self.dec = dec if dec is not None else set()
+        for e in self.dec:
             if e.tail not in self.tail.dec.nodes() or e.head not in self.head.dec.nodes():
                 raise ValueError('The supernodes of the superedge to be added must be included in tail and head'
                                  'decontractions respectively.')
+        if level is not None and (tail.level is None or head.level is None or tail.level != head.level or level != tail.level):
+            raise ValueError('The level of the superedge must be the same as the level of the tail and head supernodes.')
         self.level = level
-        self.dec = dec
         self.attr = attr
 
     def is_in_multi_level_graph(self) -> bool:
@@ -286,7 +300,7 @@ class Superedge:
         if superedge.tail not in self.tail.dec.nodes() or superedge.head not in self.head.dec.nodes():
             raise ValueError('The supernodes of the superedge to be added must be included in tail and head'
                              'decontractions respectively.')
-        if superedge.level is not None and superedge.level != self.level - 1:
+        if self.level is not None and superedge.level != self.level - 1:
             raise ValueError('The level of the superedge to be added must be one less than the level of this superedge.')
         self.dec.add(superedge)
 
@@ -299,6 +313,22 @@ class Superedge:
         """
         self.dec.remove(superedge)
 
+    def height(self) -> int:
+        """
+        Returns the height of this superedge as the maximum height of the superedges represented by
+        this superedge. This is equivalent to the height of the hierarchy tree of superedges contracted into
+        this superedge.
+        If this edge belongs to a multilevel graph, the height of the superedge is the level where the
+        superedge is located in the multilevel graph, and coincides with the level of the tail and
+        head supernode.
+        The height of a superedge having an empty set of superedges is 0.
+
+        :return: the height of this superedge
+        """
+        if not self.dec:
+            return 0
+        return max(e.height() for e in self.dec) + 1
+
     def __eq__(self, other):
         if not isinstance(other, Superedge):
             return False
@@ -309,3 +339,12 @@ class Superedge:
 
     def __str__(self):
         return str(self.tail) + ' -> ' + str(self.head)
+
+    def __getitem__(self, key: str) -> Any:
+        return self.attr[key]
+
+    def __setitem__(self, key: str, value: Any):
+        self.attr[key] = value
+
+    def __delitem__(self, key: str):
+        del self.attr[key]

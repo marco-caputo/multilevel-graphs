@@ -1,6 +1,6 @@
 import networkx as nx
 from typing import Set
-from multilevel_graphs import DecGraph, Supernode
+from multilevel_graphs.dec_graphs import DecGraph, Supernode
 
 
 def enumerate_all_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[Set[Supernode]]:

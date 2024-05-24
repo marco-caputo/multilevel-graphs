@@ -1,5 +1,5 @@
 from typing import Iterable, Set
-from multilevel_graphs import Supernode
+from multilevel_graphs.dec_graphs import Supernode
 
 
 class DecTable:
