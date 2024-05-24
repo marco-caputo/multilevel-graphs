@@ -265,6 +265,14 @@ class Supernode:
     def __delitem__(self, key: str):
         del self.attr[key]
 
+    def update(self, **attr):
+        """
+        Update the supernode attributes with the given attributes.
+
+        :param attr: the attributes to be added to the supernode
+        """
+        self.attr.update(attr)
+
 
 class Superedge:
     __slots__ = ('tail', 'head', 'level', 'dec', 'attr')
@@ -348,3 +356,11 @@ class Superedge:
 
     def __delitem__(self, key: str):
         del self.attr[key]
+
+    def update(self, **attr):
+        """
+        Update the superedge attributes with the given attributes.
+
+        :param attr: the attributes to be added to the superedge
+        """
+        self.attr.update(attr)

@@ -1,4 +1,6 @@
 from typing import Iterable, Set
+
+from multilevel_graphs.contraction_schemes import ComponentSet
 from multilevel_graphs.dec_graphs import Supernode
 
 
@@ -9,24 +11,24 @@ class DecTable:
     This data structure can be used as a dictionary where the keys are the nodes and the values are the sets of nodes
     to which they belong.
     """
-    def __init__(self, sets: Iterable[Iterable[Supernode]]):
+    def __init__(self, sets: Iterable[ComponentSet]):
         """
-        Initializes a decontractible table with the given sets of nodes.
-        The given set of nodes should be a covering of the nodes of a decontractible graph.
+        Initializes a decontractible table with the given set of component sets of nodes.
+        The given set should be a covering of the nodes of a decontractible graph.
 
         :param sets: the covering of nodes
         """
         self._table = dict()
-        for nodes_set in sets:
-            for node in nodes_set:
-                self._table.setdefault(node, set()).add(nodes_set)
+        for c_set in sets:
+            for node in c_set:
+                self._table.setdefault(node, set()).add(c_set)
 
         self.modified = set()
 
-    def __getitem__(self, key: Supernode) -> Set[Set[Supernode]]:
+    def __getitem__(self, key: Supernode) -> Set[ComponentSet]:
         return self._table[key]
 
-    def __setitem__(self, key: Supernode, value: Set[Set[Supernode]]):
+    def __setitem__(self, key: Supernode, value: Set[ComponentSet]):
         self._table[key] = value
 
     def __delitem__(self, key: Supernode):

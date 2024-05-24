@@ -190,7 +190,7 @@ class DecGraph_test(unittest.TestCase):
         self.assertEqual(set(self.test_supernodes_0[1:3]), induced_subgraph.nodes())
         self.assertEqual(0, len(induced_subgraph.edges()))
 
-    def test_dec_graph_with_2_height(self):
+    def test_dec_graph_with_height_2(self):
         for i in range(3):
             self.test_supernodes_1[i].add_node(self.test_supernodes_0[2*i])
             self.test_supernodes_1[i].add_node(self.test_supernodes_0[2*i + 1])
