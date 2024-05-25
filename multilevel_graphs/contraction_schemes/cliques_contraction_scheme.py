@@ -4,7 +4,7 @@ from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, maximal
 
 
 class CliquesContractionScheme(ContractionScheme):
-    def __init__(self, level: int,
+    def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
                  c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None,
@@ -18,18 +18,23 @@ class CliquesContractionScheme(ContractionScheme):
             there is an edge between them in both directions in the original graph, otherwise, two nodes are adjacent if
             there is an edge between them in at least one direction in the original graph.
 
-            :param level: the level of the contraction scheme in the multilevel graph where this scheme resides
             :param supernode_attr_function: a function that returns the attributes to assign to each supernode of this scheme
             :param superedge_attr_function: a function that returns the attributes to assign to each superedge of this scheme
             :param c_set_attr_function: a function that returns the attributes to assign to each component set of this scheme
             :param reciprocal: if True, two nodes are considered adjacent if there is an edge between them in both directions
         """
-        super().__init__(level, supernode_attr_function, superedge_attr_function, c_set_attr_function)
+        super().__init__(supernode_attr_function, superedge_attr_function, c_set_attr_function)
         self._reciprocal = reciprocal
 
     @property
     def contraction_name(self) -> str:
         return "cliques_" + ("" if self._reciprocal else "not_") + "rec"
+
+    def clone(self):
+        return CliquesContractionScheme(self._supernode_attr_function,
+                                        self._superedge_attr_function,
+                                        self._c_sets_attr_function,
+                                        self._reciprocal)
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         cliques = maximal_cliques(dec_graph, self._reciprocal)

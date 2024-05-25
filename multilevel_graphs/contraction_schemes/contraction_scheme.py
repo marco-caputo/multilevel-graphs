@@ -6,28 +6,27 @@ from multilevel_graphs.contraction_schemes import DecTable
 
 
 class ContractionScheme(ABC):
-    def __init__(self, level: int,
+    def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
-                 c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None, ):
+                 c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None):
         """
         Initializes a contraction scheme based on the contraction function
         defined for this scheme.
 
-        :param level: the level of the contraction scheme in the multilevel graph where this scheme resides
         :param supernode_attr_function: a function that returns the attributes to assign to each supernode of this scheme
         :param superedge_attr_function: a function that returns the attributes to assign to each superedge of this scheme
         :param c_set_attr_function: a function that returns the attributes to assign to each component set of this scheme
         """
         self._supernode_id_counter = 0
         self._component_set_id_counter = 0
-        self.level = level
         self._supernode_attr_function = supernode_attr_function if supernode_attr_function else lambda x: {}
         self._superedge_attr_function = superedge_attr_function if superedge_attr_function else lambda x: {}
         self._c_sets_attr_function = c_set_attr_function if c_set_attr_function else lambda x: {}
-        self._dec_graph = None
-        self.contraction_sets_table = None
-        self.supernode_table = None
+        self.level = 0
+        self.dec_graph = DecGraph()
+        self.contraction_sets_table = DecTable()
+        self.supernode_table = dict()
         self.valid = False
 
     @property
@@ -40,6 +39,21 @@ class ContractionScheme(ABC):
         decontractible graph of this contraction scheme.
 
         :return: the name of the contraction scheme
+        """
+        pass
+
+    @abstractmethod
+    def clone(self):
+        """
+        Instantiates and returns a new contraction scheme with the same starting attributes as this one,
+        such as attribute functions and others based on the implementation.
+        The new contraction scheme does not preserve any information about the contraction sets or the
+        decontractible graph of the clones one.
+
+        This method is used internally by the multilevel graph to create new contraction schemes based on their
+        construction parameters and preserve their encapsulation.
+
+        :return: a new contraction scheme with the same starting attributes as this one
         """
         pass
 
@@ -82,10 +96,10 @@ class ContractionScheme(ABC):
         :return: the contracted decontractible graph
         """
         self.contraction_sets_table = self.contraction_function(dec_graph)
-        self._dec_graph = self._make_dec_graph(self.contraction_sets_table, dec_graph)
+        self.dec_graph = self._make_dec_graph(self.contraction_sets_table, dec_graph)
         self.update_attr()
         self.valid = True
-        return self._dec_graph
+        return self.dec_graph
 
     def is_valid(self):
         return self.valid
@@ -141,9 +155,9 @@ class ContractionScheme(ABC):
         """
         Updates the attributes of the supernodes, superedges and component sets of this contraction scheme.
         """
-        for supernode in self._dec_graph.nodes():
+        for supernode in self.dec_graph.nodes():
             supernode.update(**self._supernode_attr_function(supernode))
-        for superedge in self._dec_graph.edges():
+        for superedge in self.dec_graph.edges():
             superedge.update(**self._superedge_attr_function(superedge))
         for c_set in self.contraction_sets_table:
             c_set.update(**self._c_sets_attr_function(c_set))

@@ -5,7 +5,7 @@ from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_
 
 
 class CyclesContractionScheme(ContractionScheme):
-    def __init__(self, level: int,
+    def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
                  c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None,
@@ -17,18 +17,23 @@ class CyclesContractionScheme(ContractionScheme):
         each other.
         A maximal simple cycle is a simple cycle that is not a subset of any other simple cycle.
 
-        :param level: the level of the contraction scheme in the multilevel graph where this scheme resides
         :param supernode_attr_function: a function that returns the attributes to assign to each supernode of this scheme
         :param superedge_attr_function: a function that returns the attributes to assign to each superedge of this scheme
         :param c_set_attr_function: a function that returns the attributes to assign to each component set of this scheme
         :param maximal: if True, only maximal simple cycles are considered
         """
-        super().__init__(level, supernode_attr_function, superedge_attr_function, c_set_attr_function)
+        super().__init__(supernode_attr_function, superedge_attr_function, c_set_attr_function)
         self._maximal = maximal
 
     @property
     def contraction_name(self) -> str:
         return "simple_" + ("_maximal" if self._maximal else "") + "_cycles"
+
+    def clone(self):
+        return CyclesContractionScheme(self._supernode_attr_function,
+                                       self._superedge_attr_function,
+                                       self._c_sets_attr_function,
+                                       self._maximal)
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         cycles = [set(cycle) for cycle in simple_cycles(dec_graph)]

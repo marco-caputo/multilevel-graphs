@@ -6,7 +6,7 @@ from multilevel_graphs.dec_graphs.algorithms import strongly_connected_component
 
 
 class SccsContractionScheme(ContractionScheme):
-    def __init__(self, level: int,
+    def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
                  c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None):
@@ -18,16 +18,20 @@ class SccsContractionScheme(ContractionScheme):
         For this contraction scheme, there is a one-to-one correspondence between the strongly connected components
         of the decontractible graph and the component sets of the contraction scheme.
 
-        :param level: the level of the contraction scheme in the multilevel graph where this scheme resides
         :param supernode_attr_function: a function that returns the attributes to assign to each supernode of this scheme
         :param superedge_attr_function: a function that returns the attributes to assign to each superedge of this scheme
         :param c_set_attr_function: a function that returns the attributes to assign to each component set of this scheme
         """
-        super().__init__(level, supernode_attr_function, superedge_attr_function, c_set_attr_function)
+        super().__init__(supernode_attr_function, superedge_attr_function, c_set_attr_function)
 
     @property
     def contraction_name(self) -> str:
         return "scc"
+
+    def clone(self):
+        return SccsContractionScheme(self._supernode_attr_function,
+                                     self._superedge_attr_function,
+                                     self._c_sets_attr_function)
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         sccs = strongly_connected_components(dec_graph)
