@@ -28,12 +28,10 @@ class CyclesContractionScheme(ContractionScheme):
 
     @property
     def contraction_name(self) -> str:
-        return "simple_" + ("_maximal" if self._reciprocal else "") + "_cycles"
+        return "simple_" + ("_maximal" if self._maximal else "") + "_cycles"
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
-        cycles = simple_cycles(dec_graph)
-        if self._maximal:
-            cliques = {c for c in cycles if not any(c in c2 for c2 in cycles if c != c2)}
+        cycles = [set(cycle) for cycle in simple_cycles(dec_graph)]
         return DecTable([ComponentSet(self._get_component_set_id(),
-                                      clique,
-                                      **(self._c_sets_attr_function(clique))) for clique in cliques])
+                                      cycle,
+                                      **(self._c_sets_attr_function(cycle))) for cycle in cycles])

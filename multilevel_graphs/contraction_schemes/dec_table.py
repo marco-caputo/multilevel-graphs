@@ -1,7 +1,5 @@
 from typing import Iterable, Set
 
-import setuptools.package_index
-
 from multilevel_graphs.contraction_schemes import ComponentSet
 from multilevel_graphs.dec_graphs import Supernode
 
@@ -13,12 +11,13 @@ class DecTable:
     This data structure can be used as a dictionary where the keys are the nodes and the values are the sets of nodes
     to which they belong.
     """
+
     def __init__(self, sets: Iterable[ComponentSet], maximal: bool = False):
         """
         Initializes a decontractible table with the given set of component sets of nodes.
         The given set should be a covering of the nodes of a decontractible graph, and all the component sets
         should be distinct in terms of their contained supernodes.
-        In case the maximal parameter is set to True, the table will only store the maximal sets of nodes
+        In case the maximal parameter is set to True, the table will only track the maximal sets of nodes
         among the given component sets.
 
         :param sets: the covering of nodes
@@ -26,26 +25,77 @@ class DecTable:
         """
         self._table = dict()
         self.modified = set()
+
         if maximal:
-            for c_sets in sets:
-                self.add_maximal_set(c_sets)
+            for c_set in sets:
+                self.add_maximal_set(c_set)
         else:
             for c_set in sets:
-                for node in c_set:
-                    self._table.setdefault(node, set()).add(c_set)
+                self.add_set(c_set)
 
+        self.modified.clear()
+
+    def add_set(self, c_set: ComponentSet):
+        """
+        Adds the given component set to the table tracked sets.
+        If the given component set is already in the table, nothing happens.
+        Rows of the table that are modified due to the addition of the given component set are tracked in the
+        modified set.
+
+        :param c_set: the component set to add
+        """
+        for node in c_set:
+            self._table.setdefault(node, set()).add(c_set)
+            self.modified.add(node)
+
+    def remove_set(self, c_set: ComponentSet):
+        """
+        Removes the given component set from the table tracked sets.
+        If the given component set is not in the table, nothing happens.
+        Rows of the table that are modified due to the removal of the given component set are tracked in the
+        modified set.
+
+        :param c_set: the component set to remove
+        """
+        for node in c_set:
+            self._table.get(node, set()).discard(c_set)
+            self.modified.add(node)
 
     def add_maximal_set(self, c_set: ComponentSet):
         """
-        Adds the given component set to the table only if it is maximal among the sets already in the table.
-        If the given component is added to the table, sets already in the table that are subsets of the given component
-        set are removed.
+        Adds the given component set to the table only if it is maximal among the sets already tracked in the table.
+        If the given component is added to the table, sets already tracked in the table that are subsets of the given
+        component set are removed.
         A component set is maximal if it is not a subset of any other component set in the table.
+        Rows of the table that are modified due to the possible addition and removals are tracked in the
+        modified set.
 
         :param c_set: the component set to add
         """
         if len(set.intersection(*[self._table.get(node, set()) for node in c_set])) == 0:
-            pass # TODO: finish this method
+            subsets = self._find_subsets(c_set)
+            for subset in subsets:
+                self.remove_set(subset)
+            self.add_set(c_set)
+
+    def _find_subsets(self, c_set: ComponentSet):
+        """
+        Returns the subsets of the given component set that are already tracked in the table.
+
+        :param c_set: the component set
+        :return: the subsets of the given component set
+        """
+        t_count = dict()
+        for node in c_set:
+            for c_set in self._table.get(node, set()):
+                t_count[c_set] = t_count.get(c_set, 0) + 1
+
+        subsets = set()
+        for c_set, count in t_count.items():
+            if count == len(c_set):
+                subsets.add(c_set)
+
+        return subsets
 
     def __getitem__(self, key: Supernode) -> Set[ComponentSet]:
         return self._table[key]
