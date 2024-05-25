@@ -42,3 +42,19 @@ class CliquesContractionScheme(ContractionScheme):
         return DecTable([ComponentSet(self._get_component_set_id(),
                                       clique,
                                       **(self._c_sets_attr_function(clique))) for clique in cliques])
+
+    def update_added_node(self, supernode: Supernode):
+        # TODO: Implement this method
+        pass
+
+    def update_removed_node(self, supernode: Supernode):
+        # TODO: Implement this method
+        pass
+
+    def update_added_edge(self, superedge: Superedge):
+        # TODO: Implement this method
+        pass
+
+    def update_removed_edge(self, superedge: Superedge):
+        # TODO: Implement this method
+        pass

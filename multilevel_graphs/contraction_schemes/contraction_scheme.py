@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, Set
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import DecTable
+from multilevel_graphs.contraction_schemes import DecTable, UpdateQuadruple
 
 
 class ContractionScheme(ABC):
@@ -23,11 +23,12 @@ class ContractionScheme(ABC):
         self._supernode_attr_function = supernode_attr_function if supernode_attr_function else lambda x: {}
         self._superedge_attr_function = superedge_attr_function if superedge_attr_function else lambda x: {}
         self._c_sets_attr_function = c_set_attr_function if c_set_attr_function else lambda x: {}
+        self._valid = False
         self.level = 0
-        self.dec_graph = DecGraph()
-        self.contraction_sets_table = DecTable()
+        self.dec_graph = None
+        self.contraction_sets_table = None
         self.supernode_table = dict()
-        self.valid = False
+        self.update_quadruple = UpdateQuadruple()
 
     @property
     @abstractmethod
@@ -67,6 +68,66 @@ class ContractionScheme(ABC):
         """
         pass
 
+    @abstractmethod
+    def update_added_node(self, supernode: Supernode):
+        """
+        Updates the structure of the decontractible graph of this contraction scheme according to the addition
+        of the given supernode at the immediate lower level.
+
+        :param supernode: the supernode added to the lower level decontractible graph
+        """
+        pass
+
+    @abstractmethod
+    def update_removed_node(self, supernode: Supernode):
+        """
+        Updates the structure of the decontractible graph of this contraction scheme according to the removal
+        of the given supernode at the immediate lower level.
+
+        :param supernode: the supernode removed from the lower level decontractible graph
+        """
+        pass
+
+    @abstractmethod
+    def update_added_edge(self, superedge: Superedge):
+        """
+        Updates the structure of the decontractible graph of this contraction scheme according to the addition
+        of the given superedge at the immediate lower level.
+
+        :param superedge: the superedge added to the lower level decontractible graph
+        """
+        pass
+
+    @abstractmethod
+    def update_removed_edge(self, superedge: Superedge):
+        """
+        Updates the structure of the decontractible graph of this contraction scheme according to the removal
+        of the given superedge at the immediate lower level.
+
+        :param superedge: the superedge removed from the lower level decontractible graph
+        """
+        pass
+
+    def update(self, update_quadruple: UpdateQuadruple) -> DecGraph:
+        """
+        Updates the structure of the decontractible graph of this contraction scheme according to the given
+        update quadruple, indicating the changes in the supernodes and superedges of the decontractible graph at
+        the immediate lower level.
+
+        :param update_quadruple: the update quadruple indicating the changes in the lower level decontractible graph
+        :return: the updated decontractible graph of this contraction scheme
+        """
+        for edge in update_quadruple.e_minus:
+            self.update_removed_edge(edge)
+        for node in update_quadruple.v_minus:
+            self.update_removed_node(node)
+        for node in update_quadruple.v_plus:
+            self.update_added_node(node)
+        for edge in update_quadruple.e_plus:
+            self.update_added_edge(edge)
+
+        return self.dec_graph
+
     def _get_supernode_id(self) -> int:
         """
         Returns a unique identifier for the supernodes of this contraction scheme.
@@ -98,14 +159,24 @@ class ContractionScheme(ABC):
         self.contraction_sets_table = self.contraction_function(dec_graph)
         self.dec_graph = self._make_dec_graph(self.contraction_sets_table, dec_graph)
         self.update_attr()
-        self.valid = True
+        self._valid = True
         return self.dec_graph
 
     def is_valid(self):
-        return self.valid
+        """
+        Returns whether the decontractible graph of this contraction scheme is valid, that is, it has been
+        contracted and is up-to-date with the changes in the lower level decontractible graph.
+
+        :return: True if the decontractible graph is valid, False otherwise
+        """
+        return self._valid
 
     def invalidate(self):
-        self.valid = False
+        """
+        Marks the decontractible graph of this contraction scheme as invalid, that is, it has not been contracted
+        or is not up-to-date with the changes in the lower level decontractible graph.
+        """
+        self._valid = False
 
     def _make_dec_graph(self, dec_table: DecTable, dec_graph: DecGraph) -> DecGraph:
         """

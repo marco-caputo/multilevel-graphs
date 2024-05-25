@@ -73,7 +73,7 @@ class DecGraph:
     def add_node(self, supernode: 'Supernode'):
         """
         Adds a supernode to the decontractible graph.
-            If the supernode has a key that is already in the graph, it will not be added again.
+        If the supernode has a key that is already in the graph, it will not be added again.
 
         :param supernode: the supernode to be added
         """
@@ -98,7 +98,8 @@ class DecGraph:
     def remove_node(self, supernode: 'Supernode'):
         """
         Removes a supernode from the decontractible graph.
-            If the supernode has a key which is not in the graph, rise a KeyError.
+        If the supernode has a key which is not in the graph, rise a KeyError.
+
         :param supernode: the supernode to be removed
         """
         self.V.pop(supernode.key)
@@ -107,8 +108,8 @@ class DecGraph:
     def remove_edge(self, superedge: 'Superedge'):
         """
         Removes a superedge from the decontractible graph.
-            If the superedge has a tail and head the key of which are not in the graph as an edge,
-            rise a KeyError.
+        If the superedge has a tail and head the key of which are not in the graph as an edge,
+        rise a KeyError.
 
         :param superedge: the superedge to be removed
         """
