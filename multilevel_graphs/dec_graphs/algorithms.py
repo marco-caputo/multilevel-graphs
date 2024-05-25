@@ -9,15 +9,36 @@ def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[Set[Su
     The cliques are calculated on the undirected version of the given decontractible graph, obtained by
     keeping only edges that appear in both directions in the original digraph or not, depending on the value of the
     reciprocal parameter.
-    The cliques are found using the Bron-Kerbosch algorithm.
 
-    :param dec_graph: the decontractible graph
-    :param reciprocal: If True, cliques are calculated on the undirected version of the given decontractible graph
-     containing only edges that appear in both directions in the original decontractible graph.
+    The implementation is based on the NetworkX library. More precisely, cliques are found using the non-recursive
+    version of Bron-Kerbosch algorithm (1973) [1], as adapted by Tomita, Tanaka and Takahashi (2006) [2]
+    and discussed in Cazals and Karande (2008) [3].
+
+    Parameters
+    ----------
+    dec_graph : DecGraph
+        the decontractible graph
+    reciprocal : bool
+        If True, cliques are calculated on the undirected version of the given decontractible graph
+    containing only edges that appear in both directions in the original decontractible graph.
+
+    Returns
+    -------
+    set
+        the set of maximal cliques as sets of supernodes
+
+    References
+    ----------
+    .. [1] Bron, C. and Kerbosch, J. "Algorithm 457: finding all cliques of an undirected graph". Communications of the ACM 16, 9 (Sep. 1973), 575–577. <http://portal.acm.org/citation.cfm?doid=362342.362367 >
+
+    .. [2] Etsuji Tomita, Akira Tanaka, Haruhisa Takahashi, "The worst-case time complexity for generating all maximal cliques and computational experiments", Theoretical Computer Science, Volume 363, Issue 1, Computing and Combinatorics, 10th Annual International Conference on Computing and Combinatorics (COCOON 2004), 25 October 2006, Pages 28–42 <https://doi.org/10.1016/j.tcs.2006.06.015 >
+
+    .. [3] F. Cazals, C. Karande, "A note on the problem of reporting maximal cliques", Theoretical Computer Science, Volume 407, Issues 1–3, 6 November 2008, Pages 564–568, <https://doi.org/10.1016/j.tcs.2008.05.010 >
     """
     undirected_graph = dec_graph.graph().to_undirected(reciprocal=reciprocal)
     cliques = list(nx.find_cliques(undirected_graph))
     return set(map(lambda c: set(map(lambda n: dec_graph.V[n], c)), cliques))
+
 
 def simple_cycles(dec_graph: DecGraph) -> Set[List[Supernode]]:
     """
@@ -25,9 +46,51 @@ def simple_cycles(dec_graph: DecGraph) -> Set[List[Supernode]]:
     A simple cycle, or elementary circuit, is a closed path where no node appears twice.
     In a decontractible (directed) graph, two simple cycles are distinct if they are not cyclic permutations of
     each other.
-    The cycles are found using the Johnson's algorithm.
 
-    :param dec_graph: the decontractible graph
+    The implementation is based on the NetworkX library. More precisely, simple cycles are found using a nonrecursive,
+    iterator/generator version of Johnson's algorithm [1], enhanced by some well-known preprocessing techniques
+    that restrict the attention to strongly connected components of the graph.
+
+    Parameters
+    ----------
+    dec_graph : DecGraph
+        The decontractible graph.
+
+    Returns
+    -------
+    set
+        The set of simple cycles as lists of supernodes.
+
+    References
+    ----------
+    .. [1] D. B. Johnson, "Finding all the elementary circuits of a directed graph," SIAM Journal on Computing, vol. 4, no. 1, pp. 77-84, 1975. https://doi.org/10.1137/0204007
     """
     cycles = list(nx.simple_cycles(dec_graph.graph()))
     return set(map(lambda c: list(map(lambda n: dec_graph.V[n], c)), cycles))
+
+
+def strongly_connected_components(dec_graph: DecGraph) -> Set[Set[Supernode]]:
+    """
+    Enumerates all the strongly connected components in the given decontractible graph as a set of sets of supernodes.
+    A strongly connected component (SCC) of a decontractible (directed) graph is a maximal subgraph in which
+    there is a path between every pair of nodes.
+
+    The implementation is based on the NetworkX library. More precisely, the SCCs are found using the
+    Kosaraju's algorithm [1].
+
+    Parameters
+    ----------
+    dec_graph : DecGraph
+        the decontractible graph
+
+    Returns
+    -------
+    set
+        The set of strongly connected components as sets of supernodes
+
+    References
+    ----------
+    .. [1] M. Sharir, "A strong-connectivity algorithm and its applications in data flow analysis", Computers & Mathematics with Applications, 1981 - Elsevier. https://doi.org/10.1016/0898-1221(81)90008-0
+    """
+    sccs = list(nx.kosaraju_strongly_connected_components(dec_graph.graph()))
+    return set(map(lambda c: set(map(lambda n: dec_graph.V[n], c)), sccs))
