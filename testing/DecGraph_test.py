@@ -226,5 +226,6 @@ class DecGraphTest(unittest.TestCase):
 
         return dec_graph
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()

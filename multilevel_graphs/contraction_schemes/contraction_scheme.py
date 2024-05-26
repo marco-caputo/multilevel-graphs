@@ -6,7 +6,7 @@ from multilevel_graphs.contraction_schemes import DecTable, UpdateQuadruple, Com
 
 
 class ContractionScheme(ABC):
-    level: int
+    level: Optional[int]
     dec_graph: Optional[DecGraph]
     contraction_sets_table: Optional[DecTable]
     supernode_table: Dict[FrozenSet[ComponentSet], Supernode]
@@ -36,13 +36,12 @@ class ContractionScheme(ABC):
         self._superedge_attr_function = superedge_attr_function if superedge_attr_function else lambda x: {}
         self._c_set_attr_function = c_set_attr_function if c_set_attr_function else lambda x: {}
         self._valid = False
-        self.level = 0
+        self.level = None
         self.dec_graph = None
         self.contraction_sets_table = None
         self.supernode_table = dict()
         self.update_quadruple = UpdateQuadruple()
 
-    @property
     @abstractmethod
     def contraction_name(self) -> str:
         """
@@ -160,6 +159,9 @@ class ContractionScheme(ABC):
         self._component_set_id_counter += 1
         return self._component_set_id_counter
 
+    def _get_supernode_key(self):
+        return str(self.level) + "_" + self.contraction_name() + "_" + str(self._get_supernode_id())
+
     def contract(self, dec_graph: DecGraph) -> DecGraph:
         """
         Modifies the state of this contraction scheme constructing a decontractible from the given decontractible
@@ -202,18 +204,18 @@ class ContractionScheme(ABC):
         contracted_graph = DecGraph()
 
         # For each node, we assign it to a supernode corresponding to the set of component sets
-        for node, set_of_sets in dec_table:
-            f_set_of_sets = frozenset(set_of_sets)
-            if f_set_of_sets not in self.supernode_table:
+        for node, set_of_c_sets in dec_table.items():
+            f_set_of_c_sets = frozenset(set_of_c_sets)
+            if f_set_of_c_sets not in self.supernode_table:
                 supernode = \
-                    Supernode(key=str(self.level) + "_" + self.contraction_name + "_" + str(self._get_supernode_id()),
+                    Supernode(key=self._get_supernode_key(),
                               level=self.level,
-                              set_of_sets=f_set_of_sets)
+                              set_of_c_sets=f_set_of_c_sets)
 
-                self.supernode_table[f_set_of_sets] = supernode
+                self.supernode_table[f_set_of_c_sets] = supernode
                 contracted_graph.add_node(supernode)
             else:
-                supernode = self.supernode_table[f_set_of_sets]
+                supernode = self.supernode_table[f_set_of_c_sets]
 
             supernode.add_node(node)
             node.supernode = supernode

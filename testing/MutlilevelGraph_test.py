@@ -26,5 +26,6 @@ class MultilevelGraphTest(unittest.TestCase):
         self.assertEqual(dec_graph.V[1].attr, {'weight': 1})
         self.assertTrue(not dec_graph.V[2].dec.nodes())
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if '__main__' == __name__:
+    unittest.main()

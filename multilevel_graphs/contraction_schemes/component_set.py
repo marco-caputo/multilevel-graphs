@@ -30,8 +30,17 @@ class ComponentSet:
     def update(self, **attr):
         self._attr.update(attr)
 
+    def __getitem__(self, key: str) -> Any:
+        return self._attr[key]
+
+    def __setitem__(self, key: str, value: Any):
+        self._attr[key] = value
+
     def __str__(self):
         return f'ComponentSet({self.key}):{list(self._supernodes)}'
+
+    def __repr__(self):
+        return str(self)
 
     def __hash__(self):
         return hash(self.key)
