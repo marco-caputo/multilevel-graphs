@@ -1,4 +1,4 @@
-from typing import Iterable, Set
+from typing import Iterable, Set, Dict
 
 from multilevel_graphs.contraction_schemes import ComponentSet
 from multilevel_graphs.dec_graphs import Supernode
@@ -11,6 +11,8 @@ class DecTable:
     This data structure can be used as a dictionary where the keys are the nodes and the values are the sets of nodes
     to which they belong.
     """
+    _table: Dict[Supernode, Set[ComponentSet]]
+    modified: Set[Supernode]
 
     def __init__(self, sets: Iterable[ComponentSet], maximal: bool = False):
         """
@@ -78,7 +80,7 @@ class DecTable:
                 self.remove_set(subset)
             self.add_set(c_set)
 
-    def _find_subsets(self, c_set: ComponentSet):
+    def _find_subsets(self, c_set: ComponentSet) -> Set[ComponentSet]:
         """
         Returns the subsets of the given component set that are already tracked in the table.
 
@@ -96,6 +98,14 @@ class DecTable:
                 subsets.add(c_set)
 
         return subsets
+
+    def get_all_c_sets(self) -> Set[ComponentSet]:
+        """
+        Returns all the unique component sets tracked in this table.
+
+        :return: all the unique component sets tracked in this table
+        """
+        return set.union(*self._table.values())
 
     def __getitem__(self, key: Supernode) -> Set[ComponentSet]:
         return self._table[key]
@@ -118,8 +128,8 @@ class DecTable:
     def items(self):
         return self._table.items()
 
-    def keys(self):
+    def keys(self) -> Iterable[Supernode]:
         return self._table.keys()
 
-    def values(self):
+    def values(self) -> Iterable[Set[ComponentSet]]:
         return self._table.values()

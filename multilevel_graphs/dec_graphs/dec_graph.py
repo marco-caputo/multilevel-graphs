@@ -3,6 +3,9 @@ import networkx as nx
 
 
 class DecGraph:
+    V: Dict[Any, 'Supernode']
+    E: Dict[Any, 'Superedge']
+    _graph: nx.DiGraph
 
     def __init__(self, dict_V: Dict[Any, 'Supernode'] = None, dict_E: Dict[Any, 'Superedge'] = None):
         self._graph = nx.DiGraph()
@@ -128,6 +131,33 @@ class DecGraph:
         else:
             return max(node.height() for node in self.nodes())
 
+    def complete_decontraction(self) -> 'DecGraph':
+        """
+        Returns the complete decontraction of this decontractible graph.
+        The complete decontraction of a decontractible graph is the decontractible graph obtained by expanding
+        all supernodes and superedges into the supernodes and superedges they represent.
+
+        If all supernodes and superedges in this decontractible graph have an empty decontraction, an empty
+        decontractible graph is returned. Otherwise, if at least one supernode or superedge has a non-empty
+        decontraction, the complete decontraction will contain all supernodes and superedges in those non-empty
+        decontractions.
+
+        :return: the complete decontraction of this decontractible graph
+        """
+        complete_decontraction = DecGraph()
+
+        for node in self.nodes():
+            for n in node.dec.nodes():
+                complete_decontraction.add_node(n)
+            for e in node.dec.edges():
+                complete_decontraction.add_edge(e)
+
+        for edge in self.edges():
+            for e in edge.dec:
+                complete_decontraction.add_edge(e)
+
+        return complete_decontraction
+
     def induced_subgraph(self, nodes: Iterable['Supernode']) -> 'DecGraph':
         """
         Returns the induced decontractible subgraph of this decontractible graph by the given set of supernodes.
@@ -158,6 +188,39 @@ class DecGraph:
         induced_subgraph = nx.induced_subgraph(self._graph, self.nodes_keys() & nodes_keys)
         return DecGraph(dict_V={key: self.V[key] for key in induced_subgraph.nodes()},
                         dict_E={key: self.E[key] for key in induced_subgraph.edges()})
+
+    def __eq__(self, other: 'DecGraph'):
+        """
+        Returns True if the decontractible graph is equal to the other decontractible graph.
+        A decontractible graph is considered equal to another if there is a bijection between their supernodes and
+        superedge where each supernode and superedge have the same key and an equal decontraction.
+
+        :param other: the other decontractible graph to compare
+        :return: True if this decontractible graph is equal to the other
+        """
+        other_nodes = other.nodes()
+        self_nodes = self.nodes()
+        if len(other_nodes) != len(self_nodes):
+            return False
+        for other_node in other_nodes:
+            if other_node not in self_nodes:
+                return False
+            self_node = self.V[other_node.key]
+            if self_node.dec != other_node.dec:
+                return False
+
+        other_edges = other.edges()
+        self_edges = self.edges()
+        if len(other_edges) != len(self_edges):
+            return False
+        for other_edge in other_edges:
+            if other_edge not in self_edges:
+                return False
+            self_edge = self.E[(other_edge.tail.key, other_edge.head.key)]
+            if self_edge.dec != other_edge.dec:
+                return False
+
+        return True
 
 
 class Supernode:
@@ -247,7 +310,7 @@ class Supernode:
     def __eq__(self, other):
         if not isinstance(other, Supernode):
             return False
-        return self.key == other.key and self.level == other.level
+        return self.key == other.key
 
     def __hash__(self):
         return hash((self.key, self.level))

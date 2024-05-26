@@ -37,8 +37,8 @@ class MultilevelGraph:
         The natural transformation produced by this method maintains keys and attributes of the nodes and edges
         of the original graph.
         """
-        vs = dict(map(lambda c: (c[0], Supernode(c[0], attr=c[1])), graph.nodes(data=True)))
-        es = dict(map(lambda t: ((t[0], t[1]), Superedge(vs[t[0]], vs[t[1]], attr=t[2])), graph.edges(data=True)))
+        vs = dict(map(lambda c: (c[0], Supernode(c[0], **c[1])), graph.nodes(data=True)))
+        es = dict(map(lambda t: ((t[0], t[1]), Superedge(vs[t[0]], vs[t[1]], **t[2])), graph.edges(data=True)))
         return DecGraph(vs, es)
 
     def build_contraction_schemes(self, upper_level: int = None):

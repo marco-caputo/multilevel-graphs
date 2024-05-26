@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Set
 
 from multilevel_graphs.dec_graphs import Supernode, Superedge
 
@@ -18,6 +18,11 @@ class UpdateQuadruple:
     The update quadruple is managed in order to maintain itself minimal, that is, v_plus and v_minus are disjoint
     and e_plus and e_minus are disjoint.
     """
+    _v_plus: Set[Supernode]
+    _v_minus: Set[Supernode]
+    _e_plus: Set[Superedge]
+    _e_minus: Set[Superedge]
+
     def __init__(self,
                  v_plus: Iterable[Supernode] = None,
                  v_minus: Iterable[Supernode] = None,
@@ -29,7 +34,7 @@ class UpdateQuadruple:
         self._e_minus = set(e_minus) if e_minus else set()
 
     @property
-    def v_plus(self):
+    def v_plus(self) -> Set[Supernode]:
         """
         Returns a copy of the set of supernodes that have been added.
         :return: a copy of the set of supernodes that have been added
@@ -37,7 +42,7 @@ class UpdateQuadruple:
         return set(self._v_plus)
 
     @property
-    def v_minus(self):
+    def v_minus(self) -> Set[Supernode]:
         """
         Returns a copy of the set of supernodes that have been removed.
         :return: a copy of the set of supernodes that have been removed
@@ -45,7 +50,7 @@ class UpdateQuadruple:
         return set(self._v_minus)
 
     @property
-    def e_plus(self):
+    def e_plus(self) -> Set[Superedge]:
         """
         Returns a copy of the set of superedges that have been added.
         :return: a copy of the set of superedges that have been added
@@ -53,7 +58,7 @@ class UpdateQuadruple:
         return set(self._e_plus)
 
     @property
-    def e_minus(self):
+    def e_minus(self) -> Set[Superedge]:
         """
         Returns a copy of the set of superedges that have been removed.
         :return: a copy of the set of superedges that have been removed
@@ -108,7 +113,7 @@ class UpdateQuadruple:
         else:
             self._e_plus.remove(superedge)
 
-    def has_updates(self):
+    def has_updates(self) -> bool:
         """
         Returns True if there are any supernodes or superedges in any of the sets of the update quadruple,
         False otherwise.

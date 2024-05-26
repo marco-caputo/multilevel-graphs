@@ -4,6 +4,8 @@ from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, maximal
 
 
 class CliquesContractionScheme(ContractionScheme):
+    reciprocal: bool
+
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
@@ -33,7 +35,7 @@ class CliquesContractionScheme(ContractionScheme):
     def clone(self):
         return CliquesContractionScheme(self._supernode_attr_function,
                                         self._superedge_attr_function,
-                                        self._c_sets_attr_function,
+                                        self._c_set_attr_function,
                                         self._reciprocal)
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
@@ -41,7 +43,7 @@ class CliquesContractionScheme(ContractionScheme):
 
         return DecTable([ComponentSet(self._get_component_set_id(),
                                       clique,
-                                      **(self._c_sets_attr_function(clique))) for clique in cliques])
+                                      **(self._c_set_attr_function(clique))) for clique in cliques])
 
     def update_added_node(self, supernode: Supernode):
         # TODO: Implement this method

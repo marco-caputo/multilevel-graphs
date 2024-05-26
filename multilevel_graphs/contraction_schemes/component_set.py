@@ -1,10 +1,13 @@
-from typing import Any, Set
+from typing import Any, Set, Dict
 from multilevel_graphs.dec_graphs import Supernode
 
 
 class ComponentSet:
+    key: Any
+    _supernodes: Set[Supernode]
+    _attr: Dict[str, Any]
 
-    def __init__(self, key: Any, supernodes: Set[Supernode] = None, **attr):
+    def __init__(self, key: Any, supernodes: Set[Supernode] = None, **attr: Dict[str, Any]):
         self.key = key
         self._supernodes = supernodes if supernodes else set()
         self._attr = attr
@@ -23,6 +26,9 @@ class ComponentSet:
 
     def discard(self, value):
         self._supernodes.discard(value)
+
+    def update(self, **attr):
+        self._attr.update(attr)
 
     def __str__(self):
         return f'ComponentSet({self.key}):{list(self._supernodes)}'

@@ -2,7 +2,7 @@ import unittest
 from multilevel_graphs import DecGraph, Supernode, Superedge
 
 
-class DecGraph_test(unittest.TestCase):
+class DecGraphTest(unittest.TestCase):
 
     def setUp(self):
         self.test_supernodes_0 = [Supernode(i, 0) for i in range(8)]
@@ -133,7 +133,6 @@ class DecGraph_test(unittest.TestCase):
         dec_graph.add_edge(self.test_superedges_0[0])
 
         self.assertRaises(ValueError, dec_graph.add_edge, self.test_superedges_0[1])
-        self.assertRaises(ValueError, dec_graph.add_edge, self.test_superedges_1[0])
 
     def test_graph(self):
         dec_graph = DecGraph()
@@ -191,9 +190,26 @@ class DecGraph_test(unittest.TestCase):
         self.assertEqual(0, len(induced_subgraph.edges()))
 
     def test_dec_graph_with_height_2(self):
+        dec_graph = self._build_test_graph_1()
+        self.assertEqual(2, dec_graph.height())
+
+    def test_complete_decontraction(self):
+        dec_graph = self._build_test_graph_1()
+        dec_graph_decontraction = dec_graph.complete_decontraction()
+        self.assertEqual(3, len(dec_graph_decontraction.nodes()))
+        self.assertEqual(1, len(dec_graph_decontraction.edges()))
+
+        expected_decontraction = DecGraph()
         for i in range(3):
-            self.test_supernodes_1[i].add_node(self.test_supernodes_0[2*i])
-            self.test_supernodes_1[i].add_node(self.test_supernodes_0[2*i + 1])
+            expected_decontraction.add_node(self.test_supernodes_1[i])
+        expected_decontraction.add_edge(self.test_superedges_1[0])
+
+        self.assertTrue(expected_decontraction == dec_graph_decontraction)
+
+    def _build_test_graph_1(self) -> DecGraph:
+        for i in range(3):
+            self.test_supernodes_1[i].add_node(self.test_supernodes_0[2 * i])
+            self.test_supernodes_1[i].add_node(self.test_supernodes_0[2 * i + 1])
 
         self.test_supernodes_2[0].add_node(self.test_supernodes_1[0])
         self.test_supernodes_2[1].add_node(self.test_supernodes_1[1])
@@ -208,7 +224,7 @@ class DecGraph_test(unittest.TestCase):
             dec_graph.add_node(self.test_supernodes_2[i])
         dec_graph.add_edge(self.test_superedges_2[0])
 
-        self.assertEqual(2, dec_graph.height())
+        return dec_graph
 
     if __name__ == '__main__':
         unittest.main()

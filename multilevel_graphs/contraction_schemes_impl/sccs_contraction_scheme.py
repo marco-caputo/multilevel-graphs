@@ -31,13 +31,13 @@ class SccsContractionScheme(ContractionScheme):
     def clone(self):
         return SccsContractionScheme(self._supernode_attr_function,
                                      self._superedge_attr_function,
-                                     self._c_sets_attr_function)
+                                     self._c_set_attr_function)
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         sccs = strongly_connected_components(dec_graph)
         return DecTable([ComponentSet(self._get_component_set_id(),
                                       scc,
-                                      **(self._c_sets_attr_function(scc))) for scc in sccs])
+                                      **(self._c_set_attr_function(scc))) for scc in sccs])
 
     def update_added_node(self, supernode: Supernode):
         # TODO: Implement this method

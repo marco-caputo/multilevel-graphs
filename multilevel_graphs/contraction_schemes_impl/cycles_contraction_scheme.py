@@ -5,6 +5,8 @@ from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_
 
 
 class CyclesContractionScheme(ContractionScheme):
+    maximal: bool
+
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
@@ -32,14 +34,14 @@ class CyclesContractionScheme(ContractionScheme):
     def clone(self):
         return CyclesContractionScheme(self._supernode_attr_function,
                                        self._superedge_attr_function,
-                                       self._c_sets_attr_function,
+                                       self._c_set_attr_function,
                                        self._maximal)
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         cycles = [set(cycle) for cycle in simple_cycles(dec_graph)]
         return DecTable([ComponentSet(self._get_component_set_id(),
                                       cycle,
-                                      **(self._c_sets_attr_function(cycle))) for cycle in cycles])
+                                      **(self._c_set_attr_function(cycle))) for cycle in cycles])
 
     def update_added_node(self, supernode: Supernode):
         # TODO: Implement this method

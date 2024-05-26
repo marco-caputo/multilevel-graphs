@@ -1,11 +1,23 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Any, Set
+from typing import Callable, Dict, Any, Set, Optional, FrozenSet
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import DecTable, UpdateQuadruple
+from multilevel_graphs.contraction_schemes import DecTable, UpdateQuadruple, ComponentSet
 
 
 class ContractionScheme(ABC):
+    level: int
+    dec_graph: Optional[DecGraph]
+    contraction_sets_table: Optional[DecTable]
+    supernode_table: Dict[FrozenSet[ComponentSet], Supernode]
+    update_quadruple: UpdateQuadruple
+
+    _supernode_id_counter: int
+    _component_set_id_counter: int
+    _supernode_attr_function: Callable[[Supernode], Dict[str, Any]]
+    _superedge_attr_function: Callable[[Superedge], Dict[str, Any]]
+    _c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]]
+
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
@@ -22,7 +34,7 @@ class ContractionScheme(ABC):
         self._component_set_id_counter = 0
         self._supernode_attr_function = supernode_attr_function if supernode_attr_function else lambda x: {}
         self._superedge_attr_function = superedge_attr_function if superedge_attr_function else lambda x: {}
-        self._c_sets_attr_function = c_set_attr_function if c_set_attr_function else lambda x: {}
+        self._c_set_attr_function = c_set_attr_function if c_set_attr_function else lambda x: {}
         self._valid = False
         self.level = 0
         self.dec_graph = None
@@ -230,5 +242,5 @@ class ContractionScheme(ABC):
             supernode.update(**self._supernode_attr_function(supernode))
         for superedge in self.dec_graph.edges():
             superedge.update(**self._superedge_attr_function(superedge))
-        for c_set in self.contraction_sets_table:
-            c_set.update(**self._c_sets_attr_function(c_set))
+        for c_set in self.contraction_sets_table.get_all_c_sets():
+            c_set.update(**self._c_set_attr_function(set(c_set)))
