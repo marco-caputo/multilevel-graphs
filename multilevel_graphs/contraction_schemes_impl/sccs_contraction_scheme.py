@@ -2,11 +2,11 @@ from typing import Callable, Dict, Any, Set
 import networkx as nx
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import ContractionScheme, DecTable, ComponentSet
+from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, DecTable, ComponentSet
 from multilevel_graphs.dec_graphs.algorithms import strongly_connected_components
 
 
-class SccsContractionScheme(ContractionScheme):
+class SccsContractionScheme(EdgeBasedContractionScheme):
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
@@ -25,7 +25,6 @@ class SccsContractionScheme(ContractionScheme):
         """
         super().__init__(supernode_attr_function, superedge_attr_function, c_set_attr_function)
 
-    @property
     def contraction_name(self) -> str:
         return "scc"
 
@@ -37,8 +36,8 @@ class SccsContractionScheme(ContractionScheme):
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         sccs = strongly_connected_components(dec_graph)
         return DecTable([ComponentSet(self._get_component_set_id(),
-                                      scc,
-                                      **(self._c_set_attr_function(scc))) for scc in sccs])
+                                      set(scc),
+                                      **(self._c_set_attr_function(set(scc)))) for scc in sccs])
 
     def _update_added_edge(self, edge: Superedge):
         u = edge.tail.supernode
@@ -53,7 +52,7 @@ class SccsContractionScheme(ContractionScheme):
                 if reach_supernodes:
                     for node in reach_supernodes:
                         self.contraction_sets_table.remove_set(next(iter(node.component_sets)))
-                    new_set = set.union({supernode.dec.nodes() for supernode in reach_supernodes})
+                    new_set = set.union(*[supernode.dec.nodes() for supernode in reach_supernodes])
                     self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                                      new_set,
                                                                      **(self._c_set_attr_function(new_set))))
@@ -97,8 +96,8 @@ class SccsContractionScheme(ContractionScheme):
                                                                  **(self._c_set_attr_function(inner_reachable_nodes))))
                 for scc in sccs_in_h:
                     self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
-                                                                     scc,
-                                                                     **(self._c_set_attr_function(scc))))
+                                                                     set(scc),
+                                                                     **(self._c_set_attr_function(set(scc)))))
 
     @staticmethod
     def _reachable_nodes_from(dec_graph: DecGraph, node: Supernode) -> Set[Supernode]:

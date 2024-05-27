@@ -1,8 +1,6 @@
 from typing import Optional, Set, Dict, Any, Iterable, FrozenSet
 import networkx as nx
 
-from multilevel_graphs.contraction_schemes import ComponentSet
-
 
 class DecGraph:
     V: Dict[Any, 'Supernode']
@@ -135,8 +133,9 @@ class DecGraph:
         if superedge.tail not in self.V.values() or superedge.head not in self.V.values():
             raise ValueError('The supernodes of the superedge to be added must be included in '
                              'this decontractible graph.')
-        self.E[(superedge.tail.key, superedge.head.key)] = superedge
-        self._graph.add_edge(superedge.tail.key, superedge.head.key)
+        if (superedge.tail.key, superedge.head.key) not in self.E:
+            self.E[(superedge.tail.key, superedge.head.key)] = superedge
+            self._graph.add_edge(superedge.tail.key, superedge.head.key)
 
     def remove_node(self, supernode: 'Supernode'):
         """
@@ -269,7 +268,7 @@ class Supernode:
     def __init__(self, key,
                  level: int = None,
                  dec: DecGraph = None,
-                 component_sets: FrozenSet[ComponentSet] = None,
+                 component_sets: FrozenSet = None,
                  supernode: Optional['Supernode'] = None,
                  **attr):
         """

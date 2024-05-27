@@ -138,6 +138,7 @@ class ContractionScheme(ABC):
             self._update_added_edge(edge)
 
         self._update_graph()
+
         return self.dec_graph
 
     def _get_supernode_id(self) -> int:
@@ -227,11 +228,8 @@ class ContractionScheme(ABC):
             tail = edge.tail
             head = edge.head
             if tail.supernode != head.supernode:
-                contracted_graph.E.setdefault((tail.supernode.key, head.supernode.key),
-                                              Superedge(tail.supernode,
-                                                        head.supernode,
-                                                        level=self.level)) \
-                    .add_edge(edge)
+                contracted_graph.add_edge(Superedge(tail.supernode, head.supernode, level=self.level))
+                contracted_graph.E[(tail.supernode.key, head.supernode.key)].add_edge(edge)
             else:
                 tail.supernode.add_edge(edge)
 
@@ -259,7 +257,7 @@ class ContractionScheme(ABC):
         :param edge: the edge to add
         """
         if (tail_key, head_key) not in self.dec_graph.E:
-            new_superedge = Superedge(tail_key, head_key, level=self.level)
+            new_superedge = Superedge(self.dec_graph.V[tail_key], self.dec_graph.V[head_key], level=self.level)
             self.dec_graph.add_edge(new_superedge)
             self.update_quadruple.add_e_plus(new_superedge)
 
@@ -322,15 +320,19 @@ class ContractionScheme(ABC):
             elif c_sets_of_node not in self.supernode_table:
                 self._add_supernode(c_sets_of_node)
 
+            #TODO: Risolvere il caso not node.supernode
             old_supernodes[node] = node.supernode
             node.supernode.dec.remove_node(node)
             if not node.supernode.dec.nodes():
                 supernodes_to_delete.add(node.supernode)
+
             node.supernode = self.supernode_table[c_sets_of_node]
             node.supernode.dec.add_node(node)
 
+        decontraction = self.dec_graph.complete_decontraction()
+
         for b in self.contraction_sets_table.modified:
-            for edge in self.dec_graph.in_edges(b):
+            for edge in decontraction.in_edges(b):
                 if edge.tail not in old_supernodes:
 
                     if edge.tail.supernode == old_supernodes[b]:
@@ -343,7 +345,7 @@ class ContractionScheme(ABC):
                     else:
                         self._add_edge_in_superedge(edge.tail.supernode.key, b.supernode.key, edge)
 
-            for edge in self.dec_graph.out_edges(b):
+            for edge in decontraction.out_edges(b):
                 if edge.head in old_supernodes:
 
                     if old_supernodes[b] == old_supernodes[edge.head]:
@@ -369,3 +371,5 @@ class ContractionScheme(ABC):
 
         for supernode in supernodes_to_delete:
             self._remove_supernode(supernode)
+
+        self.contraction_sets_table.modified.clear()

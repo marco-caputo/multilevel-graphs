@@ -1,9 +1,9 @@
 import networkx as nx
-from typing import Set, List
+from typing import Set, List, FrozenSet, Tuple
 from multilevel_graphs.dec_graphs import DecGraph, Supernode
 
 
-def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[Set[Supernode]]:
+def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[FrozenSet[Supernode]]:
     """
     Enumerates all the maximal cliques in the given decontractible graph as a set of sets of supernodes.
     The cliques are calculated on the undirected version of the given decontractible graph, obtained by
@@ -37,10 +37,10 @@ def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[Set[Su
     """
     undirected_graph = dec_graph.graph().to_undirected(reciprocal=reciprocal)
     cliques = list(nx.find_cliques(undirected_graph))
-    return set(map(lambda c: set(map(lambda n: dec_graph.V[n], c)), cliques))
+    return set(map(lambda c: frozenset(map(lambda n: dec_graph.V[n], c)), cliques))
 
 
-def simple_cycles(dec_graph: DecGraph) -> Set[List[Supernode]]:
+def simple_cycles(dec_graph: DecGraph) -> Set[Tuple[Supernode, ...]]:
     """
     Enumerates all the simple cycles in the given decontractible graph as a set of list of supernodes.
     A simple cycle, or elementary circuit, is a closed path where no node appears twice.
@@ -66,10 +66,10 @@ def simple_cycles(dec_graph: DecGraph) -> Set[List[Supernode]]:
     .. [1] D. B. Johnson, "Finding all the elementary circuits of a directed graph," SIAM Journal on Computing, vol. 4, no. 1, pp. 77-84, 1975. https://doi.org/10.1137/0204007
     """
     cycles = list(nx.simple_cycles(dec_graph.graph()))
-    return set(map(lambda c: list(map(lambda n: dec_graph.V[n], c)), cycles))
+    return set(map(lambda c: tuple(map(lambda n: dec_graph.V[n], c)), cycles))
 
 
-def strongly_connected_components(dec_graph: DecGraph) -> Set[Set[Supernode]]:
+def strongly_connected_components(dec_graph: DecGraph) -> Set[FrozenSet[Supernode]]:
     """
     Enumerates all the strongly connected components in the given decontractible graph as a set of sets of supernodes.
     A strongly connected component (SCC) of a decontractible (directed) graph is a maximal subgraph in which
@@ -93,4 +93,4 @@ def strongly_connected_components(dec_graph: DecGraph) -> Set[Set[Supernode]]:
     .. [1] M. Sharir, "A strong-connectivity algorithm and its applications in data flow analysis", Computers & Mathematics with Applications, 1981 - Elsevier. https://doi.org/10.1016/0898-1221(81)90008-0
     """
     sccs = list(nx.kosaraju_strongly_connected_components(dec_graph.graph()))
-    return set(map(lambda c: set(map(lambda n: dec_graph.V[n], c)), sccs))
+    return set(map(lambda c: frozenset(map(lambda n: dec_graph.V[n], c)), sccs))

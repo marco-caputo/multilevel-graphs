@@ -1,8 +1,10 @@
 import unittest
 from typing import Callable, Dict, Any, Set
 
-from multilevel_graphs import ContractionScheme, DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import DecTable, ComponentSet
+import networkx as nx
+
+from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
+from multilevel_graphs.contraction_schemes import DecTable, ComponentSet, ContractionScheme
 
 
 class ContractionSchemeTest(unittest.TestCase):
@@ -53,7 +55,28 @@ class ContractionSchemeTest(unittest.TestCase):
             .contract(dec_graph)
 
         self.assertEqual(self._sample_dec_graph(), contracted_graph.complete_decontraction())
-        self.assertEqual(30, list(dec_graph.V[1].supernode['set_of_c_sets'])[0]['weight'])
+        self.assertEqual(30, list(dec_graph.V[1].supernode['component_sets'])[0]['weight'])
+
+    def test_update_graph(self):
+        dec_graph = self._sample_dec_graph()
+        scheme = IdentityContractionScheme()
+        contracted_graph = scheme.contract(dec_graph).graph().copy()
+
+        old_c_set = next(iter(dec_graph.V[1].supernode.component_sets))
+        scheme.contraction_sets_table.remove_set(old_c_set)
+        scheme.contraction_sets_table.add_set(ComponentSet(key=scheme._get_component_set_id(),
+                                                           supernodes={dec_graph.V[1]},
+                                                           test_attribute="test"))
+        scheme._update_graph()
+
+        self.assertEqual(4, len(scheme.dec_graph.nodes()))
+        self.assertEqual(3, len(scheme.dec_graph.edges()))
+
+        self.assertTrue(nx.is_isomorphic(contracted_graph, scheme.dec_graph.graph()))
+
+        new_component_sets = dec_graph.V[1].supernode.component_sets
+        self.assertEqual(1, len(new_component_sets))
+        self.assertEqual("test", next(iter(new_component_sets))['test_attribute'])
 
     @staticmethod
     def _sample_dec_graph() -> DecGraph:

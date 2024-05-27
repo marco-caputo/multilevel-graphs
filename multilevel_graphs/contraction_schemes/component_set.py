@@ -7,7 +7,7 @@ class ComponentSet:
     _supernodes: Set[Supernode]
     _attr: Dict[str, Any]
 
-    def __init__(self, key: Any, supernodes: Set[Supernode] = None, **attr: Dict[str, Any]):
+    def __init__(self, key: Any, supernodes: Set[Supernode] = None, **attr):
         self.key = key
         self._supernodes = supernodes if supernodes else set()
         self._attr = attr

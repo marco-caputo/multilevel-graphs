@@ -3,5 +3,3 @@ from .dec_graphs import maximal_cliques, simple_cycles, strongly_connected_compo
 from .contraction_schemes import ContractionScheme
 from .contraction_schemes_impl import SccsContractionScheme, CyclesContractionScheme, CliquesContractionScheme
 from .mutlilevel_graph import MultilevelGraph
-
-from .utilities import ParUtils
