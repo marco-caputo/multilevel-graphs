@@ -48,6 +48,44 @@ class DecGraph:
         """
         return set(self.E.keys())
 
+    def forward_star(self, node: 'Supernode') -> Set['Supernode']:
+        """
+        Returns the forward star of a supernode in the decontractible graph, which is the set of supernodes m
+        such that there is an edge from the given supernode to m in the decontractible graph.
+
+        :param node: the supernode to get the forward star
+        :return: the forward star of the supernode
+        """
+        return {self.V[key] for key in self.graph().successors(node.key)}
+
+    def reverse_star(self, node: 'Supernode') -> Set['Supernode']:
+        """
+        Returns the reverse star of a supernode in the decontractible graph, which is the set of supernodes m
+        such that there is an edge from m to the given supernode in the decontractible graph.
+
+        :param node: the supernode to get the reverse star
+        :return: the reverse star of the supernode
+        """
+        return {self.V[key] for key in self.graph().predecessors(node.key)}
+
+    def out_edges(self, node: 'Supernode') -> Set['Superedge']:
+        """
+        Returns the set of superedges that have the given supernode as tail in the decontractible graph.
+
+        :param node: the supernode to get the out edges
+        :return: the set of superedges that have the given supernode as tail
+        """
+        return {self.E[(node.key, head.key)] for head in self.forward_star(node)}
+
+    def in_edges(self, node: 'Supernode') -> Set['Superedge']:
+        """
+        Returns the set of superedges that have the given supernode as head in the decontractible graph.
+
+        :param node: the supernode to get the in edges
+        :return: the set of superedges that have the given supernode as head
+        """
+        return {self.E[(tail.key, node.key)] for tail in self.reverse_star(node)}
+
     def graph(self, ref: bool = False, attr: bool = False) -> nx.DiGraph:
         """
         Returns this decontractible graph as a simple directed graph with simple nodes and edges.

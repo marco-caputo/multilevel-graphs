@@ -41,8 +41,42 @@ class SccsContractionScheme(ContractionScheme):
                                       **(self._c_set_attr_function(scc))) for scc in sccs])
 
     def _update_added_edge(self, edge: Superedge):
-        # TODO: Implement this method
-        pass
+        u = edge.tail.supernode
+        v = edge.head.supernode
+
+        if u == v:
+            u.add_edge(edge)
+        else:
+            self._add_edge_in_superedge(u, v, edge)
+            if len(self.dec_graph.E[(u.key, v.key)].dec) == 1:
+                reach_supernodes = self._reach_visit(u, v)
+                if reach_supernodes:
+                    for node in reach_supernodes:
+                        self.contraction_sets_table.remove_set(next(iter(node.component_sets)))
+                    new_set = set.union({supernode.dec.nodes() for supernode in reach_supernodes})
+                    self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
+                                                                     new_set,
+                                                                     **(self._c_set_attr_function(new_set))))
+
+    def _reach_visit(self, start_node: Supernode, target_node: Supernode) -> Set[Supernode]:
+        """
+        Returns the set of supernodes in the decontractible graph of this contraction scheme that are both reachable
+        from the start node and can reach the target node.
+
+        :param start_node: the start supernode
+        :param target_node: the target supernode
+        :return: the set of supernodes that are both reachable from the start node and can reach the target node
+        """
+        can_reach_target_table = {target_node.key: True}
+        self._reach_dfs(self.dec_graph.graph(), start_node.key, can_reach_target_table)
+        return {self.dec_graph.V[node_key] for node_key, can_reach in can_reach_target_table.items() if can_reach}
+
+    def _reach_dfs(self, graph: nx.DiGraph, u: Any, can_reach_target_table: Dict[Supernode, bool]):
+        if u not in can_reach_target_table:
+            can_reach_target_table[u] = False
+            for v in graph.successors(u):
+                self._reach_dfs(graph, v, can_reach_target_table)
+                can_reach_target_table[u] |= can_reach_target_table[v]
 
     def _update_removed_edge(self, edge: Superedge):
         u = edge.tail.supernode
@@ -60,7 +94,7 @@ class SccsContractionScheme(ContractionScheme):
                 self.contraction_sets_table.remove_set(next(iter(u.component_sets)))
                 self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                                  inner_reachable_nodes,
-                                                                 **(self._c_set_attr_function(h.nodes()))))
+                                                                 **(self._c_set_attr_function(inner_reachable_nodes))))
                 for scc in sccs_in_h:
                     self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                                      scc,

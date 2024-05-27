@@ -137,6 +137,7 @@ class ContractionScheme(ABC):
         for edge in update_quadruple.e_plus:
             self._update_added_edge(edge)
 
+        self._update_graph()
         return self.dec_graph
 
     def _get_supernode_id(self) -> int:
@@ -309,3 +310,62 @@ class ContractionScheme(ABC):
         self.dec_graph.remove_node(supernode)
         self.update_quadruple.add_v_minus(supernode)
         del self.supernode_table[supernode.component_sets]
+
+    def _update_graph(self):
+        old_supernodes: Dict[Supernode, Supernode] = dict()
+        supernodes_to_delete: Set[Supernode] = set()
+
+        for node in self.contraction_sets_table.modified:
+            c_sets_of_node = frozenset(self.contraction_sets_table[node])
+            if not c_sets_of_node:
+                del self.contraction_sets_table[node]
+            elif c_sets_of_node not in self.supernode_table:
+                self._add_supernode(c_sets_of_node)
+
+            old_supernodes[node] = node.supernode
+            node.supernode.dec.remove_node(node)
+            if not node.supernode.dec.nodes():
+                supernodes_to_delete.add(node.supernode)
+            node.supernode = self.supernode_table[c_sets_of_node]
+            node.supernode.dec.add_node(node)
+
+        for b in self.contraction_sets_table.modified:
+            for edge in self.dec_graph.in_edges(b):
+                if edge.tail not in old_supernodes:
+
+                    if edge.tail.supernode == old_supernodes[b]:
+                        edge.tail.supernode.remove_edge(edge)
+                    else:
+                        self._remove_edge_in_superedge(edge.tail.supernode.key, old_supernodes[b].key, edge)
+
+                    if edge.tail.supernode == b.supernode:
+                        edge.tail.supernode.add_edge(edge)
+                    else:
+                        self._add_edge_in_superedge(edge.tail.supernode.key, b.supernode.key, edge)
+
+            for edge in self.dec_graph.out_edges(b):
+                if edge.head in old_supernodes:
+
+                    if old_supernodes[b] == old_supernodes[edge.head]:
+                        old_supernodes[b].remove_edge(edge)
+                    else:
+                        self._remove_edge_in_superedge(old_supernodes[b].key, old_supernodes[edge.head].key, edge)
+
+                    if b.supernode == edge.head.supernode:
+                        b.supernode.add_edge(edge)
+                    else:
+                        self._add_edge_in_superedge(b.supernode.key, edge.head.supernode.key, edge)
+
+                else:
+                    if old_supernodes[b] == edge.head.supernode:
+                        edge.head.supernode.remove_edge(edge)
+                    else:
+                        self._remove_edge_in_superedge(old_supernodes[b].key, edge.head.supernode.key, edge)
+
+                    if b.supernode == edge.head.supernode:
+                        b.supernode.add_edge(edge)
+                    else:
+                        self._add_edge_in_superedge(b.supernode.key, edge.head.supernode.key, edge)
+
+        for supernode in supernodes_to_delete:
+            self._remove_supernode(supernode)

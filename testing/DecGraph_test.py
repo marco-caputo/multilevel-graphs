@@ -226,6 +226,8 @@ class DecGraphTest(unittest.TestCase):
 
         return dec_graph
 
+    # TODO: Testare in_edges e out_edges
+
 
 if __name__ == '__main__':
     unittest.main()
