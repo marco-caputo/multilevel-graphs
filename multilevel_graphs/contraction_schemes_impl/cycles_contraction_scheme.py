@@ -44,7 +44,7 @@ class CyclesContractionScheme(ContractionScheme):
                                       **(self._c_set_attr_function(cycle))) for cycle in cycles])
 
     def update_added_node(self, supernode: Supernode):
-        # TODO: Implement this method
+        self.contraction_sets_table[supernode] = set()
         pass
 
     def update_removed_node(self, supernode: Supernode):
