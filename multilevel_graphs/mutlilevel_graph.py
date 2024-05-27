@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Tuple
 from multilevel_graphs import DecGraph, Supernode, Superedge, ContractionScheme
 from multilevel_graphs.contraction_schemes import UpdateQuadruple
 
@@ -70,7 +70,7 @@ class MultilevelGraph:
 
             update_q.clear()
 
-    def _highest_valid_graph(self) -> (DecGraph, int):
+    def _highest_valid_graph(self) -> Tuple[DecGraph, int]:
         """
         Returns the highest-level valid decontractible graph in the hierarchy of the multilevel graph, combined
         with the level of the scheme that produced it.
