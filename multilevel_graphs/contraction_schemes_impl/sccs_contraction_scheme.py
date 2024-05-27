@@ -1,4 +1,5 @@
 from typing import Callable, Dict, Any, Set
+import networkx as nx
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
 from multilevel_graphs.contraction_schemes import ContractionScheme, DecTable, ComponentSet
@@ -39,18 +40,33 @@ class SccsContractionScheme(ContractionScheme):
                                       scc,
                                       **(self._c_set_attr_function(scc))) for scc in sccs])
 
-    def _update_added_node(self, supernode: Supernode):
+    def _update_added_edge(self, edge: Superedge):
         # TODO: Implement this method
         pass
 
-    def _update_removed_node(self, supernode: Supernode):
-        # TODO: Implement this method
-        pass
+    def _update_removed_edge(self, edge: Superedge):
+        u = edge.tail.supernode
+        v = edge.head.supernode
 
-    def _update_added_edge(self, superedge: Superedge):
-        # TODO: Implement this method
-        pass
+        if u != v:
+            self._remove_edge_in_superedge(u, v, edge)
+        else:
+            u.remove_edge(edge)
+            inner_reachable_nodes = self._reachable_nodes_from(u.dec, edge.tail)
+            if inner_reachable_nodes != u.dec.nodes():
+                h = u.dec.induced_subgraph(u.dec.nodes() - inner_reachable_nodes)
+                sccs_in_h = strongly_connected_components(h)
 
-    def _update_removed_edge(self, superedge: Superedge):
-        # TODO: Implement this method
-        pass
+                self.contraction_sets_table.remove_set(next(iter(u.component_sets)))
+                self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
+                                                                 inner_reachable_nodes,
+                                                                 **(self._c_set_attr_function(h.nodes()))))
+                for scc in sccs_in_h:
+                    self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
+                                                                     scc,
+                                                                     **(self._c_set_attr_function(scc))))
+
+    @staticmethod
+    def _reachable_nodes_from(dec_graph: DecGraph, node: Supernode) -> Set[Supernode]:
+        descendants = nx.descendants(dec_graph.graph(), node.key)
+        return {dec_graph.V[key] for key in descendants}

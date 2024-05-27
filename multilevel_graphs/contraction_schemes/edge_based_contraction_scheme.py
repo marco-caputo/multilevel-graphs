@@ -33,26 +33,12 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
         self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                          {node},
                                                          **(self._c_set_attr_function({node}))))
-        key_component_set = frozenset(self.contraction_sets_table[node])
-
-        new_supernode = Supernode(self._get_supernode_id(),
-                                  level=self.level,
-                                  component_sets=key_component_set,
-                                  **(self._supernode_attr_function(node)))
-        new_supernode.add_node(node)
-
-        self.supernode_table[key_component_set] = new_supernode
-        node.supernode = new_supernode
-        self.update_quadruple.add_v_plus(new_supernode)
 
     def _update_removed_node(self, node: Supernode):
         # We can assume the node has no incident edges in the complete decontraction of this contraction scheme graph.
         # So, since this contraction scheme is edge-based, we can assume the node resides in a single component set,
         # composed only by this node.
-        removed_supernode = node.supernode
-        del self.supernode_table[removed_supernode.component_sets]
-        del self.contraction_sets_table[node]
-        self.update_quadruple.add_v_minus(removed_supernode)
+        self.contraction_sets_table.remove_set(next(iter(self.contraction_sets_table[node])))
 
     @abstractmethod
     def _update_added_edge(self, superedge: Superedge):

@@ -246,3 +246,66 @@ class ContractionScheme(ABC):
             superedge.update(**self._superedge_attr_function(superedge))
         for c_set in self.contraction_sets_table.get_all_c_sets():
             c_set.update(**self._c_set_attr_function(set(c_set)))
+
+    def _add_edge_in_superedge(self, tail_key: Any, head_key: Any, edge: Superedge):
+        """
+        Adds the given edge to the superedge in the decontractible graph of this contraction scheme having the given
+        tail and head keys.
+        If no such superedge is in the graph, it is added, and the quadruple is updated accordingly.
+
+        :param tail_key: the key of the tail supernode of the superedge
+        :param head_key: the key of the head supernode of the superedge
+        :param edge: the edge to add
+        """
+        if (tail_key, head_key) not in self.dec_graph.E:
+            new_superedge = Superedge(tail_key, head_key, level=self.level)
+            self.dec_graph.add_edge(new_superedge)
+            self.update_quadruple.add_e_plus(new_superedge)
+
+        self.dec_graph.E[(tail_key, head_key)].add_edge(edge)
+
+    def _remove_edge_in_superedge(self, tail_key: Any, head_key: Any, edge: Superedge):
+        """
+        Removes the given edge from the superedge in the decontractible graph of this contraction scheme having the
+        given tail and head keys.
+        If the superedge decontraction set becomes empty, it is removed from the graph, and the quadruple is updated
+        accordingly.
+
+        :param tail_key: the key of the tail supernode of the superedge
+        :param head_key: the key of the head supernode of the superedge
+        :param edge: the edge to remove
+        """
+        superedge = self.dec_graph.E[(tail_key, head_key)]
+        superedge.remove_edge(edge)
+
+        if not superedge.dec:
+            self.dec_graph.remove_edge(superedge)
+            self.update_quadruple.add_e_minus(superedge)
+
+    def _add_supernode(self, component_sets: FrozenSet[ComponentSet]) -> Supernode:
+        """
+        Adds a supernode to the decontractible graph of this contraction scheme corresponding to the given set of
+        component sets.
+        The supernode is added to the graph and the supernode table, and the quadruple is updated accordingly.
+
+        :param component_sets: the frozen set of component sets corresponding to the supernode
+        :return: the added supernode
+        """
+        supernode = Supernode(key=self._get_supernode_key(),
+                              level=self.level,
+                              component_sets=component_sets)
+        self.dec_graph.add_node(supernode)
+        self.update_quadruple.add_v_plus(supernode)
+        self.supernode_table[component_sets] = supernode
+        return supernode
+
+    def _remove_supernode(self, supernode: Supernode):
+        """
+        Removes the given supernode from the decontractible graph of this contraction scheme.
+        The supernode is removed from the graph and the supernode table, and the quadruple is updated accordingly.
+
+        :param supernode: the supernode to remove
+        """
+        self.dec_graph.remove_node(supernode)
+        self.update_quadruple.add_v_minus(supernode)
+        del self.supernode_table[supernode.component_sets]
