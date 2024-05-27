@@ -205,17 +205,17 @@ class ContractionScheme(ABC):
 
         # For each node, we assign it to a supernode corresponding to the set of component sets
         for node, set_of_c_sets in dec_table.items():
-            f_set_of_c_sets = frozenset(set_of_c_sets)
-            if f_set_of_c_sets not in self.supernode_table:
+            f_component_sets = frozenset(set_of_c_sets)
+            if f_component_sets not in self.supernode_table:
                 supernode = \
                     Supernode(key=self._get_supernode_key(),
                               level=self.level,
-                              set_of_c_sets=f_set_of_c_sets)
+                              component_sets=f_component_sets)
 
-                self.supernode_table[f_set_of_c_sets] = supernode
+                self.supernode_table[f_component_sets] = supernode
                 contracted_graph.add_node(supernode)
             else:
-                supernode = self.supernode_table[f_set_of_c_sets]
+                supernode = self.supernode_table[f_component_sets]
 
             supernode.add_node(node)
             node.supernode = supernode

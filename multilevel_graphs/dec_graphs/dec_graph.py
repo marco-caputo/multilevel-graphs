@@ -1,5 +1,7 @@
-from typing import Optional, Set, Dict, Any, Iterable
+from typing import Optional, Set, Dict, Any, Iterable, FrozenSet
 import networkx as nx
+
+from multilevel_graphs.contraction_schemes import ComponentSet
 
 
 class DecGraph:
@@ -224,9 +226,13 @@ class DecGraph:
 
 
 class Supernode:
-    __slots__ = ('key', 'level', 'dec', 'supernode', 'attr')
+    __slots__ = ('key', 'level', 'dec', 'component_sets', 'supernode', 'attr')
 
-    def __init__(self, key, level: int = None, dec: DecGraph = None, supernode: Optional['Supernode'] = None,
+    def __init__(self, key,
+                 level: int = None,
+                 dec: DecGraph = None,
+                 component_sets: FrozenSet[ComponentSet] = None,
+                 supernode: Optional['Supernode'] = None,
                  **attr):
         """
         Initializes a supernode.
@@ -240,8 +246,9 @@ class Supernode:
         :param attr: a dictionary of attributes to be added to the supernode
         """
         self.key = key
-        self.dec = dec if dec is not None else DecGraph()
         self.level = level
+        self.dec = dec if dec is not None else DecGraph()
+        self.component_sets = component_sets if component_sets is not None else frozenset()
         self.supernode = supernode
         self.attr = attr
 
