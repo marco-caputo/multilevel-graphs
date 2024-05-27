@@ -45,7 +45,7 @@ class CliquesContractionScheme(ContractionScheme):
                                       clique,
                                       **(self._c_set_attr_function(clique))) for clique in cliques])
 
-    def update_added_node(self, supernode: Supernode):
+    def _update_added_node(self, supernode: Supernode):
         self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                          {supernode},
                                                          **(self._c_set_attr_function({supernode}))))
@@ -54,14 +54,14 @@ class CliquesContractionScheme(ContractionScheme):
         self.supernode_table[key_component_set] = {}
 
 
-    def update_removed_node(self, supernode: Supernode):
+    def _update_removed_node(self, supernode: Supernode):
         # TODO: Implement this method
         pass
 
-    def update_added_edge(self, superedge: Superedge):
+    def _update_added_edge(self, superedge: Superedge):
         # TODO: Implement this method
         pass
 
-    def update_removed_edge(self, superedge: Superedge):
+    def _update_removed_edge(self, superedge: Superedge):
         # TODO: Implement this method
         pass

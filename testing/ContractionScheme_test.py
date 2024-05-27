@@ -95,14 +95,14 @@ class IdentityContractionScheme(ContractionScheme):
                   for node in dec_graph.nodes()]
         return DecTable(c_sets)
 
-    def update_added_node(self, supernode: Supernode):
+    def _update_added_node(self, supernode: Supernode):
         pass
 
-    def update_removed_node(self, supernode: Supernode):
+    def _update_removed_node(self, supernode: Supernode):
         pass
 
-    def update_added_edge(self, supernode: Supernode):
+    def _update_added_edge(self, supernode: Supernode):
         pass
 
-    def update_removed_edge(self, supernode: Supernode):
+    def _update_removed_edge(self, supernode: Supernode):
         pass

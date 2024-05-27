@@ -39,18 +39,18 @@ class SccsContractionScheme(ContractionScheme):
                                       scc,
                                       **(self._c_set_attr_function(scc))) for scc in sccs])
 
-    def update_added_node(self, supernode: Supernode):
+    def _update_added_node(self, supernode: Supernode):
         # TODO: Implement this method
         pass
 
-    def update_removed_node(self, supernode: Supernode):
+    def _update_removed_node(self, supernode: Supernode):
         # TODO: Implement this method
         pass
 
-    def update_added_edge(self, superedge: Superedge):
+    def _update_added_edge(self, superedge: Superedge):
         # TODO: Implement this method
         pass
 
-    def update_removed_edge(self, superedge: Superedge):
+    def _update_removed_edge(self, superedge: Superedge):
         # TODO: Implement this method
         pass
