@@ -131,7 +131,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
         self.assertEqual(7, len(sample_graph.V[5].supernode.dec.edges()))
         self.assertEqual(sample_graph, sample_graph.V[5].supernode.dec)
 
-    def test_update_added_node_and_edge(self):
+    def test_update_added_node_and_edge_1(self):
         sample_graph = self._sample_dec_graph()
         scheme = SccsContractionScheme()
         scheme.contract(sample_graph)
@@ -244,6 +244,48 @@ class SccsContractionSchemeTest(unittest.TestCase):
         self.assertEqual(2, len(sample_graph.V[4].supernode.dec.edges()))
         self.assertEqual(1, len(scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[2].supernode.key)].dec))
 
+    def test_update_added_and_removed_edge_1(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = SccsContractionScheme()
+        scheme.contract(sample_graph)
+
+        new_edge = Superedge(sample_graph.V[5], sample_graph.V[1], weight=5)
+        sample_graph.add_edge(new_edge)
+        removed_edge = sample_graph.E[(1, 4)]
+        sample_graph.remove_edge(removed_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge}, e_minus={removed_edge})
+
+        scheme.update(quadruple)
+
+        self.assertEqual(2, len(scheme.dec_graph.V))
+        self.assertEqual(1, len(scheme.dec_graph.E))
+        self.assertEqual(3, len(sample_graph.V[1].supernode.dec.edges()))
+        self.assertEqual(2, len(sample_graph.V[4].supernode.dec.edges()))
+        self.assertRaises(KeyError, lambda: scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[4].supernode.key)])
+        self.assertEqual(1, len(scheme.dec_graph.E[(sample_graph.V[5].supernode.key, sample_graph.V[1].supernode.key)].dec))
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+
+    def test_update_added_and_removed_edge_2(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = SccsContractionScheme()
+        scheme.contract(sample_graph)
+
+        removed_edge = sample_graph.E[(5, 4)]
+        sample_graph.remove_edge(removed_edge)
+        new_edge_1 = Superedge(sample_graph.V[4], sample_graph.V[3], weight=5)
+        sample_graph.add_edge(new_edge_1)
+        new_edge_2 = Superedge(sample_graph.V[5], sample_graph.V[1], weight=5)
+        sample_graph.add_edge(new_edge_2)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge_1, new_edge_2}, e_minus={removed_edge})
+
+        scheme.update(quadruple)
+
+        self.assertEqual(1, len(scheme.dec_graph.V))
+        self.assertEqual(0, len(scheme.dec_graph.E))
+        self.assertEqual(sample_graph.V[4].supernode, sample_graph.V[5].supernode)
+        self.assertEqual(7, len(sample_graph.V[4].supernode.dec.edges()))
+        self.assertTrue((5, 4) not in sample_graph.V[4].supernode.dec.edges_keys())
+        self.assertEqual(sample_graph, sample_graph.V[4].supernode.dec)
 
 if __name__ == '__main__':
     unittest.main()

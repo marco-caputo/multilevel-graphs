@@ -8,7 +8,7 @@ from multilevel_graphs.contraction_schemes import DecTable, UpdateQuadruple, Com
 class ContractionScheme(ABC):
     level: Optional[int]
     dec_graph: Optional[DecGraph]
-    contraction_sets_table: Optional[DecTable]
+    component_sets_table: Optional[DecTable]
     supernode_table: Dict[FrozenSet[ComponentSet], Supernode]
     update_quadruple: UpdateQuadruple
 
@@ -38,7 +38,7 @@ class ContractionScheme(ABC):
         self._valid = False
         self.level = None
         self.dec_graph = None
-        self.contraction_sets_table = None
+        self.component_sets_table = None
         self.supernode_table = dict()
         self.update_quadruple = UpdateQuadruple()
 
@@ -176,8 +176,8 @@ class ContractionScheme(ABC):
         :param dec_graph: the decontractible graph to be contracted
         :return: the contracted decontractible graph
         """
-        self.contraction_sets_table = self.contraction_function(dec_graph)
-        self.dec_graph = self._make_dec_graph(self.contraction_sets_table, dec_graph)
+        self.component_sets_table = self.contraction_function(dec_graph)
+        self.dec_graph = self._make_dec_graph(self.component_sets_table, dec_graph)
         self.update_attr()
         self._valid = True
         return self.dec_graph
@@ -247,7 +247,7 @@ class ContractionScheme(ABC):
             supernode.update(**self._supernode_attr_function(supernode))
         for superedge in self.dec_graph.edges():
             superedge.update(**self._superedge_attr_function(superedge))
-        for c_set in self.contraction_sets_table.get_all_c_sets():
+        for c_set in self.component_sets_table.get_all_c_sets():
             c_set.update(**self._c_set_attr_function(set(c_set)))
 
     def _add_edge_in_superedge(self, tail_key: Any, head_key: Any, edge: Superedge):
@@ -315,14 +315,19 @@ class ContractionScheme(ABC):
             del self.supernode_table[supernode.component_sets]
 
     def _update_graph(self):
+        """
+        Updates the structure of the decontractible graph of this contraction scheme according to the changes
+        in the component sets tracked by the component sets table.
+        :return:
+        """
         old_supernodes: Dict[Supernode, Supernode] = dict()
         deleted_subnodes: Dict[Supernode, Set[Supernode]] = dict()
         decontraction = self.dec_graph.complete_decontraction()
 
-        for node in self.contraction_sets_table.modified:
-            c_sets_of_node = frozenset(self.contraction_sets_table[node])
+        for node in self.component_sets_table.modified:
+            c_sets_of_node = frozenset(self.component_sets_table[node])
             if not c_sets_of_node:
-                del self.contraction_sets_table[node]
+                del self.component_sets_table[node]
             elif c_sets_of_node not in self.supernode_table:
                 self._add_supernode(c_sets_of_node)
 
@@ -380,4 +385,4 @@ class ContractionScheme(ABC):
             if not supernode.dec.nodes():
                 self._remove_supernode(supernode)
 
-        self.contraction_sets_table.modified.clear()
+        self.component_sets_table.modified.clear()

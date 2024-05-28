@@ -12,9 +12,6 @@ class CliqueContractionSchemeTest(unittest.TestCase):
         self.assertEqual(len(dec_graph.E),
                             len(contracted_graph.edges()))
         self.assertEqual(dec_graph, contracted_graph.complete_decontraction())
-        
-        
-        pass
 
     @staticmethod
     def _sample_dec_graph() -> DecGraph:

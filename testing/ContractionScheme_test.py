@@ -63,10 +63,10 @@ class ContractionSchemeTest(unittest.TestCase):
         contracted_graph = scheme.contract(dec_graph).graph().copy()
 
         old_c_set = next(iter(dec_graph.V[1].supernode.component_sets))
-        scheme.contraction_sets_table.remove_set(old_c_set)
-        scheme.contraction_sets_table.add_set(ComponentSet(key=scheme._get_component_set_id(),
-                                                           supernodes={dec_graph.V[1]},
-                                                           test_attribute="test"))
+        scheme.component_sets_table.remove_set(old_c_set)
+        scheme.component_sets_table.add_set(ComponentSet(key=scheme._get_component_set_id(),
+                                                         supernodes={dec_graph.V[1]},
+                                                         test_attribute="test"))
         scheme._update_graph()
 
         self.assertEqual(4, len(scheme.dec_graph.nodes()))
