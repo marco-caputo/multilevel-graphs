@@ -30,7 +30,7 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
 
     def _update_added_node(self, node: Supernode):
         # A new dummy supernode is created for the new node, in order to provide a temporary supernode for the new node
-        # during update procedures that could possibly follow before the _update_graph procedure.
+        # during following update procedures before the _update_graph procedure.
         new_c_set = ComponentSet(self._get_component_set_id(), {node}, **(self._c_set_attr_function({node})))
         self.contraction_sets_table.add_set(new_c_set)
         f_c_set = frozenset(self.contraction_sets_table[node])

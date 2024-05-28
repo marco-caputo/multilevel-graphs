@@ -56,6 +56,7 @@ class SccsContractionScheme(EdgeBasedContractionScheme):
                     self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                                      new_set,
                                                                      **(self._c_set_attr_function(new_set))))
+                    #TODO: self._update_graph()  # Updates graph structure for furthers updates
 
     def _reach_visit(self, start_node: Supernode, target_node: Supernode) -> Set[Supernode]:
         """
@@ -82,7 +83,7 @@ class SccsContractionScheme(EdgeBasedContractionScheme):
         v = edge.head.supernode
 
         if u != v:
-            self._remove_edge_in_superedge(u, v, edge)
+            self._remove_edge_in_superedge(u.key, v.key, edge)
         else:
             u.remove_edge(edge)
             inner_reachable_nodes = self._reachable_nodes_from(u.dec, edge.tail)
@@ -98,8 +99,9 @@ class SccsContractionScheme(EdgeBasedContractionScheme):
                     self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
                                                                      set(scc),
                                                                      **(self._c_set_attr_function(set(scc)))))
+                self._update_graph() # Updates graph structure for furthers updates
 
     @staticmethod
     def _reachable_nodes_from(dec_graph: DecGraph, node: Supernode) -> Set[Supernode]:
         descendants = nx.descendants(dec_graph.graph(), node.key)
-        return {dec_graph.V[key] for key in descendants}
+        return {dec_graph.V[key] for key in descendants}.union({node})
