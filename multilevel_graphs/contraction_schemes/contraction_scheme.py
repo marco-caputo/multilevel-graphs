@@ -85,6 +85,10 @@ class ContractionScheme(ABC):
         Updates the structure of the decontractible graph of this contraction scheme according to the addition
         of the given supernode at the immediate lower level.
 
+        The new added supernode should be immediately assigned to a new supernode in the decontractible graph of
+        this contraction scheme.
+        Temporary supernodes created in this method should not be tracked by the supernode table of this scheme.
+
         :param supernode: the supernode added to the lower level decontractible graph
         """
         pass
@@ -307,11 +311,13 @@ class ContractionScheme(ABC):
         """
         self.dec_graph.remove_node(supernode)
         self.update_quadruple.add_v_minus(supernode)
-        del self.supernode_table[supernode.component_sets]
+        if supernode.component_sets in self.supernode_table:
+            del self.supernode_table[supernode.component_sets]
 
     def _update_graph(self):
         old_supernodes: Dict[Supernode, Supernode] = dict()
-        supernodes_to_delete: Set[Supernode] = set()
+        deleted_subnodes: Dict[Supernode, Set[Supernode]] = dict()
+        decontraction = self.dec_graph.complete_decontraction()
 
         for node in self.contraction_sets_table.modified:
             c_sets_of_node = frozenset(self.contraction_sets_table[node])
@@ -320,18 +326,17 @@ class ContractionScheme(ABC):
             elif c_sets_of_node not in self.supernode_table:
                 self._add_supernode(c_sets_of_node)
 
-            #TODO: Risolvere il caso not node.supernode
-            old_supernodes[node] = node.supernode
-            node.supernode.dec.remove_node(node)
-            if not node.supernode.dec.nodes():
-                supernodes_to_delete.add(node.supernode)
+            if c_sets_of_node:
+                old_supernodes[node] = node.supernode
+            deleted_subnodes.setdefault(node.supernode, set()).add(node)
 
-            node.supernode = self.supernode_table[c_sets_of_node]
-            node.supernode.dec.add_node(node)
+            if c_sets_of_node:
+                node.supernode = self.supernode_table[c_sets_of_node]
+                node.supernode.dec.add_node(node)
+            else:
+                node.supernode = None
 
-        decontraction = self.dec_graph.complete_decontraction()
-
-        for b in self.contraction_sets_table.modified:
+        for b in old_supernodes:
             for edge in decontraction.in_edges(b):
                 if edge.tail not in old_supernodes:
 
@@ -369,7 +374,10 @@ class ContractionScheme(ABC):
                     else:
                         self._add_edge_in_superedge(b.supernode.key, edge.head.supernode.key, edge)
 
-        for supernode in supernodes_to_delete:
-            self._remove_supernode(supernode)
+        for supernode, node_set in deleted_subnodes.items():
+            for node in node_set:
+                supernode.dec.remove_node(node)
+            if not supernode.dec.nodes():
+                self._remove_supernode(supernode)
 
         self.contraction_sets_table.modified.clear()

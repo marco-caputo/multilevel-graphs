@@ -53,7 +53,6 @@ class CliquesContractionScheme(ContractionScheme):
         
         self.supernode_table[key_component_set] = {}
 
-
     def _update_removed_node(self, supernode: Supernode):
         # TODO: Implement this method
         pass

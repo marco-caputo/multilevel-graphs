@@ -46,7 +46,7 @@ class SccsContractionScheme(EdgeBasedContractionScheme):
         if u == v:
             u.add_edge(edge)
         else:
-            self._add_edge_in_superedge(u, v, edge)
+            self._add_edge_in_superedge(u.key, v.key, edge)
             if len(self.dec_graph.E[(u.key, v.key)].dec) == 1:
                 reach_supernodes = self._reach_visit(u, v)
                 if reach_supernodes:

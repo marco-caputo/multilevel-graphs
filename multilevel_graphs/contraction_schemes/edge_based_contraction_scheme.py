@@ -29,9 +29,18 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
         pass
 
     def _update_added_node(self, node: Supernode):
-        self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
-                                                         {node},
-                                                         **(self._c_set_attr_function({node}))))
+        # A new dummy supernode is created for the new node, in order to provide a temporary supernode for the new node
+        # during update procedures that could possibly follow before the _update_graph procedure.
+        new_c_set = ComponentSet(self._get_component_set_id(), {node}, **(self._c_set_attr_function({node})))
+        self.contraction_sets_table.add_set(new_c_set)
+        f_c_set = frozenset(self.contraction_sets_table[node])
+        dummy_supernode = Supernode(self._get_supernode_id(), level=self.level, component_sets=f_c_set)
+        dummy_supernode.add_node(node)
+        node.supernode = dummy_supernode
+        self.update_quadruple.add_v_plus(dummy_supernode)
+        self.dec_graph.add_node(dummy_supernode)
+        # The supernode is not intentionally added to the supernode_table, as it is a dummy node, and it should not be
+        # maintained during the _update_graph procedure.
 
     def _update_removed_node(self, node: Supernode):
         # We can assume the node has no incident edges in the complete decontraction of this contraction scheme graph.

@@ -55,7 +55,7 @@ class ContractionSchemeTest(unittest.TestCase):
             .contract(dec_graph)
 
         self.assertEqual(self._sample_dec_graph(), contracted_graph.complete_decontraction())
-        self.assertEqual(30, list(dec_graph.V[1].supernode['component_sets'])[0]['weight'])
+        self.assertEqual(30, list(dec_graph.V[1].supernode.component_sets)[0]['weight'])
 
     def test_update_graph(self):
         dec_graph = self._sample_dec_graph()

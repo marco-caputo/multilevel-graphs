@@ -74,11 +74,100 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(3, len(scheme.dec_graph.V))
         self.assertEqual(1, len(scheme.dec_graph.E))
-        self.assertEqual(1, len(scheme.dec_graph.V[6].supernode.dec.nodes()))
-        self.assertEqual(0, len(scheme.dec_graph.V[6].supernode.dec.edges()))
-        self.assertEqual(0, len(scheme.dec_graph.in_edges(scheme.dec_graph.V[6].supernode)))
-        self.assertEqual(0, len(scheme.dec_graph.out_edges(scheme.dec_graph.V[6].supernode)))
+        self.assertEqual(1, len(sample_graph.V[6].supernode.dec.nodes()))
+        self.assertEqual(0, len(sample_graph.V[6].supernode.dec.edges()))
+        self.assertEqual(0, len(scheme.dec_graph.in_edges(sample_graph.V[6].supernode)))
+        self.assertEqual(0, len(scheme.dec_graph.out_edges(sample_graph.V[6].supernode)))
 
+    def test_update_added_edge_1(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = SccsContractionScheme()
+        scheme.contract(sample_graph)
+
+        new_edge = Superedge(sample_graph.V[1], sample_graph.V[5], weight=5)
+        sample_graph.add_edge(new_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge}, e_minus=set())
+        scheme.update(quadruple)
+
+        self.assertEqual(2, len(scheme.dec_graph.V))
+        self.assertEqual(1, len(scheme.dec_graph.E))
+        self.assertEqual(3, len(sample_graph.V[1].supernode.dec.edges()))
+        self.assertEqual(2, len(sample_graph.V[4].supernode.dec.edges()))
+
+        superedge_between_scc = scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[4].supernode.key)]
+        self.assertEqual(2, len(superedge_between_scc.dec))
+        self.assertEqual({sample_graph.E[(1, 4)], sample_graph.E[(1, 5)]}, superedge_between_scc.dec)
+
+    def test_update_added_edge_2(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = SccsContractionScheme()
+        scheme.contract(sample_graph)
+
+        new_edge = Superedge(sample_graph.V[5], sample_graph.V[2], weight=10)
+        sample_graph.add_edge(new_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge}, e_minus=set())
+        scheme.update(quadruple)
+
+        self.assertEqual(1, len(scheme.dec_graph.V))
+        self.assertEqual(0, len(scheme.dec_graph.E))
+
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+        self.assertEqual(7, len(sample_graph.V[5].supernode.dec.edges()))
+        self.assertEqual(sample_graph, sample_graph.V[5].supernode.dec)
+
+    def test_update_added_node_and_edge(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = SccsContractionScheme()
+        scheme.contract(sample_graph)
+
+        new_node_1 = Supernode(6, level=0, weight=10)
+        sample_graph.add_node(new_node_1)
+        new_node_2 = Supernode(7, level=0, weight=10)
+        sample_graph.add_node(new_node_2)
+        new_edge_1 = Superedge(sample_graph.V[1], sample_graph.V[5], weight=5)
+        sample_graph.add_edge(new_edge_1)
+        new_edge_2 = Superedge(sample_graph.V[3], sample_graph.V[6], weight=5)
+        sample_graph.add_edge(new_edge_2)
+        new_edge_3 = Superedge(sample_graph.V[6], sample_graph.V[7], weight=5)
+        sample_graph.add_edge(new_edge_3)
+        quadruple = UpdateQuadruple(v_plus={new_node_1, new_node_2}, v_minus=set(),
+                                    e_plus={new_edge_1, new_edge_2, new_edge_3}, e_minus=set())
+        scheme.update(quadruple)
+
+        self.assertEqual(4, len(scheme.dec_graph.V))
+        self.assertEqual(3, len(scheme.dec_graph.E))
+        self.assertEqual(1, len(sample_graph.V[6].supernode.dec.nodes()))
+        self.assertEqual(1, len(sample_graph.V[7].supernode.dec.nodes()))
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+
+        self.assertEqual({(sample_graph.V[6].supernode.key, sample_graph.V[7].supernode.key),
+                          (sample_graph.V[1].supernode.key, sample_graph.V[5].supernode.key),
+                          (sample_graph.V[3].supernode.key, sample_graph.V[6].supernode.key)},
+                         set(scheme.dec_graph.E.keys()))
+        self.assertEqual(1, len(scheme.dec_graph.E[(sample_graph.V[3].supernode.key, sample_graph.V[6].supernode.key)].dec))
+        self.assertEqual(2, len(scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[5].supernode.key)].dec))
+        self.assertEqual(1, len(scheme.dec_graph.E[(sample_graph.V[6].supernode.key, sample_graph.V[7].supernode.key)].dec))
+
+    def test_update_removed_node(self):
+        sample_graph = self._sample_dec_graph()
+        sample_graph.add_node(Supernode(6, level=0, weight=10))
+        scheme = SccsContractionScheme()
+        scheme.contract(sample_graph)
+
+        removed_node = sample_graph.V[6]
+        sample_graph.remove_node(removed_node)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus={removed_node}, e_plus=set(), e_minus=set())
+
+        scheme.update(quadruple)
+
+        self.assertEqual(2, len(scheme.dec_graph.V))
+        self.assertEqual(1, len(scheme.dec_graph.E))
+        self.assertEqual(sample_graph.V[1].supernode, sample_graph.V[2].supernode)
+        self.assertEqual(sample_graph.V[1].supernode, sample_graph.V[3].supernode)
+        self.assertEqual(sample_graph.V[4].supernode, sample_graph.V[5].supernode)
+        self.assertEqual(3, len(sample_graph.V[1].supernode.dec.edges()))
+        self.assertEqual(2, len(sample_graph.V[4].supernode.dec.edges()))
+        self.assertEqual(1, len(scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[4].supernode.key)].dec))
 
     @staticmethod
     def _sample_dec_graph() -> DecGraph:

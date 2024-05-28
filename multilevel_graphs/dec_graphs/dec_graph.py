@@ -131,8 +131,7 @@ class DecGraph:
         :param superedge: the superedge to be added
         """
         if superedge.tail not in self.V.values() or superedge.head not in self.V.values():
-            raise ValueError('The supernodes of the superedge to be added must be included in '
-                             'this decontractible graph.')
+            raise ValueError('The supernodes of the superedge to be added must be included in the decontractible graph.')
         if (superedge.tail.key, superedge.head.key) not in self.E:
             self.E[(superedge.tail.key, superedge.head.key)] = superedge
             self._graph.add_edge(superedge.tail.key, superedge.head.key)
@@ -140,10 +139,16 @@ class DecGraph:
     def remove_node(self, supernode: 'Supernode'):
         """
         Removes a supernode from the decontractible graph.
+        All edges that have the supernode as tail or head in this decontractible graph will be removed as well.
         If the supernode has a key which is not in the graph, rise a KeyError.
 
         :param supernode: the supernode to be removed
         """
+        for edge in self.in_edges(supernode):
+            self.remove_edge(edge)
+        for edge in self.out_edges(supernode):
+            self.remove_edge(edge)
+
         self.V.pop(supernode.key)
         self._graph.remove_node(supernode.key)
 
@@ -169,6 +174,14 @@ class DecGraph:
             return -1
         else:
             return max(node.height() for node in self.nodes())
+
+    def order(self) -> int:
+        """
+        Returns the order of the decontractible graph, as the number of supernodes in this graph.
+
+        :return: the order of the decontractible graph
+        """
+        return len(self.nodes())
 
     def complete_decontraction(self) -> 'DecGraph':
         """
@@ -227,6 +240,9 @@ class DecGraph:
         induced_subgraph = nx.induced_subgraph(self._graph, self.nodes_keys() & nodes_keys)
         return DecGraph(dict_V={key: self.V[key] for key in induced_subgraph.nodes()},
                         dict_E={key: self.E[key] for key in induced_subgraph.edges()})
+
+    def __len__(self):
+        return self.order()
 
     def __eq__(self, other: 'DecGraph'):
         """
