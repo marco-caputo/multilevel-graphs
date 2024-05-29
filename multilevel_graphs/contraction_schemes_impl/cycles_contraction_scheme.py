@@ -7,8 +7,8 @@ from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_
 
 
 class CyclesContractionScheme(EdgeBasedContractionScheme):
-    maximal: bool
-    _decontracted_graph: Optional[nx.DiGraph]
+    _maximal: bool
+    _decontracted_graph: Optional[DecGraph]
 
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
@@ -71,14 +71,15 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
             self._add_edge_in_superedge(u.key, v.key, edge)
 
         if not self._decontracted_graph:
-            self._decontracted_graph = self.dec_graph.complete_decontraction().graph()
+            self._decontracted_graph = self.dec_graph.complete_decontraction()
         else:
-            self._decontracted_graph.add_edge(u.key, v.key)
+            self._decontracted_graph.add_edge(Superedge(edge.tail, edge.head))
 
         # Find all the simple cycles that contain the new edge and track them in the component sets table
-        for new_circuit in cycle_search(self._decontracted_graph, [edge.tail.key, edge.head.key]):
-            new_c_set = ComponentSet(self._get_component_set_id(), set(new_circuit))
-            self.component_sets_table.add_set(new_c_set, maximal=self.maximal)
+        for new_circuit in cycle_search(self._decontracted_graph.graph(), [edge.tail.key, edge.head.key]):
+            new_c_set = ComponentSet(self._get_component_set_id(),
+                                     {self._decontracted_graph.V[node] for node in new_circuit})
+            self.component_sets_table.add_set(new_c_set, maximal=self._maximal)
 
     def _update_removed_edge(self, edge: Superedge):
         u = edge.tail.supernode
@@ -90,30 +91,35 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
             self._remove_edge_in_superedge(u.key, v.key, edge)
 
         if not self._decontracted_graph:
-            self._decontracted_graph = self.dec_graph.complete_decontraction().graph()
+            self._decontracted_graph = self.dec_graph.complete_decontraction()
         else:
-            self._decontracted_graph.remove_edge(u.key, v.key)
+            self._decontracted_graph.remove_edge(Superedge(edge.tail, edge.head))
 
         c_sets_intersection = \
             set.intersection(self.component_sets_table[edge.tail], self.component_sets_table[edge.head])
 
         for c_set in c_sets_intersection:
             # We look for possible alternative cycles that contain all nodes in c_set
+            c_set_keys = frozenset({n.key for n in c_set})
             cycles_in_c_set_with_tail = {frozenset(cycle) for cycle in
-                                         cycle_search(self._decontracted_graph.subgraph(set(c_set)), [edge.tail.key])}
-            if frozenset(c_set) not in cycles_in_c_set_with_tail:
+                                         cycle_search(self._decontracted_graph.graph().subgraph(c_set_keys),
+                                                      [edge.tail.key])}
+            if c_set_keys not in cycles_in_c_set_with_tail:
                 self.component_sets_table.remove_set(c_set)
 
                 # If the scheme is maximal, new maximal cycles that are sub-cycles of the removed cycle are considered.
                 # If not, the sub-cycles must be already tracked in the table.
-                if self.maximal:
+                if self._maximal:
                     for cycle in cycles_in_c_set_with_tail:
-                        self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(), set(cycle)),
+                        self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(),
+                                                                       {self._decontracted_graph.V[key] for key in cycle}),
                                                           maximal=True)
 
                     # All remaining cycles in c_set that does not contain edge.tail must be considered
-                    remaining_cycles_in_c_set = [set(cycle) for cycle in nx.simple_cycles(
-                        self._decontracted_graph.subgraph(c_set - {edge.tail.key}))]
+                    remaining_cycles_in_c_set = {
+                        {self._decontracted_graph.V[key] for key in cycle} for cycle in
+                        nx.simple_cycles(self._decontracted_graph.graph().subgraph(c_set_keys - {edge.tail.key}))
+                    }
                     for cycle in remaining_cycles_in_c_set:
                         self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(), cycle),
                                                           maximal=True)

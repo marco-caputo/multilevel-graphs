@@ -337,7 +337,7 @@ class ContractionScheme(ABC):
             node.supernode = self.supernode_table[c_sets_of_node]
             node.supernode.dec.add_node(node)
 
-        for b in old_supernodes:
+        for b in self.component_sets_table.modified:
             for edge in decontraction.in_edges(b):
                 if edge.tail not in old_supernodes:
 
