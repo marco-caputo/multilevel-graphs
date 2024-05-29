@@ -37,7 +37,31 @@ class DecTable:
 
         self.modified.clear()
 
-    def add_set(self, c_set: ComponentSet):
+    def add_set(self, c_set: ComponentSet, maximal: bool = False):
+        """
+        Adds the given component set to the table tracked sets.
+        The method behaves differently depending on the maximal parameter:
+
+        - When maximal is set to False: if the given component set is already in the table, nothing happens.
+        Rows of the table that are modified due to the addition of the given component set are tracked in the
+        modified set.
+
+        - When maximal is set to True: adds the given component set to the table only if it is maximal among the sets
+        already tracked in the table.
+        If the given component is added to the table, sets already tracked in the table that are subsets of the given
+        component set are removed.
+        A component set is maximal if it is not a subset of any other component set in the table.
+        Rows of the table that are modified due to the possible addition and removals are tracked in the modified set.
+
+        :param c_set: the component set to add
+        :param maximal: if True, only maximal sets of nodes are stored and maintained
+        """
+        if maximal:
+            self.add_maximal_set(c_set)
+        else:
+            self.add_non_maximal_set(c_set)
+
+    def add_non_maximal_set(self, c_set: ComponentSet):
         """
         Adds the given component set to the table tracked sets.
         If the given component set is already in the table, nothing happens.
@@ -48,19 +72,6 @@ class DecTable:
         """
         for node in c_set:
             self._table.setdefault(node, set()).add(c_set)
-            self.modified.add(node)
-
-    def remove_set(self, c_set: ComponentSet):
-        """
-        Removes the given component set from the table tracked sets.
-        If the given component set is not in the table, nothing happens.
-        Rows of the table that are modified due to the removal of the given component set are tracked in the
-        modified set.
-
-        :param c_set: the component set to remove
-        """
-        for node in c_set:
-            self._table.get(node, set()).discard(c_set)
             self.modified.add(node)
 
     def add_maximal_set(self, c_set: ComponentSet):
@@ -79,6 +90,19 @@ class DecTable:
             for subset in subsets:
                 self.remove_set(subset)
             self.add_set(c_set)
+
+    def remove_set(self, c_set: ComponentSet):
+        """
+        Removes the given component set from the table tracked sets.
+        If the given component set is not in the table, nothing happens.
+        Rows of the table that are modified due to the removal of the given component set are tracked in the
+        modified set.
+
+        :param c_set: the component set to remove
+        """
+        for node in c_set:
+            self._table.get(node, set()).discard(c_set)
+            self.modified.add(node)
 
     def _find_subsets(self, c_set: ComponentSet) -> Set[ComponentSet]:
         """

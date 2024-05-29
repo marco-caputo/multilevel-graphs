@@ -36,6 +36,12 @@ class ComponentSet:
     def __setitem__(self, key: str, value: Any):
         self._attr[key] = value
 
+    def __sub__(self, other: Set[Supernode] | 'ComponentSet'):
+        if isinstance(other, ComponentSet):
+            return self._supernodes - other._supernodes
+        else:
+            return self._supernodes - other
+
     def __str__(self):
         return f'ComponentSet({self.key}):{list(self._supernodes)}'
 

@@ -142,6 +142,7 @@ class ContractionScheme(ABC):
             self._update_added_edge(edge)
 
         self._update_graph()
+        self.update_attr()
 
         return self.dec_graph
 
