@@ -1,4 +1,4 @@
-from typing import Callable, Set, Dict, Any, List, Optional
+from typing import Callable, Set, Dict, Any, List, Optional, Iterable
 import networkx as nx
 from networkx.algorithms.cycles import _johnson_cycle_search as cycle_search
 
@@ -42,10 +42,24 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
 
     def contraction_function(self, dec_graph: DecGraph) -> DecTable:
         cycles = [set(cycle) for cycle in simple_cycles(dec_graph)]
+        self._add_excluded_nodes_singletons(cycles, set(dec_graph.V.values()))
+
         return DecTable([ComponentSet(self._get_component_set_id(),
                                       cycle,
                                       **(self._c_set_attr_function(cycle))) for cycle in cycles],
                         maximal=self._maximal)
+
+    def _add_excluded_nodes_singletons(self, cycles: List[Set[Supernode]], all_nodes: Set[Supernode]):
+        """
+        Adds the nodes that are not in any cycle as singletons in the cycles list.
+
+        :param cycles: the list of cycles
+        :param all_nodes: the set of all nodes where cycles are considered
+        """
+        nodes_in_cycles = set.union(*cycles)
+        for node in all_nodes:
+            if node not in nodes_in_cycles:
+                cycles.append({node})
 
     def _update_added_edge(self, edge: Superedge):
         u = edge.tail.supernode
@@ -103,6 +117,8 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                     for cycle in remaining_cycles_in_c_set:
                         self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(), cycle),
                                                           maximal=True)
+        # Some nodes may no longer be part of any cycle
+        self.component_sets_table.add_singletons(self._get_component_set_id)
 
     def _circuit_search(self, start: Any, end: Any, graph: nx.DiGraph, stack: List[Any]) -> List[List[Any]]:
         """

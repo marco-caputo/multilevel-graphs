@@ -1,6 +1,7 @@
 import unittest
 
 from multilevel_graphs import DecGraph, Supernode, Superedge, CyclesContractionScheme
+from multilevel_graphs.contraction_schemes import UpdateQuadruple
 
 
 class CycleContractionSchemeTest(unittest.TestCase):
@@ -82,6 +83,47 @@ class CycleContractionSchemeTest(unittest.TestCase):
         self.assertEqual({63, 79}, {c_set['weight'] for c_set in sample_graph.V[1].supernode.component_sets})
         self.assertEqual({79, 43}, {c_set['weight'] for c_set in sample_graph.V[4].supernode.component_sets})
         self.assertEqual({43}, {c_set['weight'] for c_set in sample_graph.V[5].supernode.component_sets})
+
+    def test_update_added_node(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = CyclesContractionScheme(maximal=True)
+        scheme.contract(sample_graph)
+
+        new_node = Supernode(6, level=0, weight=10)
+        sample_graph.add_node(new_node)
+        quadruple = UpdateQuadruple(v_plus={new_node}, v_minus=set(), e_plus=set(), e_minus=set())
+        scheme.update(quadruple)
+
+        self.assertEqual(4, len(scheme.dec_graph.V))
+        self.assertEqual(4, len(scheme.dec_graph.E))
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+        self.assertEqual(1, len(sample_graph.V[6].supernode.dec.nodes()))
+        self.assertEqual(set(), set.union(scheme.dec_graph.in_edges(sample_graph.V[6].supernode)),
+                         scheme.dec_graph.out_edges(sample_graph.V[6].supernode))
+
+    def test_update_removed_node(self):
+        sample_graph = self._sample_dec_graph()
+        sample_graph.add_node(Supernode(6, level=0, weight=10))
+        scheme = CyclesContractionScheme(maximal=True)
+        scheme.contract(sample_graph)
+
+        removed_node = sample_graph.V[6]
+        sample_graph.remove_node(removed_node)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus={removed_node}, e_plus=set(), e_minus=set())
+        scheme.update(quadruple)
+
+        self.assertEqual(3, len(scheme.dec_graph.V))
+        self.assertEqual(4, len(scheme.dec_graph.E))
+        self.assertEqual(2, len(sample_graph.V[1].supernode.dec.nodes()))
+        self.assertEqual(sample_graph.V[1].supernode, sample_graph.V[2].supernode)
+        self.assertEqual(2, len(sample_graph.V[3].supernode.dec.nodes()))
+        self.assertEqual(sample_graph.V[3].supernode, sample_graph.V[4].supernode)
+        self.assertEqual(1, len(sample_graph.V[1].supernode.component_sets))
+        self.assertEqual(2, len(sample_graph.V[3].supernode.component_sets))
+        self.assertEqual(1, len(sample_graph.V[5].supernode.component_sets))
+        self.assertEqual({sample_graph.E[(2, 4)], sample_graph.E[(2, 3)]},
+                         scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[3].supernode.key)].dec)
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
 
 
 

@@ -327,20 +327,15 @@ class ContractionScheme(ABC):
 
         for node in self.component_sets_table.modified:
             c_sets_of_node = frozenset(self.component_sets_table[node])
-            if not c_sets_of_node:
-                del self.component_sets_table[node]
-            elif c_sets_of_node not in self.supernode_table:
+
+            if c_sets_of_node not in self.supernode_table:
                 self._add_supernode(c_sets_of_node)
 
-            if c_sets_of_node:
-                old_supernodes[node] = node.supernode
+            old_supernodes[node] = node.supernode
             deleted_subnodes.setdefault(node.supernode, set()).add(node)
 
-            if c_sets_of_node:
-                node.supernode = self.supernode_table[c_sets_of_node]
-                node.supernode.dec.add_node(node)
-            else:
-                node.supernode = None
+            node.supernode = self.supernode_table[c_sets_of_node]
+            node.supernode.dec.add_node(node)
 
         for b in old_supernodes:
             for edge in decontraction.in_edges(b):

@@ -1,4 +1,4 @@
-from typing import Iterable, Set, Dict
+from typing import Iterable, Set, Dict, Callable
 
 from multilevel_graphs.contraction_schemes import ComponentSet
 from multilevel_graphs.dec_graphs import Supernode
@@ -91,19 +91,6 @@ class DecTable:
                 self.remove_set(subset)
             self.add_set(c_set)
 
-    def remove_set(self, c_set: ComponentSet):
-        """
-        Removes the given component set from the table tracked sets.
-        If the given component set is not in the table, nothing happens.
-        Rows of the table that are modified due to the removal of the given component set are tracked in the
-        modified set.
-
-        :param c_set: the component set to remove
-        """
-        for node in c_set:
-            self._table.get(node, set()).discard(c_set)
-            self.modified.add(node)
-
     def _find_subsets(self, c_set: ComponentSet) -> Set[ComponentSet]:
         """
         Returns the subsets of the given component set that are already tracked in the table.
@@ -122,6 +109,33 @@ class DecTable:
                 subsets.add(c_set)
 
         return subsets
+
+    def remove_set(self, c_set: ComponentSet):
+        """
+        Removes the given component set from the table tracked sets.
+        If the given component set is not in the table, nothing happens.
+        Rows of the table that are modified due to the removal of the given component set are tracked in the
+        modified set.
+
+        :param c_set: the component set to remove
+        """
+        for node in c_set:
+            self._table.get(node, set()).discard(c_set)
+            self.modified.add(node)
+
+    def add_singletons(self, id_function: Callable[[], int]):
+        """
+        Creates and adds to this table singleton component sets for all the nodes that are not in any component set
+        among the tracked sets.
+        Note that only the nodes that have been tracked as modified are considered for this operation, since
+        having empty set of component sets for a node is not a valid state in this table outside the update
+        procedure of a contraction scheme.
+
+        :param id_function: the function to generate unique identifiers for the new component sets
+        """
+        for node in self.modified:
+            if not self._table.get(node):
+                self.add_set(ComponentSet(id_function, {node}))
 
     def get_all_c_sets(self) -> Set[ComponentSet]:
         """
