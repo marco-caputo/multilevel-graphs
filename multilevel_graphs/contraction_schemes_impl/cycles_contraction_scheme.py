@@ -1,10 +1,10 @@
 from typing import Callable, Set, Dict, Any
 
-from multilevel_graphs.contraction_schemes import ContractionScheme, DecTable, ComponentSet
+from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, DecTable, ComponentSet
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_cycles
 
 
-class CyclesContractionScheme(ContractionScheme):
+class CyclesContractionScheme(EdgeBasedContractionScheme):
     maximal: bool
 
     def __init__(self,
@@ -42,26 +42,6 @@ class CyclesContractionScheme(ContractionScheme):
         return DecTable([ComponentSet(self._get_component_set_id(),
                                       cycle,
                                       **(self._c_set_attr_function(cycle))) for cycle in cycles])
-
-    def _update_added_node(self, supernode: Supernode):
-        self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
-                                                         {supernode},
-                                                         **(self._c_set_attr_function({supernode}))))
-
-        key_component_set = frozenset(self.contraction_sets_table[supernode])
-
-        new_supernode = Supernode(self._get_supernode_id(),
-                                  level=self.level,
-                                  contraction_sets=key_component_set,
-                                  **(self._supernode_attr_function(supernode)))
-        new_supernode.add_node(supernode)
-
-        self.supernode_table[key_component_set] = new_supernode
-        supernode.supernode = new_supernode
-
-    def _update_removed_node(self, supernode: Supernode):
-        # TODO: Implement this method
-        pass
 
     def _update_added_edge(self, superedge: Superedge):
         # TODO: Implement this method
