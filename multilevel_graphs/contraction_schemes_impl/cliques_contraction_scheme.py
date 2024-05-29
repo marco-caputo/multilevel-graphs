@@ -46,10 +46,10 @@ class CliquesContractionScheme(ContractionScheme):
                                       **(self._c_set_attr_function(clique))) for clique in cliques])
 
     def _update_added_node(self, supernode: Supernode):
-        self.contraction_sets_table.add_set(ComponentSet(self._get_component_set_id(),
-                                                         {supernode},
-                                                         **(self._c_set_attr_function({supernode}))))
-        key_component_set = frozenset(self.contraction_sets_table[supernode])
+        self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(),
+                                                       {supernode},
+                                                       **(self._c_set_attr_function({supernode}))))
+        key_component_set = frozenset(self.component_sets_table[supernode])
         
         self.supernode_table[key_component_set] = {}
 
