@@ -46,10 +46,12 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
         # We can assume the node has no incident edges in the complete decontraction of this contraction scheme graph.
         # So, since this contraction scheme is edge-based, we can assume the node resides in a single component set,
         # composed only by this node.
-        if len(self.component_sets_table[node]) != 1:
+        if len(self.component_sets_table[node]) != 1 or len(next(iter(self.component_sets_table[node]))) != 1:
             raise ValueError("The deleted node should be in a singleton component set.")
         del self.component_sets_table[node]
-        self._remove_supernode(node.supernode)
+        if node in self.component_sets_table.modified:
+            self.component_sets_table.modified.remove(node)
+        self._deleted_subnodes.setdefault(node.supernode, set()).add(node)
         node.supernode = None
 
     @abstractmethod

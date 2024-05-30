@@ -169,7 +169,56 @@ class CycleContractionSchemeTest(unittest.TestCase):
                          scheme.dec_graph.E[(sample_graph.V[1].supernode.key, sample_graph.V[3].supernode.key)].dec)
         self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
 
+    def test_update_removed_edge(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = CyclesContractionScheme(maximal=True)
+        scheme.contract(sample_graph)
 
+        removed_edge = sample_graph.E[(2, 4)]
+        sample_graph.remove_edge(removed_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus=set(), e_minus={removed_edge})
+        scheme.update(quadruple)
+
+        self.assertEqual(3, len(scheme.dec_graph.V))
+        self.assertEqual(4, len(scheme.dec_graph.E))
+        self.assertEqual(2, len(sample_graph.V[1].supernode.dec.nodes()))
+        self.assertEqual(sample_graph.V[1].supernode, sample_graph.V[2].supernode)
+        self.assertEqual(1, len(sample_graph.V[3].supernode.dec.nodes()))
+        self.assertEqual(2, len(sample_graph.V[3].supernode.component_sets))
+        self.assertEqual(1, len(sample_graph.V[4].supernode.component_sets))
+        self.assertEqual(sample_graph.V[4].supernode, sample_graph.V[5].supernode)
+        self.assertEqual({frozenset({sample_graph.V[1], sample_graph.V[2], sample_graph.V[3]}),
+                         frozenset({sample_graph.V[3], sample_graph.V[4], sample_graph.V[5]})},
+                         {frozenset(c_set) for c_set in scheme.component_sets_table.get_all_c_sets()})
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+
+    def test_update_removed_node_and_edge(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = CyclesContractionScheme(maximal=True)
+        scheme.contract(sample_graph)
+
+        removed_edge_1 = sample_graph.E[(2, 4)]
+        sample_graph.remove_edge(removed_edge_1)
+        removed_edge_2 = sample_graph.E[(4, 3)]
+        sample_graph.remove_edge(removed_edge_2)
+        removed_edge_3 = sample_graph.E[(5, 4)]
+        sample_graph.remove_edge(removed_edge_3)
+        removed_node = sample_graph.V[4]
+        sample_graph.remove_node(removed_node)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus={removed_node}, e_plus=set(),
+                                    e_minus={removed_edge_1, removed_edge_2, removed_edge_3})
+        scheme.update(quadruple)
+
+        self.assertEqual(2, len(scheme.dec_graph.V))
+        self.assertEqual(1, len(scheme.dec_graph.E))
+        self.assertEqual(3, len(sample_graph.V[1].supernode.dec.nodes()))
+        self.assertEqual(sample_graph.V[1].supernode, sample_graph.V[2].supernode)
+        self.assertEqual(3, len(sample_graph.V[3].supernode.dec.nodes()))
+        self.assertEqual(1, len(sample_graph.V[3].supernode.component_sets))
+        self.assertEqual(1, len(sample_graph.V[5].supernode.component_sets))
+        self.assertEqual(1, len(sample_graph.V[5].supernode.dec.nodes()))
+        self.assertEqual(2, len(scheme.component_sets_table.get_all_c_sets()))
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
 
     @staticmethod
     def _sample_dec_graph() -> DecGraph:

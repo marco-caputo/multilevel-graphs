@@ -17,6 +17,7 @@ class ContractionScheme(ABC):
     _supernode_attr_function: Callable[[Supernode], Dict[str, Any]]
     _superedge_attr_function: Callable[[Superedge], Dict[str, Any]]
     _c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]]
+    _deleted_subnodes: Dict[Supernode, Set[Supernode]]
 
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
@@ -35,6 +36,7 @@ class ContractionScheme(ABC):
         self._supernode_attr_function = supernode_attr_function if supernode_attr_function else lambda x: {}
         self._superedge_attr_function = superedge_attr_function if superedge_attr_function else lambda x: {}
         self._c_set_attr_function = c_set_attr_function if c_set_attr_function else lambda x: {}
+        self._deleted_subnodes = dict()
         self._valid = False
         self.level = None
         self.dec_graph = None
@@ -322,7 +324,6 @@ class ContractionScheme(ABC):
         :return:
         """
         old_supernodes: Dict[Supernode, Supernode] = dict()
-        deleted_subnodes: Dict[Supernode, Set[Supernode]] = dict()
         decontraction = self.dec_graph.complete_decontraction()
 
         for node in self.component_sets_table.modified:
@@ -332,7 +333,7 @@ class ContractionScheme(ABC):
                 self._add_supernode(c_sets_of_node)
 
             old_supernodes[node] = node.supernode
-            deleted_subnodes.setdefault(node.supernode, set()).add(node)
+            self._deleted_subnodes.setdefault(node.supernode, set()).add(node)
 
             node.supernode = self.supernode_table[c_sets_of_node]
             node.supernode.dec.add_node(node)
@@ -375,10 +376,11 @@ class ContractionScheme(ABC):
                     else:
                         self._add_edge_in_superedge(b.supernode.key, edge.head.supernode.key, edge)
 
-        for supernode, node_set in deleted_subnodes.items():
+        for supernode, node_set in self._deleted_subnodes.items():
             for node in node_set:
                 supernode.dec.remove_node(node)
             if not supernode.dec.nodes():
                 self._remove_supernode(supernode)
 
+        self._deleted_subnodes.clear()
         self.component_sets_table.modified.clear()

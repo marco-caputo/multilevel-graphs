@@ -1,4 +1,4 @@
-from typing import Any, Set, Dict
+from typing import Any, Set, Dict, Iterable
 from multilevel_graphs.dec_graphs import Supernode
 
 
@@ -51,6 +51,8 @@ class ComponentSet:
     def __hash__(self):
         return hash(self.key)
 
-    def __eq__(self, other):
-        return self.key == other.key
+    def __eq__(self, other: 'ComponentSet' | Iterable[Supernode]):
+        if isinstance(other, ComponentSet):
+            return self.key == other.key
+        return self._supernodes == other
 

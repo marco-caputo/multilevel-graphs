@@ -135,7 +135,7 @@ class DecTable:
         """
         for node in self.modified:
             if not self._table.get(node):
-                self.add_set(ComponentSet(id_function, {node}))
+                self.add_set(ComponentSet(id_function(), {node}))
 
     def get_all_c_sets(self) -> Set[ComponentSet]:
         """

@@ -116,10 +116,10 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                                                           maximal=True)
 
                     # All remaining cycles in c_set that does not contain edge.tail must be considered
-                    remaining_cycles_in_c_set = {
+                    remaining_cycles_in_c_set = [
                         {self._decontracted_graph.V[key] for key in cycle} for cycle in
                         nx.simple_cycles(self._decontracted_graph.graph().subgraph(c_set_keys - {edge.tail.key}))
-                    }
+                    ]
                     for cycle in remaining_cycles_in_c_set:
                         self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(), cycle),
                                                           maximal=True)
