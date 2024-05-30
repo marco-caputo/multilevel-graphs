@@ -372,6 +372,12 @@ class Supernode:
             return False
         return self.key == other.key
 
+    def __len__(self):
+        return self.dec.order()
+
+    def __iter__(self):
+        return iter(self.dec.nodes())
+
     def __hash__(self):
         return hash((self.key, self.level))
 
@@ -379,6 +385,9 @@ class Supernode:
         return "(Key: " + str(self.key) + ", " + \
                 ("(Level: " + str(self.level) + "), " if self.level is not None else "") + \
                 str(self.attr) + ")"
+
+    def __repr__(self):
+        return str(self)
 
     def __getitem__(self, key: str) -> Any:
         return self.attr[key]
@@ -465,6 +474,12 @@ class Superedge:
         if not isinstance(other, Superedge):
             return False
         return self.tail == other.tail and self.head == other.head
+
+    def __len__(self):
+        return len(self.dec)
+
+    def __iter__(self):
+        return iter(self.dec)
 
     def __hash__(self):
         return hash((self.tail, self.head))

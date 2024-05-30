@@ -3,9 +3,9 @@ from typing import Set, List, FrozenSet, Tuple
 from multilevel_graphs.dec_graphs import DecGraph, Supernode
 
 
-def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[FrozenSet[Supernode]]:
+def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> List[Set[Supernode]]:
     """
-    Enumerates all the maximal cliques in the given decontractible graph as a set of sets of supernodes.
+    Enumerates all the maximal cliques in the given decontractible graph as a list of sets of supernodes.
     The cliques are calculated on the undirected version of the given decontractible graph, obtained by
     keeping only edges that appear in both directions in the original digraph or not, depending on the value of the
     reciprocal parameter.
@@ -37,7 +37,7 @@ def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Set[Frozen
     """
     undirected_graph = dec_graph.graph().to_undirected(reciprocal=reciprocal)
     cliques = list(nx.find_cliques(undirected_graph))
-    return set(map(lambda c: frozenset(map(lambda n: dec_graph.V[n], c)), cliques))
+    return list(map(lambda c: set(map(lambda n: dec_graph.V[n], c)), cliques))
 
 
 def simple_cycles(dec_graph: DecGraph) -> Set[Tuple[Supernode, ...]]:

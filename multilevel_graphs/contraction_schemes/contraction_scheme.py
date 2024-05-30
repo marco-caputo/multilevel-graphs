@@ -82,7 +82,7 @@ class ContractionScheme(ABC):
         pass
 
     @abstractmethod
-    def _update_added_node(self, supernode: Supernode):
+    def _update_added_node(self, node: Supernode):
         """
         Updates the structure of the decontractible graph of this contraction scheme according to the addition
         of the given supernode at the immediate lower level.
@@ -91,37 +91,37 @@ class ContractionScheme(ABC):
         this contraction scheme.
         Temporary supernodes created in this method should not be tracked by the supernode table of this scheme.
 
-        :param supernode: the supernode added to the lower level decontractible graph
+        :param node: the supernode added to the lower level decontractible graph
         """
         pass
 
     @abstractmethod
-    def _update_removed_node(self, supernode: Supernode):
+    def _update_removed_node(self, node: Supernode):
         """
         Updates the structure of the decontractible graph of this contraction scheme according to the removal
         of the given supernode at the immediate lower level.
 
-        :param supernode: the supernode removed from the lower level decontractible graph
+        :param node: the supernode removed from the lower level decontractible graph
         """
         pass
 
     @abstractmethod
-    def _update_added_edge(self, superedge: Superedge):
+    def _update_added_edge(self, edge: Superedge):
         """
         Updates the structure of the decontractible graph of this contraction scheme according to the addition
         of the given superedge at the immediate lower level.
 
-        :param superedge: the superedge added to the lower level decontractible graph
+        :param edge: the superedge added to the lower level decontractible graph
         """
         pass
 
     @abstractmethod
-    def _update_removed_edge(self, superedge: Superedge):
+    def _update_removed_edge(self, edge: Superedge):
         """
         Updates the structure of the decontractible graph of this contraction scheme according to the removal
         of the given superedge at the immediate lower level.
 
-        :param superedge: the superedge removed from the lower level decontractible graph
+        :param edge: the superedge removed from the lower level decontractible graph
         """
         pass
 
