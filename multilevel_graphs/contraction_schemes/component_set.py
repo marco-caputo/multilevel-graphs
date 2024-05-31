@@ -36,7 +36,7 @@ class ComponentSet:
     def __setitem__(self, key: str, value: Any):
         self._attr[key] = value
 
-    def __sub__(self, other: Set[Supernode] | 'ComponentSet'):
+    def __sub__(self, other: Set[Supernode] | 'ComponentSet') -> Set[Supernode]:
         if isinstance(other, ComponentSet):
             return self._supernodes - other._supernodes
         else:
@@ -45,13 +45,13 @@ class ComponentSet:
     def __str__(self):
         return f'ComponentSet({self.key}):{list(self._supernodes)}'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.key)
 
-    def __eq__(self, other: 'ComponentSet' | Iterable[Supernode]):
+    def __eq__(self, other: Iterable[Supernode] | 'ComponentSet') -> bool:
         if isinstance(other, ComponentSet):
             return self.key == other.key
         return self._supernodes == other

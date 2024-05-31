@@ -487,6 +487,9 @@ class Superedge:
     def __str__(self):
         return str(self.tail) + ' -> ' + str(self.head)
 
+    def __repr__(self):
+        return str(self)
+
     def __getitem__(self, key: str) -> Any:
         return self.attr[key]
 
