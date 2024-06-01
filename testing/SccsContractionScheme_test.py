@@ -287,5 +287,36 @@ class SccsContractionSchemeTest(unittest.TestCase):
         self.assertTrue((5, 4) not in sample_graph.V[4].supernode.dec.edges_keys())
         self.assertEqual(sample_graph, sample_graph.V[4].supernode.dec)
 
+    def test_update_attr_after_changes(self):
+        def supernode_attr_function(supernode: Supernode):
+            return {"weight": sum([node['weight'] for node in supernode.dec.nodes()]) + 1}
+
+        def superedge_attr_function(superedge: Superedge):
+            return {"weight": max(0, *(edge['weight'] for edge in superedge.dec))}
+
+        def c_set_attr_function(c_set):
+            return {"weight": sum([node['weight'] for node in c_set])}
+
+        sample_graph = self._sample_dec_graph()
+        scheme = SccsContractionScheme(supernode_attr_function=supernode_attr_function,
+                                       superedge_attr_function=superedge_attr_function,
+                                       c_set_attr_function=c_set_attr_function)
+        scheme.contract(sample_graph)
+
+        new_edge = Superedge(sample_graph.V[5], sample_graph.V[1], weight=5)
+        sample_graph.add_edge(new_edge)
+        removed_edge = sample_graph.E[(1, 4)]
+        sample_graph.remove_edge(removed_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge}, e_minus={removed_edge})
+
+        scheme.update(quadruple)
+
+        self.assertEqual(31, sample_graph.V[5].supernode['weight'])
+        self.assertEqual(61, sample_graph.V[3].supernode['weight'])
+        self.assertEqual(5, scheme.dec_graph.E[(sample_graph.V[5].supernode.key, sample_graph.V[1].supernode.key)][
+            'weight'])
+        self.assertEqual({30}, {c_set['weight'] for c_set in scheme.component_sets_table[sample_graph.V[5]]})
+        self.assertEqual({60}, {c_set['weight'] for c_set in sample_graph.V[1].supernode.component_sets})
+
 if __name__ == '__main__':
     unittest.main()

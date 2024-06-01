@@ -220,6 +220,68 @@ class CycleContractionSchemeTest(unittest.TestCase):
         self.assertEqual(2, len(scheme.component_sets_table.get_all_c_sets()))
         self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
 
+    def test_update_added_and_removed_edge(self):
+        sample_graph = self._sample_dec_graph()
+        scheme = CyclesContractionScheme(maximal=True)
+        scheme.contract(sample_graph)
+
+        new_edge_1 = Superedge(sample_graph.V[2], sample_graph.V[5], weight=5)
+        sample_graph.add_edge(new_edge_1)
+        new_edge_2 = Superedge(sample_graph.V[4], sample_graph.V[2], weight=5)
+        sample_graph.add_edge(new_edge_2)
+        removed_edge = sample_graph.E[(4, 3)]
+        sample_graph.remove_edge(removed_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge_1, new_edge_2}, e_minus={removed_edge})
+        scheme.update(quadruple)
+
+        self.assertEqual(3, len(scheme.dec_graph.V))
+        self.assertEqual(4, len(scheme.dec_graph.E))
+        self.assertEqual(2, len(scheme.component_sets_table.get_all_c_sets()))
+        self.assertEqual(1, len(sample_graph.V[1].supernode.dec.nodes()))
+        self.assertNotEqual(sample_graph.V[1].supernode, sample_graph.V[2].supernode)
+        self.assertEqual(2, len(sample_graph.V[2].supernode.dec.nodes()))
+        self.assertEqual(2, len(sample_graph.V[2].supernode.component_sets))
+        self.assertEqual(1, len(sample_graph.V[5].supernode.component_sets))
+        self.assertEqual({frozenset({sample_graph.V[1], sample_graph.V[2], sample_graph.V[3]}),
+                         frozenset({sample_graph.V[2], sample_graph.V[3], sample_graph.V[4], sample_graph.V[5]})},
+                         {frozenset(c_set) for c_set in scheme.component_sets_table.get_all_c_sets()})
+        self.assertEqual(3, len(scheme.dec_graph.E[(sample_graph.V[3].supernode.key, sample_graph.V[5].supernode.key)]))
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+
+    def test_update_attr_after_changes(self):
+        def supernode_attr_function(supernode: Supernode):
+            return {"weight": sum([node['weight'] for node in supernode.dec.nodes()]) + 1}
+
+        def superedge_attr_function(superedge: Superedge):
+            return {"weight": max(0, *(edge['weight'] for edge in superedge.dec))}
+
+        def c_set_attr_function(c_set):
+            return {"weight": sum([node['weight'] for node in c_set])}
+
+        sample_graph = self._sample_dec_graph()
+        scheme = CyclesContractionScheme(supernode_attr_function=supernode_attr_function,
+                                         superedge_attr_function=superedge_attr_function,
+                                         c_set_attr_function=c_set_attr_function,
+                                         maximal=True)
+        scheme.contract(sample_graph)
+
+        new_edge_1 = Superedge(sample_graph.V[2], sample_graph.V[5], weight=5)
+        sample_graph.add_edge(new_edge_1)
+        new_edge_2 = Superedge(sample_graph.V[4], sample_graph.V[2], weight=5)
+        sample_graph.add_edge(new_edge_2)
+        removed_edge = sample_graph.E[(4, 3)]
+        sample_graph.remove_edge(removed_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge_1, new_edge_2},
+                                    e_minus={removed_edge})
+        scheme.update(quadruple)
+
+        self.assertEqual(31, sample_graph.V[5].supernode['weight'])
+        self.assertEqual(31, sample_graph.V[1].supernode['weight'])
+        self.assertEqual(30, scheme.dec_graph.E[(sample_graph.V[3].supernode.key, sample_graph.V[5].supernode.key)][
+            'weight'])
+        self.assertEqual({60}, {c_set['weight'] for c_set in scheme.component_sets_table[sample_graph.V[5]]})
+        self.assertEqual({60}, {c_set['weight'] for c_set in sample_graph.V[1].supernode.component_sets})
+
     @staticmethod
     def _sample_dec_graph() -> DecGraph:
         graph = DecGraph()

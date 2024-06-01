@@ -273,6 +273,39 @@ class CliqueContractionSchemeTest(unittest.TestCase):
         self.assertEqual(3, len(sample_graph.V[3].supernode.component_sets))
         self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
 
+    def test_update_attr_after_changes(self):
+        def supernode_attr_function(supernode: Supernode):
+            return {"weight": sum([node['weight'] for node in supernode.dec.nodes()]) + 1}
+
+        def superedge_attr_function(superedge: Superedge):
+            return {"weight": max(0, *(edge['weight'] for edge in superedge.dec))}
+
+        def c_set_attr_function(c_set):
+            return {"weight": sum([node['weight'] for node in c_set])}
+
+        sample_graph = self._sample_dec_graph_2()
+        scheme = CliquesContractionScheme(supernode_attr_function=supernode_attr_function,
+                                          superedge_attr_function=superedge_attr_function,
+                                          c_set_attr_function=c_set_attr_function, reciprocal=False)
+        scheme.contract(sample_graph)
+
+        new_edge = Superedge(sample_graph.V[5], sample_graph.V[4], weight=5)
+        sample_graph.add_edge(new_edge)
+        removed_edge = sample_graph.E[(6, 3)]
+        sample_graph.remove_edge(removed_edge)
+        quadruple = UpdateQuadruple(v_plus=set(), v_minus=set(), e_plus={new_edge}, e_minus={removed_edge})
+        scheme.update(quadruple)
+
+        self.assertEqual(26, sample_graph.V[6].supernode['weight'])
+        self.assertEqual(26, sample_graph.V[7].supernode['weight'])
+        self.assertEqual(5, scheme.dec_graph.E[(sample_graph.V[7].supernode.key, sample_graph.V[3].supernode.key)][
+            'weight'])
+        self.assertEqual(1, len(scheme.dec_graph.E[(sample_graph.V[7].supernode.key, sample_graph.V[3].supernode.key)]))
+        self.assertEqual(3, len(scheme.component_sets_table[sample_graph.V[4]]))
+        self.assertEqual({70, 75}, {c_set['weight'] for c_set in scheme.component_sets_table[sample_graph.V[4]]})
+        self.assertEqual({60, 70}, {c_set['weight'] for c_set in sample_graph.V[3].supernode.component_sets})
+        self.assertEqual(sample_graph, scheme.dec_graph.complete_decontraction())
+
     @staticmethod
     def _sample_dec_graph_1() -> DecGraph:
         graph = DecGraph()
