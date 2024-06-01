@@ -91,15 +91,15 @@ class CliquesContractionScheme(EdgeBasedContractionScheme):
         v = edge.head.supernode
         flag_remove = False
 
-        # The edge is removed, and the removal flag is set if the two nodes edge.tail and edge.head are not adjacent
-        # anymore, according to the reciprocal attribute.
+        # The edge is removed, and the removal flag is set to True if the two nodes edge.tail and edge.head are not
+        # adjacent anymore, according to the reciprocal attribute.
         if u == v:
             u.remove_edge(edge)
-            flag_remove = self.reciprocal or (edge.head, edge.tail) not in u.dec.edges_keys()
+            flag_remove = self._reciprocal or (edge.head, edge.tail) not in u.dec.edges_keys()
         else:
             self._remove_edge_in_superedge(u.key, v.key, edge)
-            flag_remove = self.reciprocal or \
-                          (edge.head, edge.tail) not in {e.key for e in self.dec_graph.E[(v.key, u.key)]}
+            flag_remove = self._reciprocal or (v.key, u.key) not in self.dec_graph.E or \
+                          (edge.head, edge.tail) not in {(e.tail.key, e.head.key) for e in self.dec_graph.E[(v.key, u.key)]}
 
         if flag_remove:
             new_cliques_candidates: List[Set[Supernode]] = []
