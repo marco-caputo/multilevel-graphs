@@ -7,7 +7,20 @@ from multilevel_graphs.contraction_schemes import ContractionScheme, DecTable, C
 
 class EdgeBasedContractionScheme(ContractionScheme, ABC):
     """
-    //TODO: Add documentation that explains the properties of edge-based contraction schemes.
+    An abstract class for edge-based contraction schemes.
+    An EdgeBasedContractionScheme is a ContractionScheme where the presence of an edge between two supernodes is
+    a necessary condition for them to be part of the same component set.
+    In other words, in an edge-based contraction scheme, if a single node has no incident edges, it must reside in
+    a singleton component set.
+    Examples of edge-based contraction schemes are the SCCs, Cycles and Cliques contraction schemes, where
+    component sets are formed based on the connection between supernodes.
+    Example of non-edge-based contraction schemes are the independent sets contraction scheme, where component sets
+    are formed based on the absence of edges between supernodes.
+
+    This abstract class provides implementations for two of the update procedures defined in the ContractionScheme
+    class: _update_added_node and _update_removed_node. The other update procedures, _update_added_edge and
+    _update_removed_edge, are abstract and should be implemented by the subclasses as they depend on the specific
+    contraction scheme.
     """
 
     def __init__(self,
