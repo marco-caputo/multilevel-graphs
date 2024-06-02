@@ -145,6 +145,7 @@ class ContractionScheme(ABC):
 
         self._update_graph()
         self.update_attr()
+        self._valid = True
 
         return self.dec_graph
 

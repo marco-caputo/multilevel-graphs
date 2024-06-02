@@ -32,7 +32,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         self._decontracted_graph = None  # Used to store the current complete decontraction during subsequent updates
 
     def contraction_name(self) -> str:
-        return "simple_" + ("_maximal" if self._maximal else "") + "_cycles"
+        return "simple" + ("_maximal" if self._maximal else "") + "_cycles"
 
     def clone(self):
         return CyclesContractionScheme(self._supernode_attr_function,
@@ -56,7 +56,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         :param cycles: the list of cycles
         :param all_nodes: the set of all nodes where cycles are considered
         """
-        nodes_in_cycles = set.union(*cycles)
+        nodes_in_cycles = set.union(set(), *cycles)
         for node in all_nodes:
             if node not in nodes_in_cycles:
                 cycles.append({node})
@@ -126,17 +126,20 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         # Some nodes may no longer be part of any cycle
         self.component_sets_table.add_singletons(self._get_component_set_id)
 
-    def _circuit_search(self, start: Any, end: Any, graph: nx.DiGraph, stack: List[Any]) -> List[List[Any]]:
-        """
-        Find all the circuits in the given graph that start and end at the given nodes.
-        If the stack is not empty, finds all the circuits containing an edge between each node in the stack plus the
-        given start node, in order.
+    # The following methods are overridden to update the decontracted graph used during the other update
+    # procedures of the scheme.
+    def _update_added_node(self, node: Supernode):
+        super()._update_added_node(node)
 
-        :param start: the start node
-        :param end: the end node
-        :param graph: the graph to search
-        :param stack: the stack of nodes in the current path, prefix of the circuit
-        :return: the list of circuits
-        """
+        if not self._decontracted_graph:
+            self._decontracted_graph = self.dec_graph.complete_decontraction()
+        else:
+            self._decontracted_graph.add_node(node)
 
-        pass
+    def _update_removed_node(self, node: Supernode):
+        super()._update_removed_node(node)
+
+        if not self._decontracted_graph:
+            self._decontracted_graph = self.dec_graph.complete_decontraction()
+        else:
+            self._decontracted_graph.remove_node(node)

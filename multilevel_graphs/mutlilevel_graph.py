@@ -1,7 +1,7 @@
 import networkx as nx
-from typing import List, Optional, Any, Tuple
+from typing import List, Optional, Any, Tuple, Set
 from multilevel_graphs import DecGraph, Supernode, Superedge, ContractionScheme
-from multilevel_graphs.contraction_schemes import UpdateQuadruple
+from multilevel_graphs.contraction_schemes import UpdateQuadruple, ComponentSet
 
 
 class MultilevelGraph:
@@ -24,7 +24,7 @@ class MultilevelGraph:
         self._base_update_quadruple = UpdateQuadruple()
         self._contraction_schemes = [scheme.clone() for scheme in contraction_schemes] if contraction_schemes else []
         for i in range(self.height()):
-            contraction_schemes[i].level = i + 1
+            self._contraction_schemes[i].level = i + 1
 
     @staticmethod
     def natural_transformation(graph: nx.DiGraph) -> DecGraph:
@@ -37,8 +37,9 @@ class MultilevelGraph:
         The natural transformation produced by this method maintains keys and attributes of the nodes and edges
         of the original graph.
         """
-        vs = dict(map(lambda c: (c[0], Supernode(c[0], **c[1])), graph.nodes(data=True)))
-        es = dict(map(lambda t: ((t[0], t[1]), Superedge(vs[t[0]], vs[t[1]], **t[2])), graph.edges(data=True)))
+        vs = dict(map(lambda c: (c[0], Supernode(key=c[0], level=0, **c[1])), graph.nodes(data=True)))
+        es = dict(map(lambda t: ((t[0], t[1]), Superedge(tail=vs[t[0]], head=vs[t[1]], level=0, **t[2])),
+                      graph.edges(data=True)))
         return DecGraph(vs, es)
 
     def build_contraction_schemes(self, upper_level: int = None):
@@ -61,7 +62,7 @@ class MultilevelGraph:
             return
 
         for i in range(lower_level, upper_level):
-            update_q = self._contraction_schemes[i - 1].update_quadruple if i > 1 else self._base_update_quadruple
+            update_q = self._contraction_schemes[i-1].update_quadruple if i > 0 else self._base_update_quadruple
 
             if self._contraction_schemes[i].dec_graph is None:
                 last_dec_graph = self._contraction_schemes[i].contract(last_dec_graph)
@@ -104,6 +105,30 @@ class MultilevelGraph:
         else:
             return None
 
+    def get_component_sets(self, level: int) -> Optional[Set[ComponentSet]]:
+        """
+        Returns the set of component sets of the decontractible graph recognized by the contraction scheme at the
+        given level in this multilevel graph.
+        If the given level is 0, None is returned, as the base decontractible graph does not have component sets.
+        If the given level is 1 or higher, the component sets of the contraction scheme at the given level,
+        composed of nodes at the immediate lower level, are returned.
+        If the given level is not in the range of the contraction schemes in this multilevel graph, None is returned.
+
+        The ComponentSet objects in the returned set are shallow copies of the original sets, and changes to the nodes
+        in the set may affect the integrity of the multilevel graph.
+
+        Note that this operation causes the decontractible graph at the given level to be constructed, if it has not.
+
+        :param level: the level of the decontractible graph to be returned
+        :return: the list of component sets of the decontractible graph at the given level
+        """
+        if 1 <= level <= self.height():
+            self.build_contraction_schemes(level)
+            return set([c_set.copy() for c_set in
+                        self._contraction_schemes[level-1].component_sets_table.get_all_c_sets()])
+        else:
+            return None
+
     def append_contraction_scheme(self, contraction_scheme):
         """
         Appends a new contraction scheme to the multilevel graph on top of the existing ones.
@@ -114,8 +139,8 @@ class MultilevelGraph:
 
         :param contraction_scheme: the contraction scheme to be appended
         """
-        contraction_scheme.level = self.height() + 1
-        self._contraction_schemes.append(contraction_scheme)
+        self._contraction_schemes.append(contraction_scheme.clone())
+        self._contraction_schemes[-1].level = self.height()
 
     def height(self) -> int:
         """
@@ -144,6 +169,7 @@ class MultilevelGraph:
     def remove_node(self, key: Any):
         """
         Removes a node from the base graph of the multilevel graph.
+        All edges that have the node as tail or head at the base graph will be removed as well.
         If the node with the given key does not exist in the base graph, nothing happens.
 
         Changes to upper levels are not immediately reflected in the decontractible graphs, but rather lazily

@@ -12,6 +12,9 @@ class ComponentSet:
         self._supernodes = supernodes if supernodes else set()
         self._attr = attr
 
+    def copy(self) -> 'ComponentSet':
+        return ComponentSet(self.key, self._supernodes.copy(), **self._attr)
+
     def __contains__(self, value):
         return value in self._supernodes
 
