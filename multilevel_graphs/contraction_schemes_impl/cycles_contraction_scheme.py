@@ -1,6 +1,5 @@
-from typing import Callable, Set, Dict, Any, List, Optional, Iterable
+from typing import Callable, Set, Dict, Any, List, Optional, Generator
 import networkx as nx
-from networkx.algorithms.cycles import _johnson_cycle_search as cycle_search
 
 from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_cycles
@@ -96,7 +95,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
             self._decontracted_graph.add_edge(Superedge(edge.tail, edge.head))
 
         # Find all the simple cycles that contain the new edge and track them in the component sets table
-        for new_circuit in cycle_search(self._decontracted_graph.graph(), [edge.tail.key, edge.head.key]):
+        for new_circuit in self.cycle_search(self._decontracted_graph.graph(), [edge.tail.key, edge.head.key]):
             new_c_set = ComponentSet(self._get_component_set_id(),
                                      {self._decontracted_graph.V[node] for node in new_circuit})
             self.component_sets_table.add_set(new_c_set, maximal=self._maximal)
@@ -122,7 +121,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
             # We look for possible alternative cycles that contain all nodes in c_set
             c_set_keys = frozenset({n.key for n in c_set})
             cycles_in_c_set_with_tail = {frozenset(cycle) for cycle in
-                                         cycle_search(self._decontracted_graph.graph().subgraph(c_set_keys),
+                                         self.cycle_search(self._decontracted_graph.graph().subgraph(c_set_keys),
                                                       [edge.tail.key])}
             if c_set_keys not in cycles_in_c_set_with_tail:
                 self.component_sets_table.remove_set(c_set)
@@ -163,3 +162,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
             self._decontracted_graph = self.dec_graph.complete_decontraction()
         else:
             self._decontracted_graph.remove_node(node)
+
+    @staticmethod
+    def cycle_search(graph: nx.Graph, path: list) -> Generator:
+        return nx.algorithms.cycles._johnson_cycle_search(graph, path)

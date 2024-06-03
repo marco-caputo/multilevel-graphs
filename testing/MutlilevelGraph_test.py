@@ -1,6 +1,6 @@
 import unittest
 import networkx as nx
-from multilevel_graphs import MultilevelGraph, DecGraph, SccsContractionScheme, CliquesContractionScheme, \
+from multilevel_graphs import MultilevelGraph, DecGraph, SCCsContractionScheme, CliquesContractionScheme, \
     CyclesContractionScheme
 
 
@@ -32,7 +32,7 @@ class MultilevelGraphTest(unittest.TestCase):
         self.assertEqual((ml_graph[0], 0), ml_graph._highest_valid_graph())
 
     def test_build_1_height_ml_graph(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme()])
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme()])
 
         self.assertEqual(1, ml_graph.height())
         self.assertEqual({1, 2, 3}, ml_graph.get_graph(0).nodes_keys())
@@ -44,7 +44,7 @@ class MultilevelGraphTest(unittest.TestCase):
         self.assertEqual((ml_graph[1], 1), ml_graph._highest_valid_graph())
 
     def test_build_2_height_ml_graph(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme(),
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme(),
                                                                CliquesContractionScheme(reciprocal=False)])
 
         self.assertEqual(2, ml_graph.height())
@@ -63,21 +63,21 @@ class MultilevelGraphTest(unittest.TestCase):
         self.assertEqual(ml_graph.get_graph(1), ml_graph.get_graph(2).complete_decontraction())
 
     def test_build_contraction_schemes(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme(),
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme(),
                                                                CliquesContractionScheme(reciprocal=False)])
 
         ml_graph.build_contraction_schemes()
         self.assertEqual(2, ml_graph._highest_valid_graph()[1])
 
     def test_build_contraction_schemes_2(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme(),
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme(),
                                                                CliquesContractionScheme(reciprocal=False)])
 
         ml_graph.build_contraction_schemes(upper_level=1)
         self.assertEqual(1, ml_graph._highest_valid_graph()[1])
 
     def test_append_contraction_scheme_1(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme()])
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme()])
         self.assertEqual(1, ml_graph.height())
         ml_graph.get_graph(1)
 
@@ -92,7 +92,7 @@ class MultilevelGraphTest(unittest.TestCase):
         ml_graph = MultilevelGraph(self.get_sample_graph_1())
         self.assertEqual(0, ml_graph.height())
 
-        ml_graph.append_contraction_scheme(SccsContractionScheme())
+        ml_graph.append_contraction_scheme(SCCsContractionScheme())
         self.assertEqual(1, ml_graph.height())
         self.assertEqual(0, ml_graph._highest_valid_graph()[1])
 
@@ -114,7 +114,7 @@ class MultilevelGraphTest(unittest.TestCase):
         self.assertEqual(40, ml_graph.get_graph(0).V[4].attr['weight'])
 
     def test_add_node_2(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme()])
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme()])
         self.assertEqual(1, ml_graph.height())
         self.assertEqual({1, 2, 3}, ml_graph.get_graph(0).nodes_keys())
         self.assertEqual(2, len(ml_graph.get_graph(1)))
@@ -126,7 +126,7 @@ class MultilevelGraphTest(unittest.TestCase):
         self.assertEqual(1, ml_graph._highest_valid_graph()[1])
 
     def test_add_node_3(self):
-        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SccsContractionScheme(),
+        ml_graph = MultilevelGraph(self.get_sample_graph_1(), [SCCsContractionScheme(),
                                                                CliquesContractionScheme(reciprocal=False)])
         self.assertEqual(2, len(ml_graph.get_graph(1)))
         ml_graph.build_contraction_schemes(1)
@@ -234,7 +234,7 @@ class MultilevelGraphTest(unittest.TestCase):
         graph.add_node(6, weight=60)
 
         ml_graph = MultilevelGraph(graph, [CyclesContractionScheme(maximal=True),
-                                           SccsContractionScheme()])
+                                           SCCsContractionScheme()])
         ml_graph.build_contraction_schemes(2)
         self.assertEqual(4, len(ml_graph.get_graph(1)))
         self.assertEqual(2, len(ml_graph.get_graph(2)))
@@ -258,7 +258,7 @@ class MultilevelGraphTest(unittest.TestCase):
         graph = self.get_sample_graph_2()
 
         ml_graph = MultilevelGraph(graph, [CyclesContractionScheme(maximal=True),
-                                           SccsContractionScheme()])
+                                           SCCsContractionScheme()])
         self.assertEqual(3, len(ml_graph.get_graph(1)))
         self.assertEqual(1, len(ml_graph.get_graph(2)))
 
@@ -274,7 +274,7 @@ class MultilevelGraphTest(unittest.TestCase):
         graph = self.get_sample_graph_2()
 
         ml_graph = MultilevelGraph(graph, [CyclesContractionScheme(maximal=True),
-                                           SccsContractionScheme()])
+                                           SCCsContractionScheme()])
 
         ml_graph.remove_node(2)
         self.assertEqual(4, len(ml_graph.get_graph(0)))

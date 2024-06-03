@@ -6,7 +6,7 @@ from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, Co
 from multilevel_graphs.dec_graphs.algorithms import strongly_connected_components
 
 
-class SccsContractionScheme(EdgeBasedContractionScheme):
+class SCCsContractionScheme(EdgeBasedContractionScheme):
     """
     A contraction scheme based on the contraction function by strongly connected components.
     According to this scheme, two nodes are in the same component set and supernode if they are part of the same
@@ -38,7 +38,7 @@ class SccsContractionScheme(EdgeBasedContractionScheme):
         return "scc"
 
     def clone(self):
-        return SccsContractionScheme(self._supernode_attr_function,
+        return SCCsContractionScheme(self._supernode_attr_function,
                                      self._superedge_attr_function,
                                      self._c_set_attr_function)
 

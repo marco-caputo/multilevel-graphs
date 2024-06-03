@@ -1,4 +1,4 @@
-from typing import Any, Set, Dict, Iterable
+from typing import Any, Set, Dict, Iterable, Union
 from multilevel_graphs.dec_graphs import Supernode
 
 
@@ -30,11 +30,11 @@ class ComponentSet:
     ...     print(supernode)
 
     A ComponentSet can also have attributes that may be calculated during the contraction process:
-    >>> from multilevel_graphs import MultilevelGraph, SccsContractionScheme
+    >>> from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
     >>> import networkx as nx
     >>> nx_graph = nx.DiGraph()
     >>> nx_graph.add_edges_from([(1, 2, {'weight': 25}), (2, 3, {'weight': 20}), (3, 1, {'weight': 10})])
-    >>> scheme = SccsContractionScheme(c_set_attr_function=lambda c_set: sum([node['weight'] for node in c_set]))
+    >>> scheme = SCCsContractionScheme(c_set_attr_function=lambda c_set: sum([node['weight'] for node in c_set]))
     >>> ml_graph = MultilevelGraph(nx_graph, [scheme])
     >>> c1 = next(iter(ml_graph.get_component_sets(1)))
     >>> c1['weight'] # 55
@@ -83,7 +83,7 @@ class ComponentSet:
     def __setitem__(self, key: str, value: Any):
         self._attr[key] = value
 
-    def __sub__(self, other: Set[Supernode] | 'ComponentSet') -> Set[Supernode]:
+    def __sub__(self, other: Union[Set[Supernode], 'ComponentSet']) -> Set[Supernode]:
         if isinstance(other, ComponentSet):
             return self._supernodes - other._supernodes
         else:
@@ -98,7 +98,7 @@ class ComponentSet:
     def __hash__(self) -> int:
         return hash(self.key)
 
-    def __eq__(self, other: Iterable[Supernode] | 'ComponentSet') -> bool:
+    def __eq__(self, other: Union[Iterable[Supernode], 'ComponentSet']) -> bool:
         if isinstance(other, ComponentSet):
             return self.key == other.key
         return self._supernodes == other

@@ -1,6 +1,6 @@
 import unittest
 
-from multilevel_graphs import DecGraph, Supernode, Superedge, SccsContractionScheme
+from multilevel_graphs import DecGraph, Supernode, Superedge, SCCsContractionScheme
 from multilevel_graphs.contraction_schemes import UpdateQuadruple
 
 
@@ -24,7 +24,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_contract(self):
         sample_graph = self._sample_dec_graph()
-        contracted_graph = SccsContractionScheme().contract(sample_graph)
+        contracted_graph = SCCsContractionScheme().contract(sample_graph)
 
         self.assertEqual(2, len(contracted_graph.nodes()))
         self.assertEqual(1, len(contracted_graph.edges()))
@@ -42,7 +42,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
             return {"weight": sum([node['weight'] for node in supernode.dec.nodes()]) + 1}
 
         sample_graph = self._sample_dec_graph()
-        contracted_graph = SccsContractionScheme(supernode_attr_function).contract(sample_graph)
+        contracted_graph = SCCsContractionScheme(supernode_attr_function).contract(sample_graph)
 
         self.assertEqual(self._sample_dec_graph(), contracted_graph.complete_decontraction())
         self.assertEqual(61, sample_graph.V[1].supernode['weight'])
@@ -57,7 +57,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
                               + sum([edge['weight'] for edge in superedge.dec])}
 
         sample_graph = self._sample_dec_graph()
-        contracted_graph = SccsContractionScheme(supernode_attr_function, superedge_attr_function).contract(sample_graph)
+        contracted_graph = SCCsContractionScheme(supernode_attr_function, superedge_attr_function).contract(sample_graph)
 
         self.assertEqual(self._sample_dec_graph(), contracted_graph.complete_decontraction())
         self.assertEqual(60, sample_graph.V[1].supernode['weight'])
@@ -71,7 +71,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
             return {"weight": sum([node['weight']+1 for node in c_set])}
 
         sample_graph = self._sample_dec_graph()
-        contracted_graph = SccsContractionScheme(supernode_attr_function=supernode_attr_function,
+        contracted_graph = SCCsContractionScheme(supernode_attr_function=supernode_attr_function,
                                                  c_set_attr_function=c_set_attr_function).contract(sample_graph)
 
         self.assertEqual(self._sample_dec_graph(), contracted_graph.complete_decontraction())
@@ -80,7 +80,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_added_node(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         new_node = Supernode(6, level=0, weight=10)
@@ -97,7 +97,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_added_edge_1(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         new_edge = Superedge(sample_graph.V[1], sample_graph.V[5], weight=5)
@@ -116,7 +116,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_added_edge_2(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         new_edge = Superedge(sample_graph.V[5], sample_graph.V[2], weight=10)
@@ -133,7 +133,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_added_node_and_edge_1(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         new_node_1 = Supernode(6, level=0, weight=10)
@@ -167,7 +167,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
     def test_update_removed_node_1(self):
         sample_graph = self._sample_dec_graph()
         sample_graph.add_node(Supernode(6, level=0, weight=10))
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         removed_node = sample_graph.V[6]
@@ -187,7 +187,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_removed_edge_1(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         removed_edge = sample_graph.E[(1, 4)]
@@ -205,7 +205,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_removed_edge_2(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         removed_edge = sample_graph.E[(5, 4)]
@@ -225,7 +225,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_removed_edge_and_node(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         removed_node = sample_graph.V[3]
@@ -246,7 +246,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_added_and_removed_edge_1(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         new_edge = Superedge(sample_graph.V[5], sample_graph.V[1], weight=5)
@@ -267,7 +267,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
 
     def test_update_added_and_removed_edge_2(self):
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme()
+        scheme = SCCsContractionScheme()
         scheme.contract(sample_graph)
 
         removed_edge = sample_graph.E[(5, 4)]
@@ -298,7 +298,7 @@ class SccsContractionSchemeTest(unittest.TestCase):
             return {"weight": sum([node['weight'] for node in c_set])}
 
         sample_graph = self._sample_dec_graph()
-        scheme = SccsContractionScheme(supernode_attr_function=supernode_attr_function,
+        scheme = SCCsContractionScheme(supernode_attr_function=supernode_attr_function,
                                        superedge_attr_function=superedge_attr_function,
                                        c_set_attr_function=c_set_attr_function)
         scheme.contract(sample_graph)

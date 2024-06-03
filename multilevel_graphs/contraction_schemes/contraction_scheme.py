@@ -46,16 +46,16 @@ class ContractionScheme(ABC):
     --------
     Let SccsContractionScheme be a sample contraction scheme implementation, it can be used to define a
     multilevel graph as follows:
-    >>> from multilevel_graphs import MultilevelGraph, SccsContractionScheme
+    >>> from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
     >>> import networkx as nx
     >>> nx_graph = nx.DiGraph()
     >>> nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1)])
-    >>> scheme = SccsContractionScheme()
+    >>> scheme = SCCsContractionScheme()
     >>> ml_graph = MultilevelGraph(nx_graph, [scheme])
 
     The definition of the contraction scheme could also include attribute functions for supernodes, superedges and
     component sets:
-    >>> scheme = SccsContractionScheme(supernode_attr_function= lambda n: {'size': len(n)},
+    >>> scheme = SCCsContractionScheme(supernode_attr_function= lambda n: {'size': len(n)},
     ...     superedge_attr_function= lambda e: {'weight': sum([edge['weight'] for edge in e.edges()])},
     ...     c_set_attr_function= lambda c_set: {'size': len(c_set)})
     """
