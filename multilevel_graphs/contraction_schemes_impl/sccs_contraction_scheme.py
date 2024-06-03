@@ -2,19 +2,28 @@ from typing import Callable, Dict, Any, Set
 import networkx as nx
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, DecTable, ComponentSet
+from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
 from multilevel_graphs.dec_graphs.algorithms import strongly_connected_components
 
 
 class SccsContractionScheme(EdgeBasedContractionScheme):
+    """
+    A contraction scheme based on the contraction function by strongly connected components.
+    According to this scheme, two nodes are in the same component set and supernode if they are part of the same
+    strongly connected component in the decontractible graph.
+    In this scheme there is a one-to-one correspondence between supernodes and component sets.
+
+    A strongly connected component (SCC) of a decontractible (directed) graph is the node set of a maximal subgraph
+    in which there is a path between every pair of nodes.
+    """
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
                  c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None):
         """
         Initializes a contraction scheme based on the contraction function by strongly connected components.
-        A strongly connected component (SCC) of a decontractible (directed) graph is a maximal subgraph in which
-        there is a path between every pair of nodes.
+        A strongly connected component (SCC) of a decontractible (directed) graph is the node set of a maximal subgraph
+        in which there is a path between every pair of nodes.
 
         For this contraction scheme, there is a one-to-one correspondence between the strongly connected components
         of the decontractible graph and the component sets of the contraction scheme.
@@ -33,11 +42,11 @@ class SccsContractionScheme(EdgeBasedContractionScheme):
                                      self._superedge_attr_function,
                                      self._c_set_attr_function)
 
-    def contraction_function(self, dec_graph: DecGraph) -> DecTable:
+    def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         sccs = strongly_connected_components(dec_graph)
-        return DecTable([ComponentSet(self._get_component_set_id(),
-                                      set(scc),
-                                      **(self._c_set_attr_function(set(scc)))) for scc in sccs])
+        return CompTable([ComponentSet(self._get_component_set_id(),
+                                       set(scc),
+                                       **(self._c_set_attr_function(set(scc)))) for scc in sccs])
 
     def _update_added_edge(self, edge: Superedge):
         u = edge.tail.supernode

@@ -2,11 +2,31 @@ from typing import Callable, Set, Dict, Any, List, Optional, Iterable
 import networkx as nx
 from networkx.algorithms.cycles import _johnson_cycle_search as cycle_search
 
-from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, DecTable, ComponentSet
+from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_cycles
 
 
 class CyclesContractionScheme(EdgeBasedContractionScheme):
+    """
+    A contraction scheme based on the contraction function by simple cycles.
+    According to this scheme, two nodes are in the same component set if they are part of the same simple cycle among
+    all distinct simple cycles in the graph, and two nodes are part of the same supernode if they are part of the same
+    set of simple cycles.
+    In this scheme there is a one-to-one correspondence between supernodes and distinct non-empty sets of component
+    sets.
+
+    In a decontractible (directed) graph, a simple cycle, or elementary circuit, is a closed path where no node
+    appears twice.
+    Two simple cycles are distinct if they are not cyclic permutations of each other.
+    A maximal simple cycle is a simple cycle that is not a subset of any other simple cycle.
+
+    The maximal attribute of the scheme determines whether only maximal simple cycles are considered.
+
+    Attributes
+    ----------
+    _maximal : bool
+        boolean value that determines whether only maximal simple cycles are considered
+    """
     _maximal: bool
     _decontracted_graph: Optional[DecGraph]
 
@@ -40,14 +60,14 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                                        self._c_set_attr_function,
                                        self._maximal)
 
-    def contraction_function(self, dec_graph: DecGraph) -> DecTable:
+    def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         cycles = [set(cycle) for cycle in simple_cycles(dec_graph)]
         self._add_excluded_nodes_singletons(cycles, set(dec_graph.V.values()))
 
-        return DecTable([ComponentSet(self._get_component_set_id(),
-                                      cycle,
-                                      **(self._c_set_attr_function(cycle))) for cycle in cycles],
-                        maximal=self._maximal)
+        return CompTable([ComponentSet(self._get_component_set_id(),
+                                       cycle,
+                                       **(self._c_set_attr_function(cycle))) for cycle in cycles],
+                         maximal=self._maximal)
 
     def _add_excluded_nodes_singletons(self, cycles: List[Set[Supernode]], all_nodes: Set[Supernode]):
         """

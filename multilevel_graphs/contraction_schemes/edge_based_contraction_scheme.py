@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, Set
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import ContractionScheme, DecTable, ComponentSet
+from multilevel_graphs.contraction_schemes import ContractionScheme, CompTable, ComponentSet
 
 
 class EdgeBasedContractionScheme(ContractionScheme, ABC):
@@ -38,7 +38,7 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
         pass
 
     @abstractmethod
-    def contraction_function(self, dec_graph: DecGraph) -> DecTable:
+    def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         pass
 
     def _update_added_node(self, node: Supernode):

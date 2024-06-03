@@ -1,10 +1,30 @@
 from typing import Callable, Set, Dict, Any, List
 import networkx as nx
-from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, ComponentSet, DecTable
+from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, ComponentSet, CompTable
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, maximal_cliques
 
 
 class CliquesContractionScheme(EdgeBasedContractionScheme):
+    """
+    An edge-based contraction scheme defined by the contraction function by cliques.
+    According to this scheme, two nodes are in the same component set if they are part of the same maximal clique,
+    and two nodes are part of the same supernode if they are part of the same set of maximal cliques.
+    In this scheme there is a one-to-one correspondence between supernodes and distinct non-empty sets of component
+    sets.
+
+    In a decontractible (directed) graph, a clique is a subset of nodes of a graph such that every two distinct nodes
+    are adjacent.
+    A maximal clique is a clique that is not a subset of any other clique.
+
+    The reciprocal attribute of the scheme determines how two nodes are considered adjacent: if True, two nodes are
+    adjacent if there is an edge between them in both directions in the original graph, otherwise, two nodes are
+    adjacent if there is an edge between them in at least one direction in the original graph.
+
+    Attributes
+    ----------
+    _reciprocal : bool
+        boolean value that determines how two nodes are considered adjacent in the original graph
+    """
     _reciprocal: bool
 
     def __init__(self,
@@ -38,12 +58,12 @@ class CliquesContractionScheme(EdgeBasedContractionScheme):
                                         self._c_set_attr_function,
                                         self._reciprocal)
 
-    def contraction_function(self, dec_graph: DecGraph) -> DecTable:
+    def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         cliques = maximal_cliques(dec_graph, self._reciprocal)
 
-        return DecTable([ComponentSet(self._get_component_set_id(),
-                                      clique,
-                                      **(self._c_set_attr_function(clique))) for clique in cliques])
+        return CompTable([ComponentSet(self._get_component_set_id(),
+                                       clique,
+                                       **(self._c_set_attr_function(clique))) for clique in cliques])
 
     def _update_added_edge(self, edge: Superedge):
         u = edge.tail.supernode

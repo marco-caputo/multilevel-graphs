@@ -4,7 +4,7 @@ from typing import Callable, Dict, Any, Set
 import networkx as nx
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import DecTable, ComponentSet, ContractionScheme
+from multilevel_graphs.contraction_schemes import CompTable, ComponentSet, ContractionScheme
 
 
 class ContractionSchemeTest(unittest.TestCase):
@@ -112,11 +112,11 @@ class IdentityContractionScheme(ContractionScheme):
             self._c_set_attr_function
         )
 
-    def contraction_function(self, dec_graph: DecGraph) -> DecTable:
+    def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         c_sets = [ComponentSet(key=self._get_component_set_id(),
                                supernodes={node})
                   for node in dec_graph.nodes()]
-        return DecTable(c_sets)
+        return CompTable(c_sets)
 
     def _update_added_node(self, supernode: Supernode):
         pass

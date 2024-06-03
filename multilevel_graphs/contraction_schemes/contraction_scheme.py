@@ -2,13 +2,66 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, Set, Optional, FrozenSet
 
 from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import DecTable, UpdateQuadruple, ComponentSet
+from multilevel_graphs.contraction_schemes import CompTable, UpdateQuadruple, ComponentSet
 
 
 class ContractionScheme(ABC):
+    """
+    An abstract class for contraction schemes.
+    A contraction scheme is a layer of a multilevel graph that defines how the nodes and edges of the graph are
+    contracted into supernodes and superedges, respectively.
+    More formally, a contraction scheme is a contraction function f defined on the domain of decontractible graphs
+    and codomain of contracted decontractible graphs, which, given a decontractible graph G, returns a new
+    decontractible graph G' that is a contraction of G.
+
+    Along with the definition of the contraction function, provided by the method contraction_function, a contraction
+    scheme should define methods to update the contracted decontractible graph according to the changes in the lower
+    level decontractible graph. Those methods are _update_added_node, _update_removed_node, _update_added_edge and
+    _update_removed_edge.
+
+    When a contraction scheme is constructed, it can be initialized with attribute functions for supernodes, superedges
+    and component sets. These functions produce a dictionary of key-value pairs that are used to assign attributes to
+    the supernodes and superedges of the produced contracted decontractible graph, as well as to the component sets
+    tracked by the component set table of the contraction scheme.
+
+    Attributes
+    ----------
+    level : Optional[int]
+        the level of the contraction scheme in the multilevel graph. Automatically set by the multilevel graph when
+        the contraction scheme is added to it.
+    dec_graph : Optional[DecGraph]
+        the contracted decontractible graph produced by this contraction scheme.
+    component_sets_table : Optional[CompTable]
+        the component set table of this contraction scheme, that tracks the current state of the component sets
+        recognized by the contraction scheme.
+    supernode_table : Dict[FrozenSet[ComponentSet], Supernode]
+        a dictionary that maps the bijection between sets of component sets and the supernodes of the contracted
+        decontractible graph produced by this contraction scheme.
+    update_quadruple : UpdateQuadruple
+        a quadruple of four sets that tracks the changes in the supernodes and superedges of the contracted
+        decontractible graph. Used as a buffer to store the changes to send to the immediate upper level of the
+        multilevel graph the contraction scheme is part of.
+
+    Examples
+    --------
+    Let SccsContractionScheme be a sample contraction scheme implementation, it can be used to define a
+    multilevel graph as follows:
+    >>> from multilevel_graphs import MultilevelGraph, SccsContractionScheme
+    >>> import networkx as nx
+    >>> nx_graph = nx.DiGraph()
+    >>> nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1)])
+    >>> scheme = SccsContractionScheme()
+    >>> ml_graph = MultilevelGraph(nx_graph, [scheme])
+
+    The definition of the contraction scheme could also include attribute functions for supernodes, superedges and
+    component sets:
+    >>> scheme = SccsContractionScheme(supernode_attr_function= lambda n: {'size': len(n)},
+    ...     superedge_attr_function= lambda e: {'weight': sum([edge['weight'] for edge in e.edges()])},
+    ...     c_set_attr_function= lambda c_set: {'size': len(c_set)})
+    """
     level: Optional[int]
     dec_graph: Optional[DecGraph]
-    component_sets_table: Optional[DecTable]
+    component_sets_table: Optional[CompTable]
     supernode_table: Dict[FrozenSet[ComponentSet], Supernode]
     update_quadruple: UpdateQuadruple
 
@@ -24,8 +77,7 @@ class ContractionScheme(ABC):
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
                  c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None):
         """
-        Initializes a contraction scheme based on the contraction function
-        defined for this scheme.
+        Initializes a contraction scheme based on the contraction function defined for this scheme.
 
         :param supernode_attr_function: a function that returns the attributes to assign to each supernode of this scheme
         :param superedge_attr_function: a function that returns the attributes to assign to each superedge of this scheme
@@ -72,10 +124,17 @@ class ContractionScheme(ABC):
         pass
 
     @abstractmethod
-    def contraction_function(self, dec_graph: DecGraph) -> DecTable:
+    def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         """
-        Returns a dictionary of contraction sets for the given decontractible graph
-        according to this contraction scheme.
+        Returns component set table for the given decontractible graph according to this contraction scheme.
+        The component set table is a mapping between nodes and their corresponding collection of component sets
+        the node is part of, according to the contraction scheme.
+
+        The returned component set table should provide a covering of the nodes of the decontractible graph, where
+        each node appears as the key of a row of the table, and all the sets of component sets provided as values
+        should be non-empty.
+
+        All the component sets tracked by the table should also be distinct in terms of their contained supernodes.
 
         :param dec_graph: the decontractible graph to be contracted
         """
@@ -170,7 +229,9 @@ class ContractionScheme(ABC):
         return self._component_set_id_counter
 
     def _get_supernode_key(self):
-        return str(self.level) + "_" + self.contraction_name() + "_" + str(self._get_supernode_id())
+        return (str(self.level)+"_" if self.level else "") \
+            + self.contraction_name() + "_" \
+            + str(self._get_supernode_id())
 
     def contract(self, dec_graph: DecGraph) -> DecGraph:
         """
@@ -202,7 +263,7 @@ class ContractionScheme(ABC):
         """
         self._valid = False
 
-    def _make_dec_graph(self, dec_table: DecTable, dec_graph: DecGraph) -> DecGraph:
+    def _make_dec_graph(self, dec_table: CompTable, dec_graph: DecGraph) -> DecGraph:
         """
         Constructs a decontractible graph from the given decontractible graph
         and the table containing the mapping between nodes and their set of contraction sets.
@@ -322,7 +383,6 @@ class ContractionScheme(ABC):
         """
         Updates the structure of the decontractible graph of this contraction scheme according to the changes
         in the component sets tracked by the component sets table.
-        :return:
         """
         old_supernodes: Dict[Supernode, Supernode] = dict()
         decontraction = self.dec_graph.complete_decontraction()

@@ -4,19 +4,21 @@ from multilevel_graphs.contraction_schemes import ComponentSet
 from multilevel_graphs.dec_graphs import Supernode
 
 
-class DecTable:
+class CompTable:
     """
-    A decontractible table is a data structure that represents a covering of nodes and stores
-    the information of which nodes are in which set of nodes.
-    This data structure can be used as a dictionary where the keys are the nodes and the values are the sets of nodes
-    to which they belong.
+    A component set table is a data structure associated with a particular layer of a multilevel graph that represents
+    a covering of nodes at the immediate lower level and stores the information regarding which nodes are currently in
+    which set of nodes.
+
+    This data structure can be used as a dictionary where the keys are the nodes and the values are the sets of
+    component set of nodes to which they belong.
     """
     _table: Dict[Supernode, Set[ComponentSet]]
     modified: Set[Supernode]
 
     def __init__(self, sets: Iterable[ComponentSet], maximal: bool = False):
         """
-        Initializes a decontractible table with the given set of component sets of nodes.
+        Initializes a component set table with the given set of component sets of nodes.
         The given set should be a covering of the nodes of a decontractible graph, and all the component sets
         should be distinct in terms of their contained supernodes.
         In case the maximal parameter is set to True, the table will only track the maximal sets of nodes
