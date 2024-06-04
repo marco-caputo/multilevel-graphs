@@ -12,7 +12,27 @@ class MultilevelGraph:
     More formally, a multi-level graph M is a couple (G, Γ) where
 
     - G is a directed graph
-    - Γ = < fc_1, fc_2, ..., fc_k > is a sequence of contraction functions fc_i : G_i -> G_{i+1} that
+    - Γ = < fc_1, fc_2, ..., fc_k > is a sequence of contraction functions
+
+    A multi-level graph M has an height h(M) = k, where k is the number of contraction functions in the sequence Γ.
+    If we refer as G_i the decontractible graph of the multi-level graph M at level i, where 0 <= i <= k, then
+    G_0 = G and G_i, with 0 < i <= k, is the decontractible graph produced by the i-th contraction function in the sequence Γ
+    (1-indexed).
+
+    The main operations that can be performed on a multi-level graph are:
+
+     - The retrival of information at a certain level, such as the decontractible graph or the component sets of the
+       contraction scheme at that level.
+     - The modification of the base graph, such as the addition or removal of nodes and edges, and the consequent
+       update of the decontractible graphs at the upper levels.
+
+    In this implementation, once the graph at the base level is defined along with the sequence of contraction
+    functions, the decontractible graphs at each level are lazily constructed when requested, as well as the component
+    sets of the contraction schemes. Updates are also lazily propagated to the upper levels.
+    To gain control of when the computation of the decontractible graphs is performed, the method
+    ``build_contraction_schemes`` can be used to build the decontractible graphs from the base level up to a certain
+    level.
+
     # TODO: complete the definition
     """
     _dec_graph_0: DecGraph
