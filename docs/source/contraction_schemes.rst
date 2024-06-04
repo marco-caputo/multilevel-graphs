@@ -10,7 +10,7 @@ Abstract Class: ContractionScheme
    :show-inheritance:
 
 Abstract Class: EdgeBasedContractionScheme
-----------------------------------
+------------------------------------------
 
 .. autoclass:: multilevel_graphs.contraction_schemes.edge_based_contraction_scheme.EdgeBasedContractionScheme
    :members:

@@ -22,23 +22,25 @@ class ComponentSet:
 
     Examples
     --------
-    A ComponentSet can be treated as a set of supernodes, for instance:
-    >>> from multilevel_graphs import ComponentSet, Supernode
-    >>> c1 = ComponentSet(1, {Supernode(1), Supernode(2)})
-    >>> c1.add(Supernode(3))
-    >>> for supernode in c1:
-    ...     print(supernode)
+    A ComponentSet can be treated as a set of supernodes, for instance::
+
+        from multilevel_graphs import ComponentSet, Supernode
+        c1 = ComponentSet(1, {Supernode(1), Supernode(2)})
+        c1.add(Supernode(3))
+        for supernode in c1:
+            print(supernode)
 
     A ComponentSet can also have attributes that may be calculated during the contraction process:
-    >>> from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
-    >>> import networkx as nx
-    >>> nx_graph = nx.DiGraph()
-    >>> nx_graph.add_edges_from([(1, 2, {'weight': 25}), (2, 3, {'weight': 20}), (3, 1, {'weight': 10})])
-    >>> scheme = SCCsContractionScheme(c_set_attr_function=lambda c_set: sum([node['weight'] for node in c_set]))
-    >>> ml_graph = MultilevelGraph(nx_graph, [scheme])
-    >>> c1 = next(iter(ml_graph.get_component_sets(1)))
-    >>> c1['weight'] # 55
-    >>> c1['double_wight'] = c1['weight'] * 2
+
+        from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
+        import networkx as nx
+        nx_graph = nx.DiGraph()
+        nx_graph.add_edges_from([(1, 2, {'weight': 25}), (2, 3, {'weight': 20}), (3, 1, {'weight': 10})])
+        scheme = SCCsContractionScheme(c_set_attr_function=lambda c_set: sum([node['weight'] for node in c_set]))
+        ml_graph = MultilevelGraph(nx_graph, [scheme])
+        c1 = next(iter(ml_graph.get_component_sets(1)))
+        c1['weight'] # 55
+        c1['double_wight'] = c1['weight'] * 2
     """
     key: Any
     _supernodes: Set[Supernode]

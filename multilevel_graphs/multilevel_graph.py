@@ -5,6 +5,16 @@ from multilevel_graphs.contraction_schemes import UpdateQuadruple, ComponentSet
 
 
 class MultilevelGraph:
+    """
+    A multilevel graph is a hierarchical data structure that represents a sequence of decontractible graphs
+    produced by a series of contraction schemes (or contraction functions) applied to a base graph.
+
+    More formally, a multi-level graph M is a couple (G, Γ) where
+
+    - G is a directed graph
+    - Γ = < fc_1, fc_2, ..., fc_k > is a sequence of contraction functions fc_i : G_i -> G_{i+1} that
+    # TODO: complete the definition
+    """
     _dec_graph_0: DecGraph
     _contraction_schemes: List[ContractionScheme]
 
@@ -31,9 +41,11 @@ class MultilevelGraph:
         """
         Returns the natural transformation of the graph.
         The natural transformation of a graph is a decontractible graph such that:
+
         - each supernode has an empty decontractible graph as its decontraction
         - each superedge has an empty set of superedges as its decontraction
         - is isomorphic to the original graph
+
         The natural transformation produced by this method maintains keys and attributes of the nodes and edges
         of the original graph.
         """

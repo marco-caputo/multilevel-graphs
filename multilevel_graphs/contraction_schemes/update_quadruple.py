@@ -10,13 +10,14 @@ class UpdateQuadruple:
     are not yet considered by higher level contraction schemes.
 
     The sets are:
-    - v_plus: the supernodes tha have been added to the decontractible graph
-    - v_minus: the supernodes that have been removed from the decontractible graph
-    - e_plus: the superedges that have been added to the decontractible graph
-    - e_minus: the superedges that have been removed from the decontractible graph
 
-    The update quadruple is managed in order to maintain itself minimal, that is, v_plus and v_minus are disjoint
-    and e_plus and e_minus are disjoint.
+    - ``v_plus`` : the supernodes tha have been added to the decontractible graph
+    - ``v_minus`` : the supernodes that have been removed from the decontractible graph
+    - ``e_plus`` : the superedges that have been added to the decontractible graph
+    - ``e_minus`` : the superedges that have been removed from the decontractible graph
+
+    The update quadruple is managed in order to maintain itself minimal, that is, ``v_plus`` and ``v_minus``
+    are disjoint and ``e_plus`` and ``e_minus`` are disjoint.
     """
     _v_plus: Set[Supernode]
     _v_minus: Set[Supernode]

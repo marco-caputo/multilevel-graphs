@@ -2,7 +2,7 @@ multilevel_graphs
 ==========================
 
 Class: MultilevelGraph
-----------
+----------------------
 
 .. autoclass:: multilevel_graphs.multilevel_graph.MultilevelGraph
    :members:

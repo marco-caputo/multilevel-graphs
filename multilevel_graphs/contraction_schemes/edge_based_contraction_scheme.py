@@ -18,9 +18,9 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
     are formed based on the absence of edges between supernodes.
 
     This abstract class provides implementations for two of the update procedures defined in the ContractionScheme
-    class: _update_added_node and _update_removed_node. The other update procedures, _update_added_edge and
-    _update_removed_edge, are abstract and should be implemented by the subclasses as they depend on the specific
-    contraction scheme.
+    class: ``_update_added_node`` and ``_update_removed_node``. The other update procedures, ``_update_added_edge``
+    and ``_update_removed_edge``, are abstract and should be implemented by the subclasses as they depend on the
+    specific contraction scheme.
     """
 
     def __init__(self,

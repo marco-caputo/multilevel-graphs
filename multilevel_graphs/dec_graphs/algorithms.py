@@ -11,8 +11,8 @@ def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> List[Set[S
     reciprocal parameter.
 
     The implementation is based on the NetworkX library. More precisely, cliques are found using the non-recursive
-    version of Bron-Kerbosch algorithm (1973) [1], as adapted by Tomita, Tanaka and Takahashi (2006) [2]
-    and discussed in Cazals and Karande (2008) [3].
+    version of Bron-Kerbosch algorithm (1973) [1]_, as adapted by Tomita, Tanaka and Takahashi (2006) [2]_
+    and discussed in Cazals and Karande (2008) [3]_.
 
     Parameters
     ----------
@@ -20,7 +20,7 @@ def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> List[Set[S
         the decontractible graph
     reciprocal : bool
         If True, cliques are calculated on the undirected version of the given decontractible graph
-    containing only edges that appear in both directions in the original decontractible graph.
+        containing only edges that appear in both directions in the original decontractible graph.
 
     Returns
     -------
@@ -29,11 +29,14 @@ def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> List[Set[S
 
     References
     ----------
+
+    .. target-notes::
+
     .. [1] Bron, C. and Kerbosch, J. "Algorithm 457: finding all cliques of an undirected graph". Communications of the ACM 16, 9 (Sep. 1973), 575–577. <http://portal.acm.org/citation.cfm?doid=362342.362367 >
 
     .. [2] Etsuji Tomita, Akira Tanaka, Haruhisa Takahashi, "The worst-case time complexity for generating all maximal cliques and computational experiments", Theoretical Computer Science, Volume 363, Issue 1, Computing and Combinatorics, 10th Annual International Conference on Computing and Combinatorics (COCOON 2004), 25 October 2006, Pages 28–42 <https://doi.org/10.1016/j.tcs.2006.06.015 >
 
-    .. [3] F. Cazals, C. Karande, "A note on the problem of reporting maximal cliques", Theoretical Computer Science, Volume 407, Issues 1–3, 6 November 2008, Pages 564–568, <https://doi.org/10.1016/j.tcs.2008.05.010 >
+    .. [3] Cazals, F. and Karande, C. "A note on the problem of reporting maximal cliques", Theoretical Computer Science, Volume 407, Issues 1–3, 6 November 2008, Pages 564–568, <https://doi.org/10.1016/j.tcs.2008.05.010 >
     """
     undirected_graph = dec_graph.graph().to_undirected(reciprocal=reciprocal)
     cliques = list(nx.find_cliques(undirected_graph))
@@ -48,7 +51,7 @@ def simple_cycles(dec_graph: DecGraph) -> Set[Tuple[Supernode, ...]]:
     each other.
 
     The implementation is based on the NetworkX library. More precisely, simple cycles are found using a nonrecursive,
-    iterator/generator version of Johnson's algorithm [1], enhanced by some well-known preprocessing techniques
+    iterator/generator version of Johnson's algorithm [4]_, enhanced by some well-known preprocessing techniques
     that restrict the attention to strongly connected components of the graph.
 
     Parameters
@@ -63,7 +66,10 @@ def simple_cycles(dec_graph: DecGraph) -> Set[Tuple[Supernode, ...]]:
 
     References
     ----------
-    .. [1] D. B. Johnson, "Finding all the elementary circuits of a directed graph," SIAM Journal on Computing, vol. 4, no. 1, pp. 77-84, 1975. https://doi.org/10.1137/0204007
+
+    .. target-notes::
+
+    .. [4] Johnson D. B. , "Finding all the elementary circuits of a directed graph," SIAM Journal on Computing, vol. 4, no. 1, pp. 77-84, 1975. https://doi.org/10.1137/0204007
     """
     cycles = list(nx.simple_cycles(dec_graph.graph()))
     return set(map(lambda c: tuple(map(lambda n: dec_graph.V[n], c)), cycles))
@@ -76,7 +82,7 @@ def strongly_connected_components(dec_graph: DecGraph) -> Set[FrozenSet[Supernod
     there is a path between every pair of nodes.
 
     The implementation is based on the NetworkX library. More precisely, the SCCs are found using the
-    Kosaraju's algorithm [1].
+    Kosaraju's algorithm [5]_.
 
     Parameters
     ----------
@@ -90,7 +96,10 @@ def strongly_connected_components(dec_graph: DecGraph) -> Set[FrozenSet[Supernod
 
     References
     ----------
-    .. [1] M. Sharir, "A strong-connectivity algorithm and its applications in data flow analysis", Computers & Mathematics with Applications, 1981 - Elsevier. https://doi.org/10.1016/0898-1221(81)90008-0
+
+    .. target-notes::
+
+    .. [5] Sharir M. , "A strong-connectivity algorithm and its applications in data flow analysis", Computers & Mathematics with Applications, 1981 - Elsevier. https://doi.org/10.1016/0898-1221(81)90008-0
     """
     sccs = list(nx.kosaraju_strongly_connected_components(dec_graph.graph()))
     return set(map(lambda c: frozenset(map(lambda n: dec_graph.V[n], c)), sccs))

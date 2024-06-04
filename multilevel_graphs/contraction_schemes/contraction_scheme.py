@@ -10,14 +10,14 @@ class ContractionScheme(ABC):
     An abstract class for contraction schemes.
     A contraction scheme is a layer of a multilevel graph that defines how the nodes and edges of the graph are
     contracted into supernodes and superedges, respectively.
-    More formally, a contraction scheme is a contraction function f defined on the domain of decontractible graphs
+    More formally, a contraction scheme is a contraction function fc defined on the domain of decontractible graphs
     and codomain of contracted decontractible graphs, which, given a decontractible graph G, returns a new
     decontractible graph G' that is a contraction of G.
 
     Along with the definition of the contraction function, provided by the method contraction_function, a contraction
     scheme should define methods to update the contracted decontractible graph according to the changes in the lower
-    level decontractible graph. Those methods are _update_added_node, _update_removed_node, _update_added_edge and
-    _update_removed_edge.
+    level decontractible graph. Those methods are ``_update_added_node``, ``_update_removed_node``,
+    ``_update_added_edge`` and ``_update_removed_edge``.
 
     When a contraction scheme is constructed, it can be initialized with attribute functions for supernodes, superedges
     and component sets. These functions produce a dictionary of key-value pairs that are used to assign attributes to
@@ -44,20 +44,27 @@ class ContractionScheme(ABC):
 
     Examples
     --------
-    Let SccsContractionScheme be a sample contraction scheme implementation, it can be used to define a
-    multilevel graph as follows:
-    >>> from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
-    >>> import networkx as nx
-    >>> nx_graph = nx.DiGraph()
-    >>> nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1)])
-    >>> scheme = SCCsContractionScheme()
-    >>> ml_graph = MultilevelGraph(nx_graph, [scheme])
+    Let CliquesContractionScheme and SCCsContractionScheme be sample contraction scheme implementations, they can be
+    used to define a multilevel graph as follows::
+
+        from multilevel_graphs import MultilevelGraph, SCCsContractionScheme, CliquesContractionScheme
+        import networkx as nx
+
+        nx_graph = nx.DiGraph()
+        nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1)])
+
+        scheme_1 = CliquesContractionScheme()
+        scheme_2 = SCCsContractionScheme()
+        ml_graph = MultilevelGraph(nx_graph, [scheme_1, scheme_2])
 
     The definition of the contraction scheme could also include attribute functions for supernodes, superedges and
-    component sets:
-    >>> scheme = SCCsContractionScheme(supernode_attr_function= lambda n: {'size': len(n)},
-    ...     superedge_attr_function= lambda e: {'weight': sum([edge['weight'] for edge in e.edges()])},
-    ...     c_set_attr_function= lambda c_set: {'size': len(c_set)})
+    component sets::
+
+        scheme = SCCsContractionScheme(
+            supernode_attr_function= lambda n: {'size': len(n)},
+            superedge_attr_function= lambda e: {'weight': sum([edge['weight'] for edge in e.edges()])},
+            c_set_attr_function= lambda c_set: {'size': len(c_set)}
+        )
     """
     level: Optional[int]
     dec_graph: Optional[DecGraph]
