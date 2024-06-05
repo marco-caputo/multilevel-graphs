@@ -19,7 +19,7 @@ class MultilevelGraph:
     G_0 = G and G_i, with 0 < i <= k, is the decontractible graph produced by the i-th contraction function in the sequence Γ
     (1-indexed).
 
-    The main operations that can be performed on a multi-level graph are:
+    The main operations that can be performed by a multi-level graph are:
 
      - The retrival of information at a certain level, such as the decontractible graph or the component sets of the
        contraction scheme at that level.
@@ -33,7 +33,36 @@ class MultilevelGraph:
     ``build_contraction_schemes`` can be used to build the decontractible graphs from the base level up to a certain
     level.
 
-    # TODO: complete the definition
+    Examples
+    --------
+    A multilevel graph can be created from a NetworkX graph and a sequence of contraction schemes. For instance
+    a multi-level graph of height 2 can be instatiated as follows::
+
+        import networkx as nx
+        from multilevel_graphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
+
+        nx_graph = nx.DiGraph()
+        nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1), (3, 4), (4, 5)])
+        ml_graph = MultilevelGraph(nx_graph, [CliquesContractionScheme(), SCCsContractionScheme()])
+
+    Alternatively, a multilevel graph can be created from a NetworkX graph and the contraction schemes can be appended
+    subsequently. In the following example, the resulting multilevel graph is equivalent to the one created in the
+    previous example::
+
+        import networkx as nx
+        from multilevel_graphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
+
+        nx_graph = nx.DiGraph()
+        nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1), (3, 4), (4, 5)])
+        ml_graph = MultilevelGraph(nx_graph)
+        ml_graph.append_contraction_scheme(CliquesContractionScheme())
+        ml_graph.append_contraction_scheme(SCCsContractionScheme())
+
+    The decontractible graph at a certain level can be retrieved using the ``get_graph`` method or, equivalently,
+    the [] notation #TODO: deep copy? ::
+
+        dec_graph_1 = ml_graph.get_graph(1)
+        dec_graph_2 = ml_graph[2]
     """
     _dec_graph_0: DecGraph
     _contraction_schemes: List[ContractionScheme]

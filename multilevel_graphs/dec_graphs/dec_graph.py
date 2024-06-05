@@ -331,6 +331,16 @@ class DecGraph:
         return DecGraph(dict_V={key: self.V[key] for key in induced_subgraph.nodes()},
                         dict_E={key: self.E[key] for key in induced_subgraph.edges()})
 
+    def copy(self):
+        """
+        Returns a deep copy of this decontractible graph.
+        #TODO
+
+        :return: a deep copy of this decontractible graph
+        """
+        # TODO
+        pass
+
     def __len__(self):
         return self.order()
 
@@ -493,6 +503,7 @@ class Supernode:
         :return: the height of the decontractible graph
         """
         return self.dec.height() + 1
+
 
     def __eq__(self, other):
         if not isinstance(other, Supernode):
