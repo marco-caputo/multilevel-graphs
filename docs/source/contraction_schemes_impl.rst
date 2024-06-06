@@ -1,4 +1,4 @@
-contraction\_schemes\_impl
+Package: contraction\_schemes\_impl
 =====================================================
 
 Class: CliquesContractionScheme

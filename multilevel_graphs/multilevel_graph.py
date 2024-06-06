@@ -36,7 +36,7 @@ class MultilevelGraph:
     Examples
     --------
     A multilevel graph can be created from a NetworkX graph and a sequence of contraction schemes. For instance
-    a multi-level graph of height 2 can be instatiated as follows::
+    a multi-level graph of height 2 can be instantiated as follows::
 
         import networkx as nx
         from multilevel_graphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
@@ -58,11 +58,23 @@ class MultilevelGraph:
         ml_graph.append_contraction_scheme(CliquesContractionScheme())
         ml_graph.append_contraction_scheme(SCCsContractionScheme())
 
-    The decontractible graph at a certain level can be retrieved using the ``get_graph`` method or, equivalently,
-    the [] notation #TODO: deep copy? ::
+    The decontractible graph at a certain level can be retrieved using the ``get_graph`` method or the [] notation::
 
         dec_graph_1 = ml_graph.get_graph(1)
         dec_graph_2 = ml_graph[2]
+
+    Note that the [] notation will return a reference to the decontractible graph, resulting in a performance gain,
+    while the ``get_graph`` method will return a deep copy of the decontractible graph. For this reason, is
+    recommended to use the [] notation when the returned decontractible graph is not going to be modified.
+
+    Once the multilevel graph is created, nodes and edges can be added or removed from the base graph indicating
+    the key of the nodes and the attributes of the nodes and edges.
+    For instance, a new node can be added to the base graph as follows::
+
+        ml_graph.add_node(6, color='red')
+
+    Updates to the base graph will be lazily propagated to the upper levels, and further requests for the
+    decontractible graph at a certain level will trigger the computation of the decontractible graph at that level.
     """
     _dec_graph_0: DecGraph
     _contraction_schemes: List[ContractionScheme]
@@ -143,28 +155,47 @@ class MultilevelGraph:
                 return scheme.dec_graph, scheme.level
         return self._dec_graph_0, 0
 
-    def get_graph(self, level: int) -> Optional[DecGraph]:
+    def get_graph(self, level: int, deepcopy: bool = True) -> Optional[DecGraph]:
         """
-        Returns the reference of the decontractible graph at the given level in this multilevel graph.
+        Returns the decontractible graph at the given level in this multilevel graph.
         If the given level is 0, the base decontractible graph is returned, while if the given level is 1
         or higher, the decontractible graph resulting from the contraction scheme at the given level is returned,
         possibly after constructing it lazily.
         If the given level is not in the range of the contraction schemes in this multilevel graph, None is
         returned.
 
-        The structure of the given decontractible graph should not be modified, as it may affect the integrity of
-        the multilevel graph.
+        If the ``deepcopy`` parameter is set to True, a deep copy of the decontractible graph is returned, otherwise,
+        the returned decontractible graph will be a reference to the original one in this multi-level graph,
+        and hence the structure of the returned decntractible graph should not be modified, as it may affect the
+        integrity of the multilevel graph.
+        In both cases, the returned decontractible graph will be navigable towards upper levels up to the highest
+        valid level through the ``supernode`` attribute of supernodes.
+        For levels that are not up-to-date, the supernode references may be out-to-date as well.
 
+        Note that setting the ``deepcopy`` parameter to True may have a performance impact, as the decontractible graph
+        is recursively copied, including its supernodes, superedges and the component sets of the supernodes.
+
+        :param deepcopy: if True, a deep copy of the decontractible graph is returned
         :param level: the level of the decontractible graph to be returned
         :return: the decontractible graph at the given level
         """
-        if level == 0:
-            return self._dec_graph_0
-        elif 1 <= level <= self.height():
-            self.build_contraction_schemes(level)
-            return self._contraction_schemes[level - 1].dec_graph
-        else:
+        if level < 0 or level > self.height():
             return None
+
+        if level == 0 and not deepcopy:
+            return self._dec_graph_0
+        else:
+            self.build_contraction_schemes(level)
+            if deepcopy:
+                current_level = self._highest_valid_graph()[1]
+                deepcopy_graph = self._contraction_schemes[current_level - 1].dec_graph.deepcopy() if current_level > 0 \
+                    else self._dec_graph_0.deepcopy()
+                while current_level != level:
+                    current_level -= 1
+                    deepcopy_graph = deepcopy_graph.complete_decontraction()
+                return deepcopy_graph
+            else:
+                return self._contraction_schemes[level - 1].dec_graph
 
     def get_component_sets(self, level: int) -> Optional[Set[ComponentSet]]:
         """
@@ -312,10 +343,12 @@ class MultilevelGraph:
         The structure of the given decontractible graph should not be modified, as it may affect the integrity of
         the multilevel graph.
 
+        Note that this operation is equivalent to the ``get_graph`` method with the ``deepcopy`` parameter set to False.
+
         :param level: the level of the decontractible graph to be returned
         :return: the decontractible graph at the given level
         """
-        return self.get_graph(level)
+        return self.get_graph(level, deepcopy=False)
 
     def __len__(self) -> int:
         """

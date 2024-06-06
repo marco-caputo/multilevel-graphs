@@ -206,6 +206,18 @@ class DecGraphTest(unittest.TestCase):
 
         self.assertTrue(expected_decontraction == dec_graph_decontraction)
 
+    def test_deepcopy(self):
+        dec_graph = self._build_test_graph_1()
+        dec_graph_copy = dec_graph.deepcopy()
+        self.assertEqual(dec_graph, dec_graph_copy)
+        self.assertNotEqual(id(dec_graph), id(dec_graph_copy))
+        self.assertNotEqual(id(dec_graph.V), id(dec_graph_copy.V))
+        self.assertNotEqual(id(dec_graph.E), id(dec_graph_copy.E))
+        self.assertEqual(dec_graph.V[0], dec_graph_copy.V[0])
+        self.assertNotEqual(id(dec_graph.V[0]), id(dec_graph_copy.V[0]))
+        self.assertEqual(dec_graph.E[(0, 1)], dec_graph_copy.E[(0, 1)])
+        self.assertNotEqual(id(dec_graph.E[(0, 1)]), id(dec_graph_copy.E[(0, 1)]))
+
     def _build_test_graph_1(self) -> DecGraph:
         for i in range(3):
             self.test_supernodes_1[i].add_node(self.test_supernodes_0[2 * i])

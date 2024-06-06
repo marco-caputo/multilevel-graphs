@@ -1,4 +1,4 @@
-multilevel_graphs
+Package: multilevel_graphs
 ==========================
 
 Class: MultilevelGraph

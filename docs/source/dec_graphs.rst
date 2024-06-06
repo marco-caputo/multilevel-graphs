@@ -1,5 +1,10 @@
-dec\_graphs
+Package: dec\_graphs
 ======================================
+
+Decontractible Graphs are recursively defined graphs that can be used to represent graphs which
+nodes can be decomposed into smaller graphs.
+This module provides classes to represent decontractible graphs, its nodes and edges as independent objects
+called supernodes and superedges, respectively, and some algorithms to work with them.
 
 Class: DecGraph
 ------------------------------------------------

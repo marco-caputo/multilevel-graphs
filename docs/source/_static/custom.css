@@ -1,0 +1,13 @@
+div.sphinxsidebarwrapper {
+    width: 280px;
+    margin-left: -200px;
+}
+
+div.bodywrapper {
+    width: 1000px;
+    margin-left: 100px;
+}
+
+div.body {
+    max-width: 1200px;
+}

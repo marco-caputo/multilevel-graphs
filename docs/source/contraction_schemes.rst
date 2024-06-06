@@ -1,4 +1,4 @@
-contraction\_schemes
+Package: contraction\_schemes
 ===============================================
 
 Abstract Class: ContractionScheme

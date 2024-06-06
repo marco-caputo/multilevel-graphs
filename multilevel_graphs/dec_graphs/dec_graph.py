@@ -4,7 +4,7 @@ import networkx as nx
 
 class DecGraph:
     """
-    A decontractible graph is a directed graph where each node represents a graph and each edge represents a non empty
+    A decontractible graph is a directed graph where each node represents a graph and each edge represents a non-empty
     set of edges between the nodes represented by the tail and the nodes represented by the head of the edge.
     Nodes of a decontractible graph are called *supernodes* and edges are called *superedges*.
 
@@ -221,7 +221,8 @@ class DecGraph:
         :param superedge: the superedge to be added
         """
         if superedge.tail not in self.V.values() or superedge.head not in self.V.values():
-            raise ValueError('The supernodes of the superedge to be added must be included in the decontractible graph.')
+            raise ValueError(
+                'The supernodes of the superedge to be added must be included in the decontractible graph.')
         if (superedge.tail.key, superedge.head.key) not in self.E:
             self.E[(superedge.tail.key, superedge.head.key)] = superedge
             self._graph.add_edge(superedge.tail.key, superedge.head.key)
@@ -331,15 +332,40 @@ class DecGraph:
         return DecGraph(dict_V={key: self.V[key] for key in induced_subgraph.nodes()},
                         dict_E={key: self.E[key] for key in induced_subgraph.edges()})
 
-    def copy(self):
+    def deepcopy(self, supernode_memo: 'Supernode' = None):
         """
         Returns a deep copy of this decontractible graph.
-        #TODO
+        Supernodes and superedges in the decontractible graph are recursively deep copied as well as
+        their decontractions and default attributes. Values of custom attributes of supernodes and superedges are
+        not deep copied.
 
+        The supernode parameter is used in the recursive calls to indicate the supernode that this decontractible
+        graph is contracted into, and should not be used in the call to this method.
+
+        :param supernode_memo: the supernode that this decontractible graph is contracted into
         :return: a deep copy of this decontractible graph
         """
-        # TODO
-        pass
+        v_copies = dict()
+        for k in self.V:
+            v_copies[k] = self.V[k].deepcopy(supernode_memo)
+
+        e_copies = dict()
+        for k in self.E:
+            e_copies[k] = self.E[k].deepcopy(v_copies)
+
+        dec_graph_copy = DecGraph(v_copies, e_copies)
+
+        # Component sets attributes are substituted with deep copies once the graph is constructed.
+        # The attribute supernode_memo is used as a flag to indicate that this is the first call to deepcopy.
+        if supernode_memo is None:
+            current_graph = dec_graph_copy
+            while current_graph.nodes():
+                current_dec = current_graph.complete_decontraction()
+                for node in current_graph.nodes():
+                    node.component_sets = frozenset(c_set.deepcopy(current_dec.V) for c_set in node.component_sets)
+                current_graph = current_dec
+
+        return dec_graph_copy
 
     def __len__(self):
         return self.order()
@@ -459,8 +485,9 @@ class Supernode:
 
         :param supernode: the supernode to be added
         """
-        if self.level is not None and supernode.level != self.level-1:
-            raise ValueError('The level of the supernode to be added must be one less than the level of this supernode.')
+        if self.level is not None and supernode.level != self.level - 1:
+            raise ValueError(
+                'The level of the supernode to be added must be one less than the level of this supernode.')
         self.dec.add_node(supernode)
 
     def add_edge(self, edge_for_adding: 'Superedge'):
@@ -504,6 +531,24 @@ class Supernode:
         """
         return self.dec.height() + 1
 
+    def deepcopy(self, supernode: 'Supernode' = None):
+        """
+        Returns a deep copy of this supernode.
+        The decontractible graph represented by this supernode is recursively deep copied as well.
+
+        Note that the ``component_sets`` attribute is simply copied by reference, due to strict
+        dependency with the contraction scheme the node comes from. Therefore, component sets in the
+        ``component_sets`` attribute should not be changed.
+
+        :param supernode: the reference to the supernode that this supernode is contracted into
+        :return: the deep copy of this supernode
+        """
+        return Supernode(key=self.key,
+                         level=self.level,
+                         dec=self.dec.deepcopy(self),
+                         component_sets=self.component_sets,
+                         supernode=supernode,
+                         **self.attr)
 
     def __eq__(self, other):
         if not isinstance(other, Supernode):
@@ -521,8 +566,8 @@ class Supernode:
 
     def __str__(self):
         return "(Key: " + str(self.key) + ", " + \
-                ("(Level: " + str(self.level) + "), " if self.level is not None else "") + \
-                str(self.attr) + ")"
+            ("(Level: " + str(self.level) + "), " if self.level is not None else "") + \
+            str(self.attr) + ")"
 
     def __repr__(self):
         return str(self)
@@ -599,8 +644,10 @@ class Superedge:
             if e.tail not in self.tail.dec.nodes() or e.head not in self.head.dec.nodes():
                 raise ValueError('The supernodes of the superedge to be added must be included in tail and head'
                                  'decontractions respectively.')
-        if level is not None and (tail.level is None or head.level is None or tail.level != head.level or level != tail.level):
-            raise ValueError('The level of the superedge must be the same as the level of the tail and head supernodes.')
+        if level is not None and (
+                tail.level is None or head.level is None or tail.level != head.level or level != tail.level):
+            raise ValueError(
+                'The level of the superedge must be the same as the level of the tail and head supernodes.')
         self.level = level
         self.attr = attr
 
@@ -623,7 +670,8 @@ class Superedge:
             raise ValueError('The supernodes of the superedge to be added must be included in tail and head'
                              'decontractions respectively.')
         if self.level is not None and superedge.level != self.level - 1:
-            raise ValueError('The level of the superedge to be added must be one less than the level of this superedge.')
+            raise ValueError(
+                'The level of the superedge to be added must be one less than the level of this superedge.')
         self.dec.add(superedge)
 
     def remove_edge(self, superedge: 'Superedge'):
@@ -650,6 +698,24 @@ class Superedge:
         if not self.dec:
             return 0
         return max(e.height() for e in self.dec) + 1
+
+    def deepcopy(self, v_copies: Dict = None):
+        """
+        Returns a deep copy of this superedge.
+        The set of superedges represented by this superedge is recursively deep copied.
+
+        The deep copied supernodes dictionary of the decontractible graph where this superedge resides must be
+        passed as a parameter to this method in order to create the deep copy of the superedges in the set.
+
+        :param v_copies: a dictionary of supernode copies to be used in the recursive calls
+        :return: the deep copy of this superedge
+        """
+        sub_v_copies = v_copies[self.tail.key].dec.V | v_copies[self.head.key].dec.V
+        return Superedge(tail=v_copies[self.tail.key],
+                         head=v_copies[self.head.key],
+                         level=self.level,
+                         dec={e.deepcopy(sub_v_copies) for e in self.dec},
+                         **self.attr)
 
     def __eq__(self, other):
         if not isinstance(other, Superedge):

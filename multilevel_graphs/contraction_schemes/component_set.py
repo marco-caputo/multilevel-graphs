@@ -30,7 +30,7 @@ class ComponentSet:
         for supernode in c1:
             print(supernode)
 
-    A ComponentSet can also have attributes that may be calculated during the contraction process:
+    A ComponentSet can also have attributes that may be calculated during the contraction process::
 
         from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
         import networkx as nx
@@ -60,6 +60,16 @@ class ComponentSet:
 
     def copy(self) -> 'ComponentSet':
         return ComponentSet(self.key, self._supernodes.copy(), **self._attr)
+
+    def deepcopy(self, supernodes_dict: Dict[Any, Supernode]) -> 'ComponentSet':
+        """
+        Returns a deep copy of the component set where the supernodes are replaced by the supernodes in the given
+        dictionary having the same keys.
+
+        :param supernodes_dict: the dictionary of supernodes to replace the supernodes in the component set
+        :return: a deep copy of the component set with the new supernodes
+        """
+        return ComponentSet(self.key, {supernodes_dict[supernode.key] for supernode in self._supernodes}, **self._attr)
 
     def __contains__(self, value):
         return value in self._supernodes
