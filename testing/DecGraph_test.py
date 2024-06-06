@@ -218,6 +218,18 @@ class DecGraphTest(unittest.TestCase):
         self.assertEqual(dec_graph.E[(0, 1)], dec_graph_copy.E[(0, 1)])
         self.assertNotEqual(id(dec_graph.E[(0, 1)]), id(dec_graph_copy.E[(0, 1)]))
 
+    def test_in_edges(self):
+        dec_graph = self._build_test_graph_1()
+        self.assertEqual(0, len(dec_graph.in_edges(self.test_supernodes_2[0])))
+        self.assertEqual(1, len(dec_graph.in_edges(self.test_supernodes_2[1])))
+        self.assertEqual({self.test_superedges_2[0]}, dec_graph.in_edges(self.test_supernodes_2[1]))
+
+    def test_out_edges(self):
+        dec_graph = self._build_test_graph_1()
+        self.assertEqual(1, len(dec_graph.out_edges(self.test_supernodes_2[0])))
+        self.assertEqual(0, len(dec_graph.out_edges(self.test_supernodes_2[1])))
+        self.assertEqual({self.test_superedges_2[0]}, dec_graph.out_edges(self.test_supernodes_2[0]))
+
     def _build_test_graph_1(self) -> DecGraph:
         for i in range(3):
             self.test_supernodes_1[i].add_node(self.test_supernodes_0[2 * i])
