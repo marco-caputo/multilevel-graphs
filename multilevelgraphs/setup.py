@@ -7,7 +7,7 @@ setup(
     description="A simple library for creating and managing hierarchical structures of graphs obtained by gradual contractions of nodes and edges.",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    url="https://github.com/yourusername/your-repo",
+    url="https://github.com/Caputommy/multilevel_graphs",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
