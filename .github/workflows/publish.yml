@@ -28,7 +28,8 @@ jobs:
 
     - name: Build package
       run: |
-        python /home/runner/work/multilevel_graphs/multilevelgraphs/setup.py sdist bdist_wheel
+        cd multilevelgraphs
+        python setup.py sdist bdist_wheel
 
     - name: Publish package to TestPyPI
       env:
