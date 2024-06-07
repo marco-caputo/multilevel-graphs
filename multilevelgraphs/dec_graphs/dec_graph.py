@@ -38,7 +38,7 @@ class DecGraph:
     --------
     A decontractible graph can be created as follows, creating its supernodes and superedges directly::
 
-        from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
+        from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
         dec_graph = DecGraph()
         n1 = Supernode(1)
         n2 = Supernode(2)
@@ -51,7 +51,7 @@ class DecGraph:
     the :class:`MultiLevelGraph` class. In the following example, an equivalent decontractible graph is created::
 
         import networkx as nx
-        from multilevel_graphs import MultiLevelGraph
+        from multilevelgraphs import MultiLevelGraph
         nx_graph = nx.DiGraph()
         nx_graph.add_edges_from([(1, 2)])
         dec_graph = MultiLevelGraph.natural_transformation(nx_graph)
@@ -432,7 +432,7 @@ class Supernode:
     automatically initialized when the supernode is created by structures like :class:`MultiLevelGraph`.
     Custom attributes, as 'weight', for instance, can be added to the supernode as follows::
 
-        from multilevel_graphs.dec_graphs import Supernode
+        from multilevelgraphs.dec_graphs import Supernode
         supernode = Supernode(key=1, level=0, weight=10)
 
     While the default supernode attributes are accessed with the . notation, custom attributes can be accessed
@@ -614,7 +614,7 @@ class Superedge:
     like :class:`MultiLevelGraph`.
     Custom attributes, as 'weight', for instance, can be added to the superedge as follows::
 
-        from multilevel_graphs.dec_graphs import Supernode, Superedge
+        from multilevelgraphs.dec_graphs import Supernode, Superedge
         supernode_1 = Supernode(key=1, level=0)
         supernode_2 = Supernode(key=2, level=0)
         superedge = Superedge(tail=supernode_1, head=supernode_2, level=0, weight=10)

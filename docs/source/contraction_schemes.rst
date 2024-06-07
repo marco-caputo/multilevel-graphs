@@ -4,7 +4,7 @@ Package: contraction\_schemes
 Abstract Class: ContractionScheme
 ----------------------------------
 
-.. autoclass:: multilevel_graphs.contraction_schemes.contraction_scheme.ContractionScheme
+.. autoclass:: multilevelgraphs.contraction_schemes.contraction_scheme.ContractionScheme
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Abstract Class: ContractionScheme
 Abstract Class: EdgeBasedContractionScheme
 ------------------------------------------
 
-.. autoclass:: multilevel_graphs.contraction_schemes.edge_based_contraction_scheme.EdgeBasedContractionScheme
+.. autoclass:: multilevelgraphs.contraction_schemes.edge_based_contraction_scheme.EdgeBasedContractionScheme
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ Abstract Class: EdgeBasedContractionScheme
 Class: CompTable
 ----------------
 
-.. autoclass:: multilevel_graphs.contraction_schemes.comp_table.CompTable
+.. autoclass:: multilevelgraphs.contraction_schemes.comp_table.CompTable
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ Class: CompTable
 Class: ComponentSet
 ----------------------------
 
-.. autoclass:: multilevel_graphs.contraction_schemes.component_set.ComponentSet
+.. autoclass:: multilevelgraphs.contraction_schemes.component_set.ComponentSet
    :members:
    :undoc-members:
 
@@ -36,7 +36,7 @@ Class: ComponentSet
 Class: UpdateQuadruple
 ----------------------------
 
-.. autoclass:: multilevel_graphs.contraction_schemes.update_quadruple.UpdateQuadruple
+.. autoclass:: multilevelgraphs.contraction_schemes.update_quadruple.UpdateQuadruple
    :members:
    :undoc-members:
    :show-inheritance:

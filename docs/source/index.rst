@@ -21,7 +21,7 @@ structural patterns at different levels of the hierarchy.
    examples
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: API Reference
 
    multilevel_graphs

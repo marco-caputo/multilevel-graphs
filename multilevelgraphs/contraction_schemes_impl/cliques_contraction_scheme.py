@@ -1,7 +1,7 @@
 from typing import Callable, Set, Dict, Any, List
 import networkx as nx
-from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, ComponentSet, CompTable
-from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, maximal_cliques
+from multilevelgraphs.contraction_schemes import EdgeBasedContractionScheme, ComponentSet, CompTable
+from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge, maximal_cliques
 
 
 class CliquesContractionScheme(EdgeBasedContractionScheme):

@@ -1,5 +1,5 @@
 from typing import Any, Set, Dict, Iterable, Union
-from multilevel_graphs.dec_graphs import Supernode
+from multilevelgraphs.dec_graphs import Supernode
 
 
 class ComponentSet:
@@ -24,7 +24,7 @@ class ComponentSet:
     --------
     A ComponentSet can be treated as a set of supernodes, for instance::
 
-        from multilevel_graphs import ComponentSet, Supernode
+        from multilevelgraphs import ComponentSet, Supernode
         c1 = ComponentSet(1, {Supernode(1), Supernode(2)})
         c1.add(Supernode(3))
         for supernode in c1:
@@ -32,7 +32,7 @@ class ComponentSet:
 
     A ComponentSet can also have attributes that may be calculated during the contraction process::
 
-        from multilevel_graphs import MultilevelGraph, SCCsContractionScheme
+        from multilevelgraphs import MultilevelGraph, SCCsContractionScheme
         import networkx as nx
         nx_graph = nx.DiGraph()
         nx_graph.add_edges_from([(1, 2, {'weight': 25}), (2, 3, {'weight': 20}), (3, 1, {'weight': 10})])

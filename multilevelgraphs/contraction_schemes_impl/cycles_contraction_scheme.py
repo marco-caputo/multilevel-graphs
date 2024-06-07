@@ -1,8 +1,8 @@
 from typing import Callable, Set, Dict, Any, List, Optional, Generator
 import networkx as nx
 
-from multilevel_graphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
-from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge, simple_cycles
+from multilevelgraphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
+from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge, simple_cycles
 
 
 class CyclesContractionScheme(EdgeBasedContractionScheme):

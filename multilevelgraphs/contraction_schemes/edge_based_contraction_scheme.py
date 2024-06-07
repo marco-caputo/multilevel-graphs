@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, Set
 
-from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import ContractionScheme, CompTable, ComponentSet
+from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
+from multilevelgraphs.contraction_schemes import ContractionScheme, CompTable, ComponentSet
 
 
 class EdgeBasedContractionScheme(ContractionScheme, ABC):

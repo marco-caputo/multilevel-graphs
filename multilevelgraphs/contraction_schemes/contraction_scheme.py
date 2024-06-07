@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, Set, Optional, FrozenSet
 
-from multilevel_graphs.dec_graphs import DecGraph, Supernode, Superedge
-from multilevel_graphs.contraction_schemes import CompTable, UpdateQuadruple, ComponentSet
+from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
+from multilevelgraphs.contraction_schemes import CompTable, UpdateQuadruple, ComponentSet
 
 
 class ContractionScheme(ABC):
@@ -47,7 +47,7 @@ class ContractionScheme(ABC):
     Let CliquesContractionScheme and SCCsContractionScheme be sample contraction scheme implementations, they can be
     used to define a multilevel graph as follows::
 
-        from multilevel_graphs import MultilevelGraph, SCCsContractionScheme, CliquesContractionScheme
+        from multilevelgraphs import MultilevelGraph, SCCsContractionScheme, CliquesContractionScheme
         import networkx as nx
 
         nx_graph = nx.DiGraph()

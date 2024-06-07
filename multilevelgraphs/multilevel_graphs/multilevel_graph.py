@@ -1,7 +1,7 @@
 import networkx as nx
 from typing import List, Optional, Any, Tuple, Set
-from multilevel_graphs import DecGraph, Supernode, Superedge, ContractionScheme
-from multilevel_graphs.contraction_schemes import UpdateQuadruple, ComponentSet
+from multilevelgraphs import DecGraph, Supernode, Superedge, ContractionScheme
+from multilevelgraphs.contraction_schemes import UpdateQuadruple, ComponentSet
 
 
 class MultilevelGraph:
@@ -39,7 +39,7 @@ class MultilevelGraph:
     a multi-level graph of height 2 can be instantiated as follows::
 
         import networkx as nx
-        from multilevel_graphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
+        from multilevelgraphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
 
         nx_graph = nx.DiGraph()
         nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1), (3, 4), (4, 5)])
@@ -50,7 +50,7 @@ class MultilevelGraph:
     previous example::
 
         import networkx as nx
-        from multilevel_graphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
+        from multilevelgraphs import MultilevelGraph, CliquesContractionScheme, SCCsContractionScheme
 
         nx_graph = nx.DiGraph()
         nx_graph.add_edges_from([(1, 2), (2, 3), (3, 1), (3, 4), (4, 5)])
