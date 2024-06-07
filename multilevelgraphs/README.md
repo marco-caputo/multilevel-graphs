@@ -1,7 +1,7 @@
 # MultiLevelGraphs
 
-[![Build Status](https://travis-ci.com/your-username/your-package-name.svg?branch=master)](https://travis-ci.com/your-username/your-package-name)
-[![PyPI version](https://badge.fury.io/py/your-package-name.svg)](https://badge.fury.io/py/your-package-name)
+[![Build Status](https://github.com/lorenzo-lupi/multilevel_graphs/actions/workflows/publish.yml/badge.svg)](https://github.com/lorenzo-lupi/multilevel_graphs/actions)
+[![TestPyPI version](https://img.shields.io/badge/test%20pypi-v0.1.0-blue)](https://test.pypi.org/project/multilevelgraphs/)
 
 ## Description
 
