@@ -23,7 +23,7 @@ Before installing MultiLevelGraphs, ensure that you have the following prerequis
 You can install MultiLevelGraphs using pip. Open your terminal or command prompt and run the following command:
 
 ```bash
-    pip install MultiLevelGraphs
+    pip install --index-url https://test.pypi.org/simple/ multilevelgraphs
 ```
 
 To verify that the library has been installed correctly, you can try importing it in a Python shell or script.

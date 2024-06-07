@@ -18,7 +18,7 @@ You can install MultiLevelGraphs using pip. Open your terminal or command prompt
 
 .. code-block:: bash
 
-    pip install MultiLevelGraphs
+    pip install --index-url https://test.pypi.org/simple/ multilevelgraphs
 
 Verifying Installation
 ----------------------
