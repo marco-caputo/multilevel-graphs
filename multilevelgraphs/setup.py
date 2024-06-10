@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+from version import __version__
 
 setup(
     name="multilevelgraphs",
-    version="0.1.0-alpha.2",
+    version=__version__,
     author="M. Caputo, L. Lupi",
     description="A simple library for creating and managing hierarchical structures of graphs obtained by gradual contractions of nodes and edges.",
     long_description=open('README.md').read(),

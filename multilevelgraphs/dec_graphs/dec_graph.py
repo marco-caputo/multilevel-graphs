@@ -531,6 +531,15 @@ class Supernode:
         """
         return self.dec.height() + 1
 
+    def size(self) -> int:
+        """
+        Returns the number of 0-height supernodes this supernode represents.
+        This number is the amount of leaf supernodes in the hierarchy tree of supernodes contracted into this supernode.
+        """
+        if self.dec.order() == 0:
+            return 1
+        return sum(node.size() for node in self.dec.nodes())
+
     def deepcopy(self, supernode: 'Supernode' = None):
         """
         Returns a deep copy of this supernode.
@@ -698,6 +707,15 @@ class Superedge:
         if not self.dec:
             return 0
         return max(e.height() for e in self.dec) + 1
+
+    def size(self) -> int:
+        """
+        Returns the number of 0-height superedges this superedge represents.
+        This number is the amount of leaf superedges in the hierarchy tree of superedges contracted into this superedge.
+        """
+        if not self.dec:
+            return 1
+        return sum(e.size() for e in self.dec)
 
     def deepcopy(self, v_copies: Dict = None):
         """
