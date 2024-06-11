@@ -452,3 +452,9 @@ class ContractionScheme(ABC):
 
         self._deleted_subnodes.clear()
         self.component_sets_table.modified.clear()
+
+    def __str__(self):
+        return f"{self.contraction_name()}"
+
+    def __repr__(self):
+        return f"{self.contraction_name()}"

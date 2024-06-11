@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from version import __version__
+from multilevelgraphs import __version__
 
 setup(
     name="multilevelgraphs",
@@ -9,7 +9,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url="https://github.com/Caputommy/multilevel_graphs",
-    packages=find_packages(),
+    packages=find_packages(include=['multilevelgraphs', 'multilevelgraphs.*']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

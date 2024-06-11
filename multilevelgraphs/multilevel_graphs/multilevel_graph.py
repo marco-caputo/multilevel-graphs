@@ -234,6 +234,15 @@ class MultilevelGraph:
         self._contraction_schemes.append(contraction_scheme.clone())
         self._contraction_schemes[-1].level = self.height()
 
+    def get_contraction_schemes(self) -> List[ContractionScheme]:
+        """
+        Returns the list of copies of contraction schemes in this multilevel graph.
+        The list is ordered from the lowest to the topmost contraction scheme.
+
+        :return: the list of contraction schemes in this multilevel graph
+        """
+        return [scheme.clone() for scheme in self._contraction_schemes]
+
     def height(self) -> int:
         """
         Returns the height of the multilevel graph.

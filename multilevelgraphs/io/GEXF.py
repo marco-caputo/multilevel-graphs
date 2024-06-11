@@ -1,8 +1,7 @@
 import time
 import xml.etree.ElementTree as ET
 from typing import Dict, Any, Callable, Tuple
-from dec_graphs import Supernode, Superedge
-from multilevelgraphs import MultilevelGraph, __version__
+from multilevelgraphs import MultilevelGraph, __version__, Supernode, Superedge
 
 
 def _default_node_label_func(supernode: Supernode) -> str:
@@ -45,7 +44,7 @@ def _default_edge_thickness_func(edge: Superedge) -> str:
         return str(edge.size())
 
 
-def write_gexf(ml_graph: MultilevelGraph, file_path: str):
+def write_gexf(ml_graph: MultilevelGraph, file_path: str, description: str = None):
     """
     Write a GEXF file for the given MultilevelGraph in the specified file path.
     The produced GEXF file will contain just the core information in order to retain the graph structure and
@@ -55,8 +54,9 @@ def write_gexf(ml_graph: MultilevelGraph, file_path: str):
 
     :param ml_graph: the MultilevelGraph to write
     :param file_path: the path of the file to write
+    :param description: a description of the graph to add in the metadata of the GEXF file
     """
-    writer = GEXFWriter()
+    writer = GEXFWriter(ml_graph, description=description)
     for supernode in ml_graph.get_graph(ml_graph.height(), deepcopy=False).nodes():
         _add_node_and_children(writer, supernode)
 
@@ -70,7 +70,7 @@ def write_gexf(ml_graph: MultilevelGraph, file_path: str):
     writer.write(file_path)
 
 
-def write_gexf_for_viz(ml_graph: MultilevelGraph, file_path: str,
+def write_gexf_for_viz(ml_graph: MultilevelGraph, file_path: str, description: str = None,
                        node_label_func: Callable[[Supernode], str] = _default_node_label_func,
                        node_color_func: Callable[[Supernode], Tuple[str, str, str, str]] = _default_node_color_func,
                        node_size_func: Callable[[Supernode], str] = _default_node_size_func,
@@ -91,6 +91,7 @@ def write_gexf_for_viz(ml_graph: MultilevelGraph, file_path: str,
 
     :param ml_graph: the MultilevelGraph to write
     :param file_path: the path of the file to write
+    :param description: a description of the graph to add in the metadata of the GEXF file
     :param node_label_func: a function that takes a Supernode and returns the label for the node. The default function
     returns the key of the supernode if a 'label' custom attribute is not present.
     :param node_color_func: a function that takes a Supernode and returns the color for the node. The default function
@@ -102,12 +103,12 @@ def write_gexf_for_viz(ml_graph: MultilevelGraph, file_path: str,
     :param edge_thickness_func: a function that takes a Superedge and returns the thickness for the edge. The default
     function returns the size of the edge if a 'thickness' custom attribute is not present.
     """
-    writer = GEXFWriter()
+    writer = GEXFWriter(ml_graph, description=description)
     for supernode in ml_graph.get_graph(ml_graph.height(), deepcopy=False).nodes():
         _add_node_and_children(writer, supernode, node_label_func, node_color_func, node_size_func)
 
     writer.add_edge_attribute('same_level', bool)
-    for key, edge in [key_edge for i in range(ml_graph.height())
+    for key, edge in [key_edge for i in range(ml_graph.height()+1)
                       for key_edge in ml_graph.get_graph(i, deepcopy=False).E.items()]:
         superedge_attr = edge.attr
         if edge.level:
@@ -181,13 +182,19 @@ class GEXF:
 
 
 class GEXFWriter:
-    def __init__(self, version: str = "1.3", encoding: str = "utf-8", prettyprint: bool = True):
+    def __init__(self, ml_graph: MultilevelGraph,
+                 version: str = "1.3",
+                 encoding: str = "utf-8",
+                 prettyprint: bool = True,
+                 description: str = None):
         """
         Create a GEXFWriter object to write a GEXF file for a multilevel graph.
 
+        :param ml_graph: the multilevel graph to write
         :param version: the version of the GEXF file to write
         :param encoding: the encoding of the GEXF file to write
         :param prettyprint: if True, the GEXF file will be written with indentation and newlines for better readability
+        :param description: a description of the graph to add in the meta element
         """
         self.gexf = ET.Element('gexf',
                                {'xmlns': GEXF.versions[version]["NS_GEXF"],
@@ -198,6 +205,8 @@ class GEXFWriter:
         self.encoding = encoding
         self.prettyprint = prettyprint
         self.graph = ET.SubElement(self.gexf, 'graph', {'mode': 'static', 'defaultedgetype': 'directed'})
+        self.graph.set('height', str(ml_graph.height()))
+        self.graph.set('schemes', str(ml_graph.get_contraction_schemes()))
         self.node_attributes = ET.SubElement(self.graph, 'attributes', {'class': 'node'})
         self.edge_attributes = ET.SubElement(self.graph, 'attributes', {'class': 'edge'})
         self.nodes = ET.SubElement(self.graph, 'nodes')
@@ -210,6 +219,8 @@ class GEXFWriter:
         meta_element = ET.Element("meta")
         ET.SubElement(meta_element, "creator").text = f"MultiLevelGraphs {__version__}"
         meta_element.set("lastmodifieddate", time.strftime("%d-%m-%Y"))
+        if description:
+            ET.SubElement(meta_element, "description").text = description
         self.gexf.append(meta_element)
 
     def add_node_attribute(self, attr_name: str, attr_type: type):

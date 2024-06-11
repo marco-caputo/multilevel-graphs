@@ -102,7 +102,7 @@ class ComponentSet:
             return self._supernodes - other
 
     def __str__(self):
-        return f'ComponentSet({self.key}):{list([supernode.key for supernode in self._supernodes])}'
+        return f'CSet({self.key}):{list([supernode.key for supernode in self._supernodes])}'
 
     def __repr__(self) -> str:
         return str(self)

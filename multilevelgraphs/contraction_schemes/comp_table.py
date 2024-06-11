@@ -30,12 +30,8 @@ class CompTable:
         self._table = dict()
         self.modified = set()
 
-        if maximal:
-            for c_set in sets:
-                self.add_maximal_set(c_set)
-        else:
-            for c_set in sets:
-                self.add_set(c_set)
+        for c_set in sets:
+            self.add_set(c_set, maximal=maximal)
 
         self.modified.clear()
 
@@ -145,7 +141,7 @@ class CompTable:
 
         :return: all the unique component sets tracked in this table
         """
-        return set.union(*self._table.values())
+        return set.union(*self._table.values(), set())
 
     def __getitem__(self, key: Supernode) -> Set[ComponentSet]:
         return self._table[key]

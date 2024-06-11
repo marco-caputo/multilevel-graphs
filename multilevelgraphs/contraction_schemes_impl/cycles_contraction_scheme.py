@@ -33,7 +33,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
                  superedge_attr_function: Callable[[Superedge], Dict[str, Any]] = None,
                  c_set_attr_function: Callable[[Set[Supernode]], Dict[str, Any]] = None,
-                 maximal: bool = False):
+                 maximal: bool = True):
         """
         Initializes a contraction scheme based on the contraction function by simple cycles.
         A simple cycle, or elementary circuit, is a closed path where no node appears twice.

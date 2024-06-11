@@ -220,7 +220,7 @@ class DecGraph:
 
         :param superedge: the superedge to be added
         """
-        if superedge.tail not in self.V.values() or superedge.head not in self.V.values():
+        if superedge.tail.key not in self.V or superedge.head.key not in self.V:
             raise ValueError(
                 'The supernodes of the superedge to be added must be included in the decontractible graph.')
         if (superedge.tail.key, superedge.head.key) not in self.E:
