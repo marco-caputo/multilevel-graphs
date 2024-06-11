@@ -26,7 +26,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install networkx
         pip install typing
-        pip install abc
         pip install setuptools wheel
         pip install twine
 
