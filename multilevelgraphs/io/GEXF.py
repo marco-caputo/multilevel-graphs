@@ -14,10 +14,9 @@ def _default_node_color_func(supernode: Supernode) -> tuple[str, str, str, str]:
         return str(supernode['color'][0]), str(supernode['color'][1]), str(supernode['color'][2]), "1.0"
     elif supernode.supernode:
         hashcode = hash(supernode.supernode.key)
-        return str((hashcode & 0xFF0000) >> 16), str((hashcode & 0x00FF00) >> 8), str(hashcode & 0x0000FF), "1.0"
     else:
-        return "0", "0", "0", "1.0"
-
+        hashcode = hash(supernode.key)
+    return str((hashcode & 0xFF0000) >> 16), str((hashcode & 0x00FF00) >> 8), str(hashcode & 0x0000FF), "1.0"
 
 def _default_node_size_func(supernode: Supernode) -> str:
     if 'size' in supernode.attr:
