@@ -1,4 +1,4 @@
-from typing import Callable, Set, Dict, Any, List, Optional, Generator
+from typing import Callable, Set, Dict, Any, List, Optional, Generator, Iterator, Tuple
 import networkx as nx
 
 from multilevelgraphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
@@ -60,25 +60,23 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                                        self._maximal)
 
     def contraction_function(self, dec_graph: DecGraph) -> CompTable:
-        cycles = [set(cycle) for cycle in simple_cycles(dec_graph)]
-        self._add_excluded_nodes_singletons(cycles, set(dec_graph.V.values()))
+        comp_sets = self._component_set_from_cycles(simple_cycles(dec_graph))
+        comp_table = CompTable(comp_sets, maximal=self._maximal)
 
-        return CompTable([ComponentSet(self._get_component_set_id(),
-                                       cycle,
-                                       **(self._c_set_attr_function(cycle))) for cycle in cycles],
-                         maximal=self._maximal)
+        for node in dec_graph.V.values():
+            if node not in comp_table:
+                comp_table.add_set(ComponentSet(self._get_component_set_id(),
+                                                {node},
+                                                **(self._c_set_attr_function({node}))))
 
-    def _add_excluded_nodes_singletons(self, cycles: List[Set[Supernode]], all_nodes: Set[Supernode]):
-        """
-        Adds the nodes that are not in any cycle as singletons in the cycles list.
+        comp_table.modified.clear()
 
-        :param cycles: the list of cycles
-        :param all_nodes: the set of all nodes where cycles are considered
-        """
-        nodes_in_cycles = set.union(set(), *cycles)
-        for node in all_nodes:
-            if node not in nodes_in_cycles:
-                cycles.append({node})
+        return comp_table
+
+    def _component_set_from_cycles(self, cycles: Generator[Tuple[Supernode, ...], None, None]) -> Generator[ComponentSet, None, None]:
+        for cycle in cycles:
+            cycle_set = set(cycle)
+            yield ComponentSet(self._get_component_set_id(), cycle_set, **(self._c_set_attr_function(cycle_set)))
 
     def _update_added_edge(self, edge: Superedge):
         u = edge.tail.supernode
@@ -122,7 +120,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
             c_set_keys = frozenset({n.key for n in c_set})
             cycles_in_c_set_with_tail = {frozenset(cycle) for cycle in
                                          self.cycle_search(self._decontracted_graph.graph().subgraph(c_set_keys),
-                                                      [edge.tail.key])}
+                                                           [edge.tail.key])}
             if c_set_keys not in cycles_in_c_set_with_tail:
                 self.component_sets_table.remove_set(c_set)
 
@@ -131,7 +129,8 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                 if self._maximal:
                     for cycle in cycles_in_c_set_with_tail:
                         self.component_sets_table.add_set(ComponentSet(self._get_component_set_id(),
-                                                                       {self._decontracted_graph.V[key] for key in cycle}),
+                                                                       {self._decontracted_graph.V[key] for key in
+                                                                        cycle}),
                                                           maximal=True)
 
                     # All remaining cycles in c_set that does not contain edge.tail must be considered

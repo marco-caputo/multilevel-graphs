@@ -1,4 +1,4 @@
-from typing import Iterable, Set, Dict, Callable
+from typing import Iterable, Set, Dict, Callable, Generator
 
 from multilevelgraphs.contraction_schemes import ComponentSet
 from multilevelgraphs.dec_graphs import Supernode
@@ -84,12 +84,11 @@ class CompTable:
         :param c_set: the component set to add
         """
         if len(set.intersection(*[self._table.get(node, set()) for node in c_set])) == 0:
-            subsets = self._find_subsets(c_set)
-            for subset in subsets:
+            for subset in self._find_subsets(c_set):
                 self.remove_set(subset)
             self.add_set(c_set)
 
-    def _find_subsets(self, c_set: ComponentSet) -> Set[ComponentSet]:
+    def _find_subsets(self, c_set: ComponentSet) -> Generator[ComponentSet, None, None]:
         """
         Returns the subsets of the given component set that are already tracked in the table.
 
@@ -101,12 +100,9 @@ class CompTable:
             for c_set in self._table.get(node, set()):
                 t_count[c_set] = t_count.get(c_set, 0) + 1
 
-        subsets = set()
         for c_set, count in t_count.items():
             if count == len(c_set):
-                subsets.add(c_set)
-
-        return subsets
+                yield c_set
 
     def remove_set(self, c_set: ComponentSet):
         """
