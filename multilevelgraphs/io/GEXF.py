@@ -174,7 +174,7 @@ class GEXF:
 
     types: Dict[type, str] = dict([
         (int, "integer"),
-        (float, "double"),
+        (float, "float"),
         (bool, "boolean"),
         (str, "string")
     ])
