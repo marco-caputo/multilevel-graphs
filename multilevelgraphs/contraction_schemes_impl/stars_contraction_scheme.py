@@ -53,15 +53,15 @@ class StarsContractionScheme(EdgeBasedContractionScheme):
 
     def clone(self):
         return StarsContractionScheme(self._supernode_attr_function,
-                                        self._superedge_attr_function,
-                                        self._c_set_attr_function,
-                                        self._reciprocal)
+                                      self._superedge_attr_function,
+                                      self._c_set_attr_function,
+                                      self._reciprocal)
 
     def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         stars = self._star_sets(dec_graph)
         comp_table = CompTable([ComponentSet(self._get_component_set_id(),
-                                       star,
-                                       **(self._c_set_attr_function(star))) for star in stars])
+                                star,
+                                **(self._c_set_attr_function(star))) for star in stars])
 
         for node in dec_graph.V.values():
             if node not in comp_table:
@@ -87,7 +87,7 @@ class StarsContractionScheme(EdgeBasedContractionScheme):
         star_dict: Dict[Supernode, Set[Supernode]] = dict()
         for supernode in dec_graph.V.values():
             adj_node = self._adjacent_node(supernode, dec_graph)
-            if adj_node and supernode not in star_dict:
+            if adj_node is not None and supernode not in star_dict:
                 star_dict.setdefault(adj_node, {adj_node}).add(supernode)
 
         return list(star_dict.values())
@@ -102,11 +102,11 @@ class StarsContractionScheme(EdgeBasedContractionScheme):
         :param dec_graph: the decontracted graph
         :return: the adjacent supernode, if any
         """
-        adj_nodes = ({e.tail for e in dec_graph.in_edges(supernode.key)} &
-                     {e.head for e in dec_graph.out_edges(supernode.key)}) \
+        adj_nodes = ({e.tail for e in dec_graph.in_edges(supernode)} &
+                     {e.head for e in dec_graph.out_edges(supernode)}) \
                 if self._reciprocal else \
-                    ({e.tail for e in dec_graph.in_edges(supernode.key)} |
-                    {e.head for e in dec_graph.out_edges(supernode.key)})
+                    ({e.tail for e in dec_graph.in_edges(supernode)} |
+                     {e.head for e in dec_graph.out_edges(supernode)})
 
         if len(adj_nodes) == 1:
             return adj_nodes.pop()

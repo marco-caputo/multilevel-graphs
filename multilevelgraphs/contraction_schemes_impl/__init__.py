@@ -1,3 +1,4 @@
 from .sccs_contraction_scheme import SCCsContractionScheme
 from .cycles_contraction_scheme import CyclesContractionScheme
 from .cliques_contraction_scheme import CliquesContractionScheme
+from .stars_contraction_scheme import StarsContractionScheme
