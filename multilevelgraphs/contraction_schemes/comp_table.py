@@ -16,7 +16,7 @@ class CompTable:
     modified: Set[Supernode]
     _table: Dict[Supernode, Set[ComponentSet]]
 
-    def __init__(self, sets: Iterable[ComponentSet], maximal: bool = False):
+    def __init__(self, sets: Iterable[ComponentSet] = None, maximal: bool = False):
         """
         Initializes a component set table with the given set of component sets of nodes.
         The given set should be a covering of the nodes of a decontractible graph, and all the component sets
@@ -30,10 +30,11 @@ class CompTable:
         self._table = dict()
         self.modified = set()
 
-        for c_set in sets:
-            self.add_set(c_set, maximal=maximal)
+        if sets is not None:
+            for c_set in sets:
+                self.add_set(c_set, maximal=maximal)
 
-        self.modified.clear()
+            self.modified.clear()
 
     def add_set(self, c_set: ComponentSet, maximal: bool = False):
         """
@@ -72,21 +73,33 @@ class CompTable:
             self._table.setdefault(node, set()).add(c_set)
             self.modified.add(node)
 
-    def add_maximal_set(self, c_set: ComponentSet):
+    def add_maximal_set(self, c_set: ComponentSet, check_subsets: bool = True):
         """
         Adds the given component set to the table only if it is maximal among the sets already tracked in the table.
         If the given component is added to the table, sets already tracked in the table that are subsets of the given
         component set are removed.
+
+        When the check_subset flag is set to False, this method does not check for subsets of the given
+        component set to remove in the table while adding it.
+        For this reason this option should only be used for a performance gain purposes when it is guaranteed
+        that the given component set is not a subset of any other component set in the table.
+
         A component set is maximal if it is not a subset of any other component set in the table.
         Rows of the table that are modified due to the possible addition and removals are tracked in the
         modified set.
 
         :param c_set: the component set to add
+        :param check_subsets: if True, the method does not check for subsets of the given component set to remove
         """
-        if len(set.intersection(*[self._table.get(node, set()) for node in c_set])) == 0:
-            for subset in self._find_subsets(c_set):
-                self.remove_set(subset)
-            self.add_set(c_set)
+        # Finds the smallest set of component sets to reduce the workload of the intersection operation
+        c_sets_of_nodes = [self._table.get(node, set()) for node in c_set]
+        smallest_set = min(c_sets_of_nodes, key=len)
+
+        if len(set.intersection(smallest_set, *c_sets_of_nodes)) == 0:
+            if check_subsets:
+                for subset in self._find_subsets(c_set):
+                    self.remove_set(subset)
+            self.add_non_maximal_set(c_set)
 
     def _find_subsets(self, c_set: ComponentSet) -> Generator[ComponentSet, None, None]:
         """

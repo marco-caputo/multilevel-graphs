@@ -136,6 +136,16 @@ class DecGraph:
         """
         return set(self.E.keys())
 
+    def degree(self, node: 'Supernode') -> int:
+        """
+        Returns the degree of a supernode in the decontractible graph, which is the number of superedges that have
+        the supernode as tail or head.
+
+        :param node: the supernode to get the degree
+        :return: the degree of the supernode
+        """
+        return self.graph().degree(node.key)
+
     def forward_star(self, node: 'Supernode') -> Set['Supernode']:
         """
         Returns the forward star of a supernode in the decontractible graph, which is the set of supernodes m

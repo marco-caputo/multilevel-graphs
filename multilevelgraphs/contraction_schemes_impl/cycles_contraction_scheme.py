@@ -61,7 +61,14 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
 
     def contraction_function(self, dec_graph: DecGraph) -> CompTable:
         comp_sets = self._component_set_from_cycles(simple_cycles(dec_graph))
-        comp_table = CompTable(comp_sets, maximal=self._maximal)
+
+        if self._maximal:
+            comp_table = CompTable(maximal=self._maximal)
+            for c_set in sorted(list(comp_sets), key=lambda c_set: len(c_set), reverse=True):
+                comp_table.add_maximal_set(c_set, check_subsets=False)
+
+        else:
+            comp_table = CompTable(comp_sets, maximal=self._maximal)
 
         for node in dec_graph.V.values():
             if node not in comp_table:
