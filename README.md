@@ -41,10 +41,9 @@ This should print the version number of MultiLevelGraphs if the installation was
 
 
 ## Documentation
-Documentation is available at the following links:
+Documentation is available at the following link:
 
-[multilevel-graphs.readthedocs.io](multilevel-graphs.readthedocs.io)\
-[multilevel-graphs.rtfd.io](multilevel-graphs.rtfd.io)
+[https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html](https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html)
 
 Dependencies
 ------------
