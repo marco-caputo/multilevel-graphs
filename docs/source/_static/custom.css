@@ -1,13 +1,27 @@
+/* Adjust the body */
+div.body {
+    width: 1200px;
+    padding: 20px;
+}
+
 div.sphinxsidebarwrapper {
     width: 280px;
-    margin-left: -200px;
+    margin-left: 0px;
 }
 
 div.bodywrapper {
     width: 1000px;
-    margin-left: 100px;
+    margin-left: 300px;
+}
+
+div.documentwrapper {
+    width: 1200px;
+}
+
+div.document {
+    width: 1200px;
 }
 
 div.body {
-    max-width: 1200px;
+    width: 1200px;
 }
