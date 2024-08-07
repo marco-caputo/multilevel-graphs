@@ -1,32 +1,36 @@
 /* Adjust the body */
 div.body {
-    width: 1200px;
+    width: 1210px;
     padding: 20px;
 }
 
+div.sphinxsidebar {
+    width: 310px;
+}
+
 div.sphinxsidebarwrapper {
-    width: 280px;
+    width: 290px;
     margin-left: 0px;
 }
 
 div.bodywrapper {
     width: 1000px;
-    margin-left: 300px;
+    margin-left: 310px;
 }
 
 div.documentwrapper {
-    width: 1200px;
+    width: 1210px;
 }
 
 div.document {
-    width: 1200px;
+    width: 1210px;
 }
 
 div.body {
-    width: 1200px;
+    width: 1210px;
 }
 
 div.footer {
-    width: 1200px;
+    width: 1210px;
     text-align: center;
 }
