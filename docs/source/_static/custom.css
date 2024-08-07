@@ -25,3 +25,8 @@ div.document {
 div.body {
     width: 1200px;
 }
+
+div.footer {
+    width: 1200px;
+    text-align: center;
+}
