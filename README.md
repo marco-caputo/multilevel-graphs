@@ -2,6 +2,7 @@
 
 [![Build Status](https://github.com/lorenzo-lupi/multilevel_graphs/actions/workflows/publish.yml/badge.svg)](https://github.com/lorenzo-lupi/multilevel_graphs/actions)
 [![TestPyPI version](https://img.shields.io/badge/test%20pypi-v0.1.0-blue)](https://test.pypi.org/project/multilevelgraphs/)
+[![Documentation Status](https://readthedocs.org/projects/multilevel-graphs/badge/?version=latest)](https://multilevel-graphs.readthedocs.io/en/latest/?badge=latest)
 
 ## Description
 
@@ -37,6 +38,13 @@ Open your terminal or command prompt and enter:
 ```
 
 This should print the version number of MultiLevelGraphs if the installation was successful.
+
+
+## Documentation
+Documentation is available at the following links:
+
+[multilevel-graphs.readthedocs.io](multilevel-graphs.readthedocs.io)\
+[multilevel-graphs.rtfd.io](multilevel-graphs.rtfd.io)
 
 Dependencies
 ------------
