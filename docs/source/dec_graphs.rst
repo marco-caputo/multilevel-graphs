@@ -13,6 +13,7 @@ Class: DecGraph
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: V, E
 
 Class: Supernode
 ------------------------------------------------
@@ -21,6 +22,7 @@ Class: Supernode
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: key, level, dec, component_sets, supernode, attr
 
 Class: Superedge
 ------------------------------------------------
@@ -29,6 +31,7 @@ Class: Superedge
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: head, tail, level, dec, attr
 
 Module: Algorithms
 ------------------------------------------------

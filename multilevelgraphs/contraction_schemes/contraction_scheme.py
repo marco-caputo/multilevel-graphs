@@ -361,7 +361,7 @@ class ContractionScheme(ABC):
         """
         Adds a supernode to the decontractible graph of this contraction scheme corresponding to the given set of
         component sets.
-        The supernode is added to the graph and the supernode table, and the quadruple is updated accordingly.
+        The supernode is added to the graph and the supernode table is updated accordingly along with the update quadruple.
 
         :param component_sets: the frozen set of component sets corresponding to the supernode
         :return: the added supernode
@@ -394,17 +394,25 @@ class ContractionScheme(ABC):
         old_supernodes: Dict[Supernode, Supernode] = dict()
         decontraction = self.dec_graph.complete_decontraction()
 
+        # Modified nodes are the nodes that have changed their component sets
         for node in self.component_sets_table.modified:
             c_sets_of_node = frozenset(self.component_sets_table[node])
 
+            # If set of component sets does not represent any existing supernode, we add a new supernode
             if c_sets_of_node not in self.supernode_table:
                 self._add_supernode(c_sets_of_node)
 
+            # The old supernode of the node is stored to update the edges later
             old_supernodes[node] = node.supernode
+            # The removal of the node from the old supernode is tracked
             self._deleted_subnodes.setdefault(node.supernode, set()).add(node)
 
+            # The node is assigned to the new supernode
             node.supernode = self.supernode_table[c_sets_of_node]
             node.supernode.dec.add_node(node)
+
+        # Edges at lower level are moved among superedges and supernodes according to the changes in the component
+        # sets table
 
         for b in self.component_sets_table.modified:
             for edge in decontraction.in_edges(b):
@@ -444,9 +452,11 @@ class ContractionScheme(ABC):
                     else:
                         self._add_edge_in_superedge(b.supernode.key, edge.head.supernode.key, edge)
 
+        # The set of nodes in each old supernode is updated
         for supernode, node_set in self._deleted_subnodes.items():
             for node in node_set:
                 supernode.dec.remove_node(node)
+            # The supernodes that have no longer sub-nodes are removed
             if not supernode.dec.nodes():
                 self._remove_supernode(supernode)
 

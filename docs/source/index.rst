@@ -10,7 +10,7 @@ obtained by gradual contractions of nodes and edges.
 
 A Multi-level graph is a data structure useful for describing structural features of large and sparse directed graphs
 by identifying meaningful topological patterns, such as strongly connected components, circuits and cliques.
-It provides operations for building multi-level graphs from directed graphs, and for extracting and analyzing
+It provides operations for building multilevel graphs from directed graphs, and for extracting and analyzing
 structural patterns at different levels of the hierarchy.
 
 .. toctree::
@@ -18,16 +18,18 @@ structural patterns at different levels of the hierarchy.
    :caption: User Guide
 
    installation
+   extension
    examples
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: API Reference
 
    multilevel_graphs
    contraction_schemes
    contraction_schemes_impl
    dec_graphs
+   io
 
 
 Indices and tables

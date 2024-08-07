@@ -8,7 +8,7 @@ def _default_node_label_func(supernode: Supernode) -> str:
     return str(supernode['label']) if 'label' in supernode.attr else str(supernode.key)
 
 
-def _default_node_color_func(supernode: Supernode) -> tuple[str, str, str, str]:
+def _default_node_color_func(supernode: Supernode) -> Tuple[str, str, str, str]:
     if 'color' in supernode.attr and isinstance(supernode['color'], Tuple) and len(supernode['color']) == 3 and \
             all((isinstance(c, int) and 0 <= c <= 255) for c in supernode['color']):
         return str(supernode['color'][0]), str(supernode['color'][1]), str(supernode['color'][2]), "1.0"
@@ -18,6 +18,7 @@ def _default_node_color_func(supernode: Supernode) -> tuple[str, str, str, str]:
         hashcode = hash(supernode.key)
     return str((hashcode & 0xFF0000) >> 16), str((hashcode & 0x00FF00) >> 8), str(hashcode & 0x0000FF), "1.0"
 
+
 def _default_node_size_func(supernode: Supernode) -> str:
     if 'size' in supernode.attr:
         return str(supernode['size'])
@@ -25,7 +26,7 @@ def _default_node_size_func(supernode: Supernode) -> str:
         return str(supernode.size() * 10)
 
 
-def _default_edge_color_func(edge: Superedge) -> tuple[str, str, str, str]:
+def _default_edge_color_func(edge: Superedge) -> Tuple[str, str, str, str]:
     if 'color' in edge.attr and isinstance(edge['color'], Tuple) and len(edge['color']) == 3 and \
             all((isinstance(c, int) and 0 <= c <= 255) for c in edge['color']):
         return str(edge['color'][0]), str(edge['color'][1]), str(edge['color'][2]), "1.0"
@@ -46,10 +47,10 @@ def _default_edge_thickness_func(edge: Superedge) -> str:
 def write_gexf(ml_graph: MultilevelGraph, file_path: str, description: str = None):
     """
     Write a GEXF file for the given MultilevelGraph in the specified file path.
-    The produced GEXF file will contain just the core information in order to retain the graph structure and
-    information, including nodes and edges attributes.
+    The produced GEXF file will contain just the core information, in order to retain the graph structure and
+    information including nodes and edges attributes.
 
-    For visualization purposes, use write_gexf_for_viz instead.
+    For visualization purposes, use :meth:`write_gexf_for_viz` instead.
 
     :param ml_graph: the MultilevelGraph to write
     :param file_path: the path of the file to write
@@ -83,8 +84,8 @@ def write_gexf_for_viz(ml_graph: MultilevelGraph, file_path: str, description: s
     More specifically, all the extra edges between children and supernodes will have their color set to the child color
     and will be made semi-transparent in the visualization to distinguish them from the edges between supernodes of the
     same level.
-    Furthermore, an extra boolean edge attribute 'same_level' will be added to distinguish between original and added
-    edges, having the value '1' (true) and '0' (false) respectively.
+    Furthermore, an extra boolean edge attribute `same_level` will be added to distinguish between original and added
+    edges, having the value `1` (true) and `0` (false) respectively.
 
     The visualization attributes can be customized by passing the appropriate functions as parameters.
 
@@ -92,15 +93,15 @@ def write_gexf_for_viz(ml_graph: MultilevelGraph, file_path: str, description: s
     :param file_path: the path of the file to write
     :param description: a description of the graph to add in the metadata of the GEXF file
     :param node_label_func: a function that takes a Supernode and returns the label for the node. The default function
-    returns the key of the supernode if a 'label' custom attribute is not present.
+        returns the key of the supernode if a 'label' custom attribute is not present.
     :param node_color_func: a function that takes a Supernode and returns the color for the node. The default function
-    returns a color based on the hash of the supernode key if a 'color' custom attribute is not present.
+        returns a color based on the hash of the supernode key if a 'color' custom attribute is not present.
     :param node_size_func: a function that takes a Supernode and returns the size for the node. The default function
-    returns the size of the supernode multiplied by 10 if a 'size' custom attribute is not present.
+        returns the size of the supernode multiplied by 10 if a 'size' custom attribute is not present.
     :param edge_color_func: a function that takes a Superedge and returns the color for the edge. The default function
-    returns a color based on the hash of the supernode key if a 'color' custom attribute is not present.
+        returns a color based on the hash of the supernode key if a 'color' custom attribute is not present.
     :param edge_thickness_func: a function that takes a Superedge and returns the thickness for the edge. The default
-    function returns the size of the edge if a 'thickness' custom attribute is not present.
+        function returns the size of the edge if a 'thickness' custom attribute is not present.
     """
     writer = GEXFWriter(ml_graph, description=description)
     for supernode in ml_graph.get_graph(ml_graph.height(), deepcopy=False).nodes():
@@ -275,7 +276,7 @@ class GEXFWriter:
         return node
 
     def add_edge(self, edge_id: str, source_id: str, target_id: str,
-                 color: tuple[str, str, str, str] = None,
+                 color: Tuple[str, str, str, str] = None,
                  thickness: str = None,
                  attributes: Dict[str, Any] = None):
 

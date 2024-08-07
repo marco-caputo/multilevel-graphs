@@ -1,11 +1,11 @@
 from typing import Callable, Set, Dict, Any, List, Optional, Generator, Iterator, Tuple
 import networkx as nx
 
-from multilevelgraphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
+from multilevelgraphs.contraction_schemes import DecontractionEdgeBasedContractionScheme, CompTable, ComponentSet
 from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge, simple_cycles
 
 
-class CyclesContractionScheme(EdgeBasedContractionScheme):
+class CyclesContractionScheme(DecontractionEdgeBasedContractionScheme):
     """
     A contraction scheme based on the contraction function by simple cycles.
     According to this scheme, two nodes are in the same component set if they are part of the same simple cycle among
@@ -27,7 +27,6 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         boolean value that determines whether only maximal simple cycles are considered
     """
     _maximal: bool
-    _decontracted_graph: Optional[DecGraph]
 
     def __init__(self,
                  supernode_attr_function: Callable[[Supernode], Dict[str, Any]] = None,
@@ -48,7 +47,6 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         """
         super().__init__(supernode_attr_function, superedge_attr_function, c_set_attr_function)
         self._maximal = maximal
-        self._decontracted_graph = None  # Used to store the current complete decontraction during subsequent updates
 
     def contraction_name(self) -> str:
         return "simple" + ("_maximal" if self._maximal else "") + "_cycles"
@@ -94,10 +92,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         else:
             self._add_edge_in_superedge(u.key, v.key, edge)
 
-        if not self._decontracted_graph:
-            self._decontracted_graph = self.dec_graph.complete_decontraction()
-        else:
-            self._decontracted_graph.add_edge(Superedge(edge.tail, edge.head))
+        self._add_edge_to_decontraction(edge)
 
         # Find all the simple cycles that contain the new edge and track them in the component sets table
         for new_circuit in self.cycle_search(self._decontracted_graph.graph(), [edge.tail.key, edge.head.key]):
@@ -114,10 +109,7 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
         else:
             self._remove_edge_in_superedge(u.key, v.key, edge)
 
-        if not self._decontracted_graph:
-            self._decontracted_graph = self.dec_graph.complete_decontraction()
-        else:
-            self._decontracted_graph.remove_edge(Superedge(edge.tail, edge.head))
+        self._remove_edge_from_decontraction(edge)
 
         c_sets_intersection = \
             set.intersection(self.component_sets_table[edge.tail], self.component_sets_table[edge.head])
@@ -150,24 +142,6 @@ class CyclesContractionScheme(EdgeBasedContractionScheme):
                                                           maximal=True)
         # Some nodes may no longer be part of any cycle
         self.component_sets_table.add_singletons(self._get_component_set_id)
-
-    # The following methods are overridden to update the decontracted graph used during the other update
-    # procedures of the scheme.
-    def _update_added_node(self, node: Supernode):
-        super()._update_added_node(node)
-
-        if not self._decontracted_graph:
-            self._decontracted_graph = self.dec_graph.complete_decontraction()
-        else:
-            self._decontracted_graph.add_node(node)
-
-    def _update_removed_node(self, node: Supernode):
-        super()._update_removed_node(node)
-
-        if not self._decontracted_graph:
-            self._decontracted_graph = self.dec_graph.complete_decontraction()
-        else:
-            self._decontracted_graph.remove_node(node)
 
     @staticmethod
     def cycle_search(graph: nx.Graph, path: list) -> Generator:

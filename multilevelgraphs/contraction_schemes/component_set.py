@@ -95,6 +95,15 @@ class ComponentSet:
     def __setitem__(self, key: str, value: Any):
         self._attr[key] = value
 
+    def __or__(self, other: Union[Set[Supernode], 'ComponentSet']) -> Set[Supernode]:
+        if isinstance(other, ComponentSet):
+            return self._supernodes | other._supernodes
+        else:
+            return self._supernodes | other
+
+    def __ror__(self, other: Union[Set[Supernode], 'ComponentSet']) -> Set[Supernode]:
+        return self.__or__(other)
+
     def __sub__(self, other: Union[Set[Supernode], 'ComponentSet']) -> Set[Supernode]:
         if isinstance(other, ComponentSet):
             return self._supernodes - other._supernodes

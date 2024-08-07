@@ -23,7 +23,7 @@ copyright = '2024, M. Caputo, L. Lupi'
 author = 'M. Caputo, L. Lupi'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0-alpha.1'
+release = '0.1.0-alpha.5'
 
 # -- General configuration ---------------------------------------------------
 
@@ -32,9 +32,12 @@ release = '0.1.0-alpha.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode'
 ]
+
+autodoc_typehints = 'description' # Options: 'none', 'description', 'both'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

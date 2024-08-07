@@ -109,7 +109,6 @@ class CliquesContractionScheme(EdgeBasedContractionScheme):
     def _update_removed_edge(self, edge: Superedge):
         u = edge.tail.supernode
         v = edge.head.supernode
-        flag_remove = False
 
         # The edge is removed, and the removal flag is set to True if the two nodes edge.tail and edge.head are not
         # adjacent anymore, according to the reciprocal attribute.

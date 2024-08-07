@@ -8,8 +8,8 @@ from multilevelgraphs.contraction_schemes import ContractionScheme, CompTable, C
 class EdgeBasedContractionScheme(ContractionScheme, ABC):
     """
     An abstract class for edge-based contraction schemes.
-    An EdgeBasedContractionScheme is a ContractionScheme where the presence of an edge between two supernodes is
-    a necessary condition for them to be part of the same component set.
+    An EdgeBasedContractionScheme is a ContractionScheme where two supernodes being part of the same connected component
+    is a necessary condition for them to be part of the same component set.
     In other words, in an edge-based contraction scheme, if a single node has no incident edges, it must reside in
     a singleton component set.
     Examples of edge-based contraction schemes are the SCCs, Cycles and Cliques contraction schemes, where
@@ -52,7 +52,7 @@ class EdgeBasedContractionScheme(ContractionScheme, ABC):
         node.supernode = dummy_supernode
         self.update_quadruple.add_v_plus(dummy_supernode)
         self.dec_graph.add_node(dummy_supernode)
-        # The supernode is not intentionally added to the supernode_table, as it is a dummy node, and it should not be
+        # The supernode is intentionally not added to the supernode_table, as it is a dummy node, and it should not be
         # maintained during the _update_graph procedure.
 
     def _update_removed_node(self, node: Supernode):

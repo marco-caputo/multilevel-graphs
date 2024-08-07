@@ -6,22 +6,6 @@ from multilevelgraphs.contraction_schemes import UpdateQuadruple
 
 class SccsContractionSchemeTest(unittest.TestCase):
 
-    @staticmethod
-    def _sample_dec_graph() -> DecGraph:
-        graph = DecGraph()
-        graph.add_node(Supernode(1, level=0, weight=30))
-        graph.add_node(Supernode(2, level=0, weight=20))
-        graph.add_node(Supernode(3, level=0, weight=10))
-        graph.add_node(Supernode(4, level=0, weight=15))
-        graph.add_node(Supernode(5, level=0, weight=15))
-        graph.add_edge(Superedge(graph.V[1], graph.V[2], weight=5))
-        graph.add_edge(Superedge(graph.V[2], graph.V[3], weight=10))
-        graph.add_edge(Superedge(graph.V[3], graph.V[1], weight=20))
-        graph.add_edge(Superedge(graph.V[1], graph.V[4], weight=10))
-        graph.add_edge(Superedge(graph.V[4], graph.V[5], weight=5))
-        graph.add_edge(Superedge(graph.V[5], graph.V[4], weight=10))
-        return graph
-
     def test_contract(self):
         sample_graph = self._sample_dec_graph()
         contracted_graph = SCCsContractionScheme().contract(sample_graph)
@@ -317,6 +301,22 @@ class SccsContractionSchemeTest(unittest.TestCase):
             'weight'])
         self.assertEqual({30}, {c_set['weight'] for c_set in scheme.component_sets_table[sample_graph.V[5]]})
         self.assertEqual({60}, {c_set['weight'] for c_set in sample_graph.V[1].supernode.component_sets})
+
+    @staticmethod
+    def _sample_dec_graph() -> DecGraph:
+        graph = DecGraph()
+        graph.add_node(Supernode(1, level=0, weight=30))
+        graph.add_node(Supernode(2, level=0, weight=20))
+        graph.add_node(Supernode(3, level=0, weight=10))
+        graph.add_node(Supernode(4, level=0, weight=15))
+        graph.add_node(Supernode(5, level=0, weight=15))
+        graph.add_edge(Superedge(graph.V[1], graph.V[2], weight=5))
+        graph.add_edge(Superedge(graph.V[2], graph.V[3], weight=10))
+        graph.add_edge(Superedge(graph.V[3], graph.V[1], weight=20))
+        graph.add_edge(Superedge(graph.V[1], graph.V[4], weight=10))
+        graph.add_edge(Superedge(graph.V[4], graph.V[5], weight=5))
+        graph.add_edge(Superedge(graph.V[5], graph.V[4], weight=10))
+        return graph
 
 if __name__ == '__main__':
     unittest.main()

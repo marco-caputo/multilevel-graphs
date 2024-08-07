@@ -60,7 +60,7 @@ Support
 -------
 
 If you encounter any issues or have questions, please check the documentation or raise an issue on our GitHub page:
-https://github.com/lorenzo-lupi/multilevel_graphs.git
+https://github.com/marco-caputo/multilevel_graphs.git
 
 License
 -------

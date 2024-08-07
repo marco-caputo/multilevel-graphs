@@ -12,6 +12,11 @@ class CompTable:
 
     This data structure can be used as a dictionary where the keys are the nodes and the values are the sets of
     component set of nodes to which they belong.
+
+    Attributes
+    ----------
+    modified : Set[Supernode]
+        the set of nodes whose component sets have been modified in the rows of this table since the last update
     """
     modified: Set[Supernode]
     _table: Dict[Supernode, Set[ComponentSet]]
@@ -41,7 +46,9 @@ class CompTable:
         Adds the given component set to the table tracked sets.
         The method behaves differently depending on the maximal parameter:
 
-        - When maximal is set to **False**: if the given component set is already in the table, nothing happens.
+        - When maximal is set to **False**: if the given component set is already in the table according to its key,
+          nothing happens. Note that component sets with the same set of nodes and different keys are considered distinct
+          and no distinct component sets with different set of nodes should be added to the same table.
           Rows of the table that are modified due to the addition of the given component set are tracked in the
           modified set.
 
@@ -63,7 +70,9 @@ class CompTable:
     def add_non_maximal_set(self, c_set: ComponentSet):
         """
         Adds the given component set to the table tracked sets.
-        If the given component set is already in the table, nothing happens.
+        If the given component set is already in the table according to its key, nothing happens.
+        Note that component sets with the same set of nodes and different keys are considered distinct
+        and no distinct component sets with different set of nodes should be added to the same table.
         Rows of the table that are modified due to the addition of the given component set are tracked in the
         modified set.
 

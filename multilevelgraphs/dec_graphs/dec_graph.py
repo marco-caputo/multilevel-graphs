@@ -25,11 +25,12 @@ class DecGraph:
     The actual supernode and superedge objects are stored in the dictionaries V and E of the decontractible graph,
     respectively, that map the keys to the corresponding objects.
 
-    Attributes:
-        V: Dict[Any, 'Supernode']
-            A dictionary that maps the keys of supernodes to the supernodes in the decontractible graph.
-        E: Dict[Any, 'Superedge']
-            A dictionary that maps the keys of superedges to the superedges in the decontractible graph.
+    Attributes
+    ----------
+    V : Dict[Any, Supernode]
+        A dictionary that maps the keys of supernodes to the supernodes in the decontractible graph.
+    E : Dict[Any, Superedge]
+        A dictionary that maps the keys of superedges to the superedges in the decontractible graph.
 
     See also:
         :class:`Supernode`, :class:`Superedge`
@@ -195,8 +196,7 @@ class DecGraph:
         value of the attr parameter.
 
         :param ref: If True, the returned graph is a view of the decontractible graph.
-        :param attr: If True, the returned graph nodes have the same attributes as in the original
-        decontractible graph.
+        :param attr: If True, the returned graph nodes have the same attributes as in the original decontractible graph.
         :return: the corresponding NetworkX directed graph
         """
         if ref:
@@ -421,20 +421,21 @@ class Supernode:
     A supernode can be considered as an independent element which brings some information about the
     context where it is included. This information is stored in the attributes of the supernode.
 
-    Attributes:
-        key: Any
-            the unique identifier of the supernode in the decontractible graph
-        level: Optional[int]
-            the level this supernode belongs to in a multilevel graph, if any
-        dec: DecGraph
-            the decontractible graph represented by this supernode
-        component_sets: FrozenSet
-            the set of component sets that this supernode represents in the contraction scheme it was created from,
-            if any
-        supernode: Optional[Supernode]
-            the supernode that this supernode is contracted into, if any
-        attr: Dict[str, Any]
-            a dictionary of custom attributes and values to be added to the supernode
+    Attributes
+    ----------
+    key: Any
+        the unique identifier of the supernode in the decontractible graph
+    level: Optional[int]
+        the level this supernode belongs to in a multilevel graph, if any
+    dec: DecGraph
+        the decontractible graph represented by this supernode
+    component_sets: FrozenSet
+        the set of component sets that this supernode represents in the contraction scheme it was created from,
+        if any
+    supernode: Optional[Supernode]
+        the supernode that this supernode is contracted into, if any
+    attr: Dict[str, Any]
+        a dictionary of custom attributes and values to be added to the supernode
 
     Examples
     --------
@@ -450,6 +451,8 @@ class Supernode:
 
         print(supernode.level) # 0
         print(supernode['weight']) # 10
+        supernode['weight'] = 20
+        print(supernode['weight']) # 20
     """
 
     __slots__ = ('key', 'level', 'dec', 'component_sets', 'supernode', 'attr')
@@ -464,8 +467,8 @@ class Supernode:
         Initializes a supernode.
 
         :param key: an immutable value representing the key label of the supernode. It is used to identify the
-        supernode in the decontractible graph and should be unique in the decontractible graph where the
-        supernode resides.
+            supernode in the decontractible graph and should be unique in the decontractible graph where the
+            supernode resides.
         :param level: the level this supernode belongs to in a multilevel graph, if any
         :param dec: the decontractible graph represented by this supernode
         :param supernode: the supernode that this supernode into
@@ -614,20 +617,21 @@ class Superedge:
     A superedge is an edge of a decontractible graph that represents a set of superedges between the supernodes
     in the decontraction of the tail and the head of the superedge.
 
-    Attributes:
-        tail: Supernode
-            the supernode that is the tail of the superedge
-        head: Supernode
-            the supernode that is the head of the superedge
-        level: Optional[int]
-            the level this superedge belongs to in a multilevel graph, if any
-        dec: Set[Superedge]
-            the set of superedges represented by this superedge
-        attr: Dict[str, Any]
-            a dictionary of custom attributes and values to be added to the superedge
+    Attributes
+    ----------
+    tail: Supernode
+        the supernode that is the tail of the superedge
+    head: Supernode
+        the supernode that is the head of the superedge
+    level: Optional[int]
+        the level this superedge belongs to in a multilevel graph, if any
+    dec: Set[Superedge]
+        the set of superedges represented by this superedge
+    attr: Dict[str, Any]
+        a dictionary of custom attributes and values to be added to the superedge
 
-    Examples:
-    ---------
+    Examples
+    --------
     A superedge can be created indicating the reference to the tail and head supernodes objects and any other
     optional attribute, that are typically automatically initialized when the supernode is created by structures
     like :class:`MultiLevelGraph`.
@@ -643,6 +647,8 @@ class Superedge:
 
         print(superedge.level) # 0
         print(superedge['weight']) # 10
+        superedge['weight'] = 20
+        print(superedge['weight']) # 20
     """
     __slots__ = ('tail', 'head', 'level', 'dec', 'attr')
 

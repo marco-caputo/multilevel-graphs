@@ -1,4 +1,4 @@
-Examples
+Usage Examples
 ===================================
 
 Here are some examples of how to use the core functionalities of the library.
