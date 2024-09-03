@@ -43,7 +43,7 @@ This should print the version number of MultiLevelGraphs if the installation was
 ## Documentation
 Documentation is available at the following link:
 
-[https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html](https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html)
+[https://multilevel-graphs.readthedocs.io/en/latest/](https://multilevel-graphs.readthedocs.io/en/latest/)
 
 Dependencies
 ------------
