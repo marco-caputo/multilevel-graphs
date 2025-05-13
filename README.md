@@ -24,7 +24,7 @@ Before installing MultiLevelGraphs, ensure that you have the following prerequis
 You can install MultiLevelGraphs using pip. Open your terminal or command prompt and run the following command:
 
 ```bash
-    pip install --index-url https://test.pypi.org/simple/ multilevelgraphs
+    pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ multilevelgraphs
 ```
 
 To verify that the library has been installed correctly, you can try importing it in a Python shell or script.
@@ -49,9 +49,5 @@ Documentation is available at the following link:
 Dependencies
 ------------
 
-MultiLevelGraphs has a few dependencies which should be installed automatically when you install the library.
-However, for reference, here are the main dependencies:
-
-- NetworkX
-- typing
-- abc
+MultiLevelGraphs has a dependency on NetworkX library.
+This should be installed automatically when you install MultiLevelGraphs using the command above.
