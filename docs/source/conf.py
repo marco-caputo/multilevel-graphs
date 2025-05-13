@@ -23,7 +23,7 @@ copyright = '2024, M. Caputo, L. Lupi'
 author = 'M. Caputo, L. Lupi'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0-alpha.5'
+release = '0.1.0a6'
 
 # -- General configuration ---------------------------------------------------
 
