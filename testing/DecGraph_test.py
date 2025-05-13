@@ -1,5 +1,5 @@
 import unittest
-from src.multilevelgraphs import DecGraph, Supernode, Superedge
+from multilevelgraphs import DecGraph, Supernode, Superedge
 
 
 class DecGraphTest(unittest.TestCase):

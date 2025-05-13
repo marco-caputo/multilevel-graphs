@@ -1,7 +1,7 @@
 import networkx as nx
 from typing import List, Optional, Any, Tuple, Set
-from src.multilevelgraphs import DecGraph, Supernode, Superedge, ContractionScheme
-from src.multilevelgraphs.contraction_schemes import UpdateQuadruple, ComponentSet
+from multilevelgraphs import DecGraph, Supernode, Superedge, ContractionScheme
+from multilevelgraphs.contraction_schemes import UpdateQuadruple, ComponentSet
 
 
 class MultilevelGraph:

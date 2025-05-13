@@ -1,6 +1,6 @@
 import unittest
 import networkx as nx
-from src.multilevelgraphs import MultilevelGraph, DecGraph, SCCsContractionScheme, CliquesContractionScheme, \
+from multilevelgraphs import MultilevelGraph, DecGraph, SCCsContractionScheme, CliquesContractionScheme, \
     CyclesContractionScheme
 
 

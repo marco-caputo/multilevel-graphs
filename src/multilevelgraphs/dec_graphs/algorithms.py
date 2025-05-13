@@ -1,6 +1,6 @@
 import networkx as nx
 from typing import Set, FrozenSet, Tuple, Generator
-from src.multilevelgraphs.dec_graphs import DecGraph, Supernode
+from multilevelgraphs.dec_graphs import DecGraph, Supernode
 
 
 def maximal_cliques(dec_graph: DecGraph, reciprocal: bool = False) -> Generator[Set[Supernode], None, None]:

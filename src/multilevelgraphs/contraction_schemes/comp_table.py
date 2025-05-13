@@ -1,7 +1,7 @@
 from typing import Iterable, Set, Dict, Callable, Generator
 
-from src.multilevelgraphs.contraction_schemes import ComponentSet
-from src.multilevelgraphs.dec_graphs import Supernode
+from multilevelgraphs.contraction_schemes import ComponentSet
+from multilevelgraphs.dec_graphs import Supernode
 
 
 class CompTable:

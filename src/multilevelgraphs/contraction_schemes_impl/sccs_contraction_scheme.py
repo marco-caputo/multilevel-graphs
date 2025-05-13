@@ -1,9 +1,9 @@
 from typing import Callable, Dict, Any, Set
 import networkx as nx
 
-from src.multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
-from src.multilevelgraphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
-from src.multilevelgraphs.dec_graphs.algorithms import strongly_connected_components
+from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
+from multilevelgraphs.contraction_schemes import EdgeBasedContractionScheme, CompTable, ComponentSet
+from multilevelgraphs.dec_graphs.algorithms import strongly_connected_components
 
 
 class SCCsContractionScheme(EdgeBasedContractionScheme):

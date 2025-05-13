@@ -3,8 +3,8 @@ from typing import Callable, Dict, Any, Set
 
 import networkx as nx
 
-from src.multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
-from src.multilevelgraphs.contraction_schemes import CompTable, ComponentSet, ContractionScheme
+from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
+from multilevelgraphs.contraction_schemes import CompTable, ComponentSet, ContractionScheme
 
 
 class ContractionSchemeTest(unittest.TestCase):

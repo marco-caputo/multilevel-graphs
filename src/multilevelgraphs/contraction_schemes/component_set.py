@@ -1,5 +1,5 @@
 from typing import Any, Set, Dict, Iterable, Union
-from src.multilevelgraphs.dec_graphs import Supernode
+from multilevelgraphs.dec_graphs import Supernode
 
 
 class ComponentSet:

@@ -1,7 +1,7 @@
 import unittest
 
 from multilevelgraphs import DecGraph, Supernode, Superedge, SCCsContractionScheme
-from src.multilevelgraphs.contraction_schemes import UpdateQuadruple
+from multilevelgraphs.contraction_schemes import UpdateQuadruple
 
 
 class SccsContractionSchemeTest(unittest.TestCase):
