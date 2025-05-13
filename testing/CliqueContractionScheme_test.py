@@ -1,7 +1,7 @@
 import unittest
 
 from multilevelgraphs import DecGraph, Supernode, Superedge, CliquesContractionScheme
-from multilevelgraphs.contraction_schemes import UpdateQuadruple
+from src.multilevelgraphs.contraction_schemes import UpdateQuadruple
 
 
 class CliqueContractionSchemeTest(unittest.TestCase):

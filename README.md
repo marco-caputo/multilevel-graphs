@@ -32,7 +32,8 @@ Open your terminal or command prompt and enter:
 
 ```python
 
-    import multilevelgraphs
+
+from src import multilevelgraphs
     
     print(multilevelgraphs.__version__)
 ```

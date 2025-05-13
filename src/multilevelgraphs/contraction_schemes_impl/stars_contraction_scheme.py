@@ -1,6 +1,6 @@
 from typing import Callable, Set, Dict, Any, List, Optional, Tuple
-from multilevelgraphs.contraction_schemes import DecontractionEdgeBasedContractionScheme, ComponentSet, CompTable
-from multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
+from src.multilevelgraphs.contraction_schemes import DecontractionEdgeBasedContractionScheme, ComponentSet, CompTable
+from src.multilevelgraphs.dec_graphs import DecGraph, Supernode, Superedge
 
 
 class StarsContractionScheme(DecontractionEdgeBasedContractionScheme):

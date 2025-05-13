@@ -1,6 +1,6 @@
 from typing import Iterable, Set
 
-from multilevelgraphs.dec_graphs import Supernode, Superedge
+from src.multilevelgraphs.dec_graphs import Supernode, Superedge
 
 
 class UpdateQuadruple:
