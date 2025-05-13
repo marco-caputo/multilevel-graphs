@@ -4,7 +4,7 @@ Package: contraction\_schemes
 Abstract Class: ContractionScheme
 ----------------------------------
 
-.. autoclass:: src.multilevelgraphs.contraction_schemes.contraction_scheme.ContractionScheme
+.. autoclass:: multilevelgraphs.contraction_schemes.contraction_scheme.ContractionScheme
    :members:
    :undoc-members:
    :private-members: _update_added_node, _update_removed_node, _update_added_edge, _update_removed_edge, _update_graph, _add_edge_in_superedge, _remove_edge_in_superedge, _make_dec_graph
@@ -14,7 +14,7 @@ Abstract Class: ContractionScheme
 Abstract Class: EdgeBasedContractionScheme
 ------------------------------------------
 
-.. autoclass:: src.multilevelgraphs.contraction_schemes.edge_based_contraction_scheme.EdgeBasedContractionScheme
+.. autoclass:: multilevelgraphs.contraction_schemes.edge_based_contraction_scheme.EdgeBasedContractionScheme
    :members:
    :undoc-members:
    :show-inheritance:
@@ -22,7 +22,7 @@ Abstract Class: EdgeBasedContractionScheme
 Abstract Class: DecontractionEdgeBasedContractionScheme
 -------------------------------------------------------
 
-.. autoclass:: src.multilevelgraphs.contraction_schemes.decontraction_edge_based_contraction_scheme.DecontractionEdgeBasedContractionScheme
+.. autoclass:: multilevelgraphs.contraction_schemes.decontraction_edge_based_contraction_scheme.DecontractionEdgeBasedContractionScheme
    :members:
    :undoc-members:
    :show-inheritance:
@@ -30,7 +30,7 @@ Abstract Class: DecontractionEdgeBasedContractionScheme
 Class: CompTable
 ----------------
 
-.. autoclass:: src.multilevelgraphs.contraction_schemes.comp_table.CompTable
+.. autoclass:: multilevelgraphs.contraction_schemes.comp_table.CompTable
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ Class: CompTable
 Class: ComponentSet
 -------------------
 
-.. autoclass:: src.multilevelgraphs.contraction_schemes.component_set.ComponentSet
+.. autoclass:: multilevelgraphs.contraction_schemes.component_set.ComponentSet
    :members:
    :undoc-members:
    :exclude-members: key
@@ -48,7 +48,7 @@ Class: ComponentSet
 Class: UpdateQuadruple
 ----------------------
 
-.. autoclass:: src.multilevelgraphs.contraction_schemes.update_quadruple.UpdateQuadruple
+.. autoclass:: multilevelgraphs.contraction_schemes.update_quadruple.UpdateQuadruple
    :members:
    :undoc-members:
    :show-inheritance:

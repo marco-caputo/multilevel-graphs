@@ -7,7 +7,7 @@ In this package are collected the modules that are used to read and write multil
 Module: GEXF
 ------------------------------------------------
 
-.. automodule:: src.multilevelgraphs.io.GEXF
+.. automodule:: multilevelgraphs.io.GEXF
    :members:
    :undoc-members:
    :show-inheritance:

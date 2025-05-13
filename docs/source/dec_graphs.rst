@@ -9,7 +9,7 @@ called supernodes and superedges, respectively, and some algorithms to work with
 Class: DecGraph
 ------------------------------------------------
 
-.. autoclass:: src.multilevelgraphs.dec_graphs.dec_graph.DecGraph
+.. autoclass:: multilevelgraphs.dec_graphs.dec_graph.DecGraph
    :members:
    :undoc-members:
    :show-inheritance:
@@ -18,7 +18,7 @@ Class: DecGraph
 Class: Supernode
 ------------------------------------------------
 
-.. autoclass:: src.multilevelgraphs.dec_graphs.dec_graph.Supernode
+.. autoclass:: multilevelgraphs.dec_graphs.dec_graph.Supernode
    :members:
    :undoc-members:
    :show-inheritance:
@@ -27,7 +27,7 @@ Class: Supernode
 Class: Superedge
 ------------------------------------------------
 
-.. autoclass:: src.multilevelgraphs.dec_graphs.dec_graph.Superedge
+.. autoclass:: multilevelgraphs.dec_graphs.dec_graph.Superedge
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ Class: Superedge
 Module: Algorithms
 ------------------------------------------------
 
-.. automodule:: src.multilevelgraphs.dec_graphs.algorithms
+.. automodule:: multilevelgraphs.dec_graphs.algorithms
    :members:
    :undoc-members:
    :show-inheritance:
