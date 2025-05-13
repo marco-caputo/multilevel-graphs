@@ -29,6 +29,9 @@ jobs:
         pip install setuptools wheel
         pip install twine
 
+    - name: Install build tool
+      run: pip install build
+
     - name: Build package
       run: python -m build
 
@@ -37,5 +40,4 @@ jobs:
         TWINE_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
       run: |
-        pip install twine
         twine upload --repository-url https://test.pypi.org/legacy/ dist/*
